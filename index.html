@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Center | Josh H.</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0e17;
+    --surface: #111827;
+    --surface-hover: #1a2332;
+    --border: #1f2937;
+    --border-accent: #2563eb;
+    --text: #e5e7eb;
+    --text-dim: #9ca3af;
+    --text-muted: #6b7280;
+    --blue: #3b82f6;
+    --blue-dim: #1e40af;
+    --green: #10b981;
+    --green-dim: #065f46;
+    --amber: #f59e0b;
+    --amber-dim: #78350f;
+    --purple: #8b5cf6;
+    --purple-dim: #4c1d95;
+    --red: #ef4444;
+    --cyan: #06b6d4;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    padding: 40px 24px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { color: var(--blue); }
+  .header-sub {
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+  }
+  .timestamp {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* Quick Stats Bar */
+  .stats-bar {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .stat-item {
+    flex: 1;
+    background: var(--surface);
+    padding: 16px 20px;
+    text-align: center;
+  }
+  .stat-item:first-child { border-radius: 12px 0 0 12px; }
+  .stat-item:last-child { border-radius: 0 12px 12px 0; }
+  .stat-num {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--blue);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  /* Main Grid */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    padding-left: 4px;
+  }
+
+  /* Project Cards */
+  .projects {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.15s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+  }
+  .card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .card-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+  .badge-active { background: var(--green-dim); color: var(--green); }
+  .badge-planning { background: var(--amber-dim); color: var(--amber); }
+  .badge-new { background: var(--purple-dim); color: var(--purple); }
+  .badge-done { background: rgba(107,114,128,0.2); color: var(--text-muted); }
+  .card-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .card-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .meta-item {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .meta-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-green { background: var(--green); }
+  .dot-amber { background: var(--amber); }
+  .dot-blue { background: var(--blue); }
+  .dot-purple { background: var(--purple); }
+  .card-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .card-link {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--blue);
+    text-decoration: none;
+    padding: 5px 12px;
+    border: 1px solid var(--blue-dim);
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .card-link:hover {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  /* Progress Bars */
+  .progress-row {
+    margin-bottom: 16px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .progress-pct {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  /* Checklist Section */
+  .checklist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .checklist-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .checklist-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .checklist-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .cl-item {
+    font-size: 13px;
+    padding: 6px 0;
+    color: var(--text-dim);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.4;
+  }
+  .cl-check {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    font-size: 10px;
+  }
+  .cl-check.done {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .cl-check.done::after { content: "\2713"; }
+  .cl-item.done { color: var(--text-muted); text-decoration: line-through; }
+
+  /* Playbook Cards */
+  .playbook-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .playbook-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .playbook-card:hover { border-color: var(--border-accent); }
+  .playbook-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .playbook-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .playbook-path {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: rgba(255,255,255,0.04);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  /* Score Cards */
+  .scores {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .score-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .score-value {
+    font-size: 36px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .score-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .score-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+  .score-green { color: var(--green); }
+  .score-amber { color: var(--amber); }
+  .score-blue { color: var(--blue); }
+
+  /* Footer */
+  .footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-text {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .footer-links {
+    display: flex;
+    gap: 16px;
+  }
+  .footer-link {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+  }
+  .footer-link:hover { color: var(--blue); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .projects { grid-template-columns: 1fr; }
+    .checklist-grid { grid-template-columns: 1fr; }
+    .scores { flex-direction: column; }
+    .playbook-row { flex-direction: column; }
+  }
+  @media (max-width: 600px) {
+    .stats-bar { flex-direction: column; gap: 1px; }
+    .stat-item { border-radius: 0; }
+    .stat-item:first-child { border-radius: 12px 12px 0 0; }
+    .stat-item:last-child { border-radius: 0 0 12px 12px; }
+    .header h1 { font-size: 22px; }
+    .header-top { flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1><span>//</span> Command Center</h1>
+    <span class="timestamp">Last updated: 2026-02-27</span>
+  </div>
+  <p class="header-sub">Projects, playbooks, optimization scores, and what's next.</p>
+</div>
+
+<div class="main">
+
+  <!-- Quick Stats -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num">1</div>
+      <div class="stat-label">Active Projects</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">12</div>
+      <div class="stat-label">Optimizations Done</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">4</div>
+      <div class="stat-label">AEO Pages</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Playbooks</div>
+    </div>
+  </div>
+
+  <!-- Performance Scores -->
+  <div class="section-label">Performance Scores</div>
+  <div class="scores">
+    <div class="score-card">
+      <div class="score-value score-green">88</div>
+      <div class="score-label">PageSpeed Mobile</div>
+      <div class="score-sub">Up from 84 (+4)</div>
+    </div>
+    <div class="score-card">
+      <div class="score-value score-green">96</div>
+      <div class="score-label">PageSpeed Desktop</div>
+      <div class="score-sub">Solid baseline</div>
+    </div>
+    <div class="score-card">
+      <div class="score-value score-green">100</div>
+      <div class="score-label">Accessibility</div>
+      <div class="score-sub">WCAG 2.1 AA compliant</div>
+    </div>
+    <div class="score-card">
+      <div class="score-value score-amber">SEO</div>
+      <div class="score-label">AEO Strategy</div>
+      <div class="score-sub">4 pages live, more planned</div>
+    </div>
+  </div>
+
+  <!-- Projects -->
+  <div class="section-label">Projects</div>
+  <div class="projects">
+
+    <!-- CTAX Partner Site -->
+    <div class="card">
+      <div class="card-accent" style="background: linear-gradient(90deg, var(--blue), var(--cyan));"></div>
+      <div class="card-header">
+        <div class="card-title">Community Tax Partner Site</div>
+        <span class="card-badge badge-active">Active</span>
+      </div>
+      <div class="card-desc">Enterprise partner program SPA — referral portal, dashboard, AI tools (Revenue Lab, Script Builder, Ad Maker), gamification, CE training, and marketing kit.</div>
+      <div class="card-meta">
+        <span class="meta-item"><span class="meta-dot dot-green"></span> 16 JS modules</span>
+        <span class="meta-item"><span class="meta-dot dot-blue"></span> 5 CSS files</span>
+        <span class="meta-item"><span class="meta-dot dot-amber"></span> SPA architecture</span>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Optimization plan</span>
+          <span class="progress-pct">100%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:100%; background: var(--green);"></div>
+        </div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">AEO content</span>
+          <span class="progress-pct">40%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:40%; background: var(--blue);"></div>
+        </div>
+      </div>
+      <div class="card-links">
+        <a class="card-link" href="#">Repo</a>
+        <a class="card-link" href="#">Live Site</a>
+        <a class="card-link" href="ctax-partner-site/optimization-plan.html">Optimization Log</a>
+        <a class="card-link" href="ctax-partner-site/aeo-status.html">AEO Status</a>
+      </div>
+    </div>
+
+    <!-- Mobile App -->
+    <div class="card">
+      <div class="card-accent" style="background: linear-gradient(90deg, var(--purple), var(--blue));"></div>
+      <div class="card-header">
+        <div class="card-title">Partner Portal Mobile App</div>
+        <span class="card-badge badge-planning">Evaluating</span>
+      </div>
+      <div class="card-desc">Mobile-first rebuild of the partner portal — referral submission, earnings tracking, KPI dashboard, push notifications. Evaluated current portal for app-readiness.</div>
+      <div class="card-meta">
+        <span class="meta-item"><span class="meta-dot dot-purple"></span> Needs architecture decision</span>
+        <span class="meta-item"><span class="meta-dot dot-amber"></span> PWA vs Native vs Hybrid</span>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Evaluation</span>
+          <span class="progress-pct">100%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:100%; background: var(--green);"></div>
+        </div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Implementation</span>
+          <span class="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:0%; background: var(--purple);"></div>
+        </div>
+      </div>
+      <div class="card-links">
+        <a class="card-link" href="ctax-partner-site/mobile-eval.html">Mobile Evaluation</a>
+      </div>
+    </div>
+
+    <!-- AEO Content -->
+    <div class="card">
+      <div class="card-accent" style="background: linear-gradient(90deg, var(--green), var(--cyan));"></div>
+      <div class="card-header">
+        <div class="card-title">AEO Content Pages</div>
+        <span class="card-badge badge-active">Active</span>
+      </div>
+      <div class="card-desc">Standalone Answer Engine Optimization pages — structured data, FAQ schemas, glossary, statistics, and how-to guides targeting AI citation.</div>
+      <div class="card-meta">
+        <span class="meta-item"><span class="meta-dot dot-green"></span> 4 pages live</span>
+        <span class="meta-item"><span class="meta-dot dot-blue"></span> Self-contained HTML</span>
+        <span class="meta-item"><span class="meta-dot dot-amber"></span> Domain-portable</span>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Phase 1 (content pages)</span>
+          <span class="progress-pct">100%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:100%; background: var(--green);"></div>
+        </div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Phase 2 (main site integration)</span>
+          <span class="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:0%; background: var(--cyan);"></div>
+        </div>
+      </div>
+      <div class="card-links">
+        <a class="card-link" href="ctax-partner-site/aeo/faq-expanded.html">FAQ (20 Q&A)</a>
+        <a class="card-link" href="ctax-partner-site/aeo/glossary.html">Glossary (16 terms)</a>
+        <a class="card-link" href="ctax-partner-site/aeo/statistics.html">Statistics</a>
+        <a class="card-link" href="ctax-partner-site/aeo/howto-referral.html">How-To Guide</a>
+      </div>
+    </div>
+
+    <!-- Placeholder: Future Project -->
+    <div class="card" style="border-style: dashed; opacity: 0.5;">
+      <div class="card-accent" style="background: var(--border);"></div>
+      <div class="card-header">
+        <div class="card-title" style="color: var(--text-muted);">Next Project</div>
+        <span class="card-badge badge-done">Upcoming</span>
+      </div>
+      <div class="card-desc" style="color: var(--text-muted);">Add your next project here. This dashboard grows with you.</div>
+      <div class="card-links">
+        <span class="card-link" style="opacity: 0.4; pointer-events: none;">Repo</span>
+        <span class="card-link" style="opacity: 0.4; pointer-events: none;">Live Site</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Checklists / What's Next -->
+  <div class="section-label">What's Next</div>
+  <div class="checklist-grid">
+
+    <div class="checklist-card">
+      <div class="checklist-title">
+        <span class="checklist-icon" style="background: var(--blue-dim); color: var(--blue);">S</span>
+        Site Optimizations
+      </div>
+      <div class="cl-item done"><span class="cl-check done"></span> Fix FAQ heading mismatches</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Fix how.html heading hierarchy</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Add lazy loading to images</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Add width/height to images</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Fix nav keyboard accessibility</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Add focus-visible styles</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Fix interactive div a11y</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Add ARIA to nav controls</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Add OG image meta tags</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Deep link support</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Alt text audit</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Semantic HTML review</div>
+    </div>
+
+    <div class="checklist-card">
+      <div class="checklist-title">
+        <span class="checklist-icon" style="background: var(--green-dim); color: var(--green);">A</span>
+        AEO Strategy
+      </div>
+      <div class="cl-item done"><span class="cl-check done"></span> Expanded FAQ (20 questions)</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Tax resolution glossary</div>
+      <div class="cl-item done"><span class="cl-check done"></span> IRS statistics page</div>
+      <div class="cl-item done"><span class="cl-check done"></span> How-to referral guide</div>
+      <div class="cl-item"><span class="cl-check"></span> Add JSON-LD to main SPA pages</div>
+      <div class="cl-item"><span class="cl-check"></span> Organization schema on index</div>
+      <div class="cl-item"><span class="cl-check"></span> Create dedicated OG image (1200x630)</div>
+      <div class="cl-item"><span class="cl-check"></span> Sitemap for AEO pages</div>
+      <div class="cl-item"><span class="cl-check"></span> Comparison page (vs competitors)</div>
+    </div>
+
+    <div class="checklist-card">
+      <div class="checklist-title">
+        <span class="checklist-icon" style="background: var(--purple-dim); color: var(--purple);">M</span>
+        Mobile App
+      </div>
+      <div class="cl-item done"><span class="cl-check done"></span> Evaluate current portal UX</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Document mobile CSS/breakpoints</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Audit touch targets</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Assess app-readiness</div>
+      <div class="cl-item"><span class="cl-check"></span> Choose architecture (PWA/Native/Hybrid)</div>
+      <div class="cl-item"><span class="cl-check"></span> Design mobile-first navigation</div>
+      <div class="cl-item"><span class="cl-check"></span> Build prototype</div>
+      <div class="cl-item"><span class="cl-check"></span> Offline support</div>
+      <div class="cl-item"><span class="cl-check"></span> Push notifications</div>
+    </div>
+
+  </div>
+
+  <!-- Playbooks -->
+  <div class="section-label">Playbooks</div>
+  <div class="playbook-row">
+    <div class="playbook-card">
+      <div class="playbook-name">Nightcrawler</div>
+      <div class="playbook-desc">Full autonomy build mode. Deep-dive development with continuous execution, no stopping for confirmation. For when Josh is away and work needs to ship.</div>
+      <div class="playbook-path">~/.claude/playbooks/nightcrawler.md</div>
+    </div>
+    <div class="playbook-card">
+      <div class="playbook-name">Page Speed Ninja</div>
+      <div class="playbook-desc">Systematic PageSpeed optimization. The four metrics, golden rules from real failures, optimal loading strategy, pre-flight checklist, and diagnostic protocol. Target: 90+ mobile.</div>
+      <div class="playbook-path">~/.claude/playbooks/page-speed-ninja.md</div>
+    </div>
+  </div>
+
+  <!-- Architecture Notes -->
+  <div class="section-label">Architecture Quick Reference</div>
+  <div class="checklist-grid">
+    <div class="checklist-card">
+      <div class="checklist-title">
+        <span class="checklist-icon" style="background: var(--blue-dim); color: var(--blue);">P</span>
+        Partner Site Stack
+      </div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--blue); background: var(--blue-dim); color: var(--blue);">i</span> Vanilla HTML/CSS/JS SPA</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--blue); background: var(--blue-dim); color: var(--blue);">i</span> showPage() toggles .page divs</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--blue); background: var(--blue-dim); color: var(--blue);">i</span> http-server on port 3000</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--blue); background: var(--blue-dim); color: var(--blue);">i</span> 16 JS modules, 5 CSS files</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--blue); background: var(--blue-dim); color: var(--blue);">i</span> Portal sidebar + section arch</div>
+    </div>
+
+    <div class="checklist-card">
+      <div class="checklist-title">
+        <span class="checklist-icon" style="background: var(--green-dim); color: var(--green);">C</span>
+        CSS Strategy
+      </div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--green); background: var(--green-dim); color: var(--green);">i</span> base.css + nav.css = sync</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--green); background: var(--green-dim); color: var(--green);">i</span> components/pages/dark = deferred</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--green); background: var(--green-dim); color: var(--green);">i</span> Inline critical CSS in head</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--green); background: var(--green-dim); color: var(--green);">i</span> CSS vars for theming</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--green); background: var(--green-dim); color: var(--green);">i</span> 768px / 480px breakpoints</div>
+    </div>
+
+    <div class="checklist-card">
+      <div class="checklist-title">
+        <span class="checklist-icon" style="background: var(--amber-dim); color: var(--amber);">A</span>
+        API Layer
+      </div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--amber); background: var(--amber-dim); color: var(--amber);">i</span> portal-api.js service layer</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--amber); background: var(--amber-dim); color: var(--amber);">i</span> In-memory cache with TTL</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--amber); background: var(--amber-dim); color: var(--amber);">i</span> WebSocket + auto-reconnect</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--amber); background: var(--amber-dim); color: var(--amber);">i</span> Webhook event handlers</div>
+      <div class="cl-item"><span class="cl-check" style="border-color: var(--amber); background: var(--amber-dim); color: var(--amber);">i</span> Falls back to demo mode</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span class="footer-text">Built with Claude Code</span>
+  <div class="footer-links">
+    <a class="footer-link" href="#">GitHub</a>
+    <a class="footer-link" href="ctax-partner-site/">Partner Site (local)</a>
+  </div>
+</div>
+
+</body>
+</html>
