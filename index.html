@@ -48,718 +48,151 @@
 
   /* ===== LOCK SCREEN ===== */
   #lock {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: #FDFCFA;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed; inset: 0; z-index: 9999; background: #FDFCFA;
+    display: flex; align-items: center; justify-content: center;
     transition: opacity 0.6s ease, transform 0.6s ease;
   }
-  #lock.unlocked {
-    opacity: 0;
-    transform: scale(1.02);
-    pointer-events: none;
-  }
-  .lock-bg {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 40%, rgba(217,119,6,0.04) 0%, transparent 60%);
-  }
-  .lock-inner {
-    position: relative;
-    text-align: center;
-    z-index: 1;
-  }
-  .lock-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 3px;
-    color: var(--text-tertiary);
-    margin-bottom: 56px;
-    text-transform: uppercase;
-  }
-  .lock-ring {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 44px;
-  }
-  .lock-ring::before {
-    content: '';
-    position: absolute;
-    inset: -16px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(217,119,6,0.06) 0%, transparent 70%);
-    animation: lockPulse 3s ease-in-out infinite;
-  }
-  @keyframes lockPulse {
-    0%, 100% { opacity: 0.3; transform: scale(0.96); }
-    50% { opacity: 1; transform: scale(1.04); }
-  }
-  .piece {
-    position: absolute;
-    width: 44px;
-    height: 44px;
-    background: #F0EBE3;
-    border: 1px solid var(--border);
-    opacity: 0.2;
-    transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1),
-                opacity 0.4s ease,
-                background 0.4s ease,
-                border-color 0.4s ease,
-                box-shadow 0.4s ease;
-  }
+  #lock.unlocked { opacity: 0; transform: scale(1.02); pointer-events: none; }
+  .lock-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 40%, rgba(217,119,6,0.04) 0%, transparent 60%); }
+  .lock-inner { position: relative; text-align: center; z-index: 1; }
+  .lock-label { font-size: 11px; font-weight: 600; letter-spacing: 3px; color: var(--text-tertiary); margin-bottom: 56px; text-transform: uppercase; }
+  .lock-ring { position: relative; width: 100px; height: 100px; margin: 0 auto 44px; }
+  .lock-ring::before { content: ''; position: absolute; inset: -16px; border-radius: 50%; background: radial-gradient(circle, rgba(217,119,6,0.06) 0%, transparent 70%); animation: lockPulse 3s ease-in-out infinite; }
+  @keyframes lockPulse { 0%, 100% { opacity: 0.3; transform: scale(0.96); } 50% { opacity: 1; transform: scale(1.04); } }
+  .piece { position: absolute; width: 44px; height: 44px; background: #F0EBE3; border: 1px solid var(--border); opacity: 0.2; transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease, background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
   .p1 { top: 0; left: 0; border-radius: 100% 6px 6px 6px; transform: translate(-30px, -30px); }
   .p2 { top: 0; right: 0; border-radius: 6px 100% 6px 6px; transform: translate(30px, -30px); }
   .p3 { bottom: 0; left: 0; border-radius: 6px 6px 6px 100%; transform: translate(-30px, 30px); }
   .p4 { bottom: 0; right: 0; border-radius: 6px 6px 100% 6px; transform: translate(30px, 30px); }
-  .piece.in {
-    transform: translate(0, 0);
-    opacity: 1;
-    border-color: var(--accent);
-  }
+  .piece.in { transform: translate(0, 0); opacity: 1; border-color: var(--accent); }
   .p1.in { background: #FDE68A; box-shadow: 0 0 16px rgba(217,119,6,0.15); }
   .p2.in { background: #FCD34D; box-shadow: 0 0 16px rgba(217,119,6,0.15); }
   .p3.in { background: #FBBF24; box-shadow: 0 0 16px rgba(217,119,6,0.15); }
   .p4.in { background: #F59E0B; box-shadow: 0 0 16px rgba(217,119,6,0.15); }
-  .piece.merge {
-    transition: transform 0.35s ease, box-shadow 0.35s ease;
-  }
-  .p1.merge { transform: translate(3px, 3px); }
-  .p2.merge { transform: translate(-3px, -3px); }
-  .p3.merge { transform: translate(3px, -3px); }
-  .p4.merge { transform: translate(-3px, 3px); }
-  .lock-ring.spin {
-    animation: lockSpin 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-  @keyframes lockSpin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(180deg); }
-  }
-  .lock-ring.glow .piece {
-    box-shadow: 0 0 30px rgba(217,119,6,0.3), 0 0 60px rgba(217,119,6,0.1);
-  }
-  .lock-dots {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 16px;
-  }
-  .ldot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    border: 1.5px solid var(--border);
-    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
-  }
-  .ldot.filled {
-    background: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 0 6px rgba(217,119,6,0.3);
-  }
-  .lock-hint {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-  }
-  @keyframes lockShake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-10px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-6px); }
-    80% { transform: translateX(4px); }
-  }
+  .piece.merge { transition: transform 0.35s ease, box-shadow 0.35s ease; }
+  .p1.merge { transform: translate(3px, 3px); } .p2.merge { transform: translate(-3px, -3px); }
+  .p3.merge { transform: translate(3px, -3px); } .p4.merge { transform: translate(-3px, 3px); }
+  .lock-ring.spin { animation: lockSpin 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+  @keyframes lockSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(180deg); } }
+  .lock-ring.glow .piece { box-shadow: 0 0 30px rgba(217,119,6,0.3), 0 0 60px rgba(217,119,6,0.1); }
+  .lock-dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+  .ldot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--border); transition: background 0.3s, border-color 0.3s, box-shadow 0.3s; }
+  .ldot.filled { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 6px rgba(217,119,6,0.3); }
+  .lock-hint { font-size: 11px; letter-spacing: 2px; color: var(--text-tertiary); text-transform: uppercase; }
+  @keyframes lockShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
   .lock-inner.shake { animation: lockShake 0.4s ease; }
 
   /* ===== LAYOUT ===== */
-  #dash {
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s;
-  }
-  #dash.revealed {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* Nav Bar */
-  .nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(249,246,241,0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav-inner {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-  }
-  .nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--text);
-    text-decoration: none;
-  }
-  .nav-logo {
-    width: 28px;
-    height: 28px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 14px;
-  }
-  .nav-links {
-    display: flex;
-    gap: 4px;
-  }
-  .nav-link {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-decoration: none;
-    padding: 6px 14px;
-    border-radius: var(--radius-xs);
-    transition: background 0.2s, color 0.2s;
-  }
-  .nav-link:hover { background: rgba(0,0,0,0.04); color: var(--text); }
-  .nav-link.active { background: rgba(0,0,0,0.06); color: var(--text); }
-  .nav-meta {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    font-family: var(--mono);
-  }
-
-  /* Header */
-  .header {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 48px 32px 0;
-  }
-  .header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .header-sub {
-    font-size: 15px;
-    color: var(--text-secondary);
-    margin-bottom: 32px;
-  }
+  #dash { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s; }
+  #dash.revealed { opacity: 1; transform: translateY(0); }
+  .nav { position: sticky; top: 0; z-index: 100; background: rgba(249,246,241,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav-inner { max-width: 1120px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: var(--text); text-decoration: none; }
+  .nav-logo { width: 28px; height: 28px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+  .nav-meta { font-size: 12px; color: var(--text-tertiary); font-family: var(--mono); }
+  .header { max-width: 1120px; margin: 0 auto; padding: 48px 32px 0; }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); margin-bottom: 6px; }
+  .header-sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 32px; }
+  .main { max-width: 1120px; margin: 0 auto; padding: 0 32px 80px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.3px; }
 
   /* Quick Stats */
-  .stats-bar {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 40px;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .stat-card:hover {
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-md);
-  }
-  .stat-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-  .stat-num {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text);
-    font-family: var(--mono);
-    letter-spacing: -1px;
-  }
-  .stat-delta {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--success);
-    margin-top: 4px;
-  }
-
-  /* Main */
-  .main {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 0 32px 80px;
-  }
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .section-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    letter-spacing: 0.3px;
-  }
-  .section-action {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--accent);
-    text-decoration: none;
-    padding: 4px 10px;
-    border-radius: var(--radius-xs);
-    transition: background 0.2s;
-  }
-  .section-action:hover { background: var(--accent-soft); }
+  .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 40px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s, box-shadow 0.2s; }
+  .stat-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); }
+  .stat-label { font-size: 12px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .stat-num { font-size: 28px; font-weight: 700; color: var(--text); font-family: var(--mono); letter-spacing: -1px; }
+  .stat-delta { font-size: 12px; font-weight: 500; color: var(--success); margin-top: 4px; }
 
   /* Project Cards */
-  .projects {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 48px;
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-    position: relative;
-  }
-  .card:hover {
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
-  }
-  .card-accent {
-    position: absolute;
-    top: 0;
-    left: 24px;
-    right: 24px;
-    height: 2px;
-    border-radius: 0 0 2px 2px;
-  }
-  .card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  .card-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  .badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 100px;
-    white-space: nowrap;
-  }
-  .badge-active {
-    background: var(--success-soft);
-    color: var(--success);
-  }
-  .badge-planning {
-    background: var(--warning-soft);
-    color: var(--warning);
-  }
-  .badge-idea {
-    background: var(--info-soft);
-    color: var(--info);
-  }
-  .badge-done {
-    background: #F3F0EB;
-    color: var(--text-tertiary);
-  }
-  .card-desc {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 16px;
-    line-height: 1.55;
-  }
-  .card-meta {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-  .meta-item {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .meta-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-  }
+  .projects { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 48px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; position: relative; }
+  .card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .card-accent { position: absolute; top: 0; left: 24px; right: 24px; height: 2px; border-radius: 0 0 2px 2px; }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .card-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; white-space: nowrap; }
+  .badge-active { background: var(--success-soft); color: var(--success); }
+  .badge-planning { background: var(--warning-soft); color: var(--warning); }
+  .card-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.55; }
+  .card-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .meta-item { font-size: 12px; color: var(--text-tertiary); display: flex; align-items: center; gap: 5px; }
+  .meta-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
   .dot-active { background: var(--success); }
   .dot-warning { background: var(--warning); }
   .dot-muted { background: var(--border-hover); }
-  .card-links {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .card-link {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--accent);
-    text-decoration: none;
-    padding: 5px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xs);
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
-  }
-  .card-link:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  .card-link-disabled {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    padding: 5px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xs);
-    opacity: 0.5;
-  }
 
-  /* Progress Bars */
+  /* Action Buttons */
+  .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .act-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: var(--radius-xs); border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; text-decoration: none; font-family: 'Inter', sans-serif; }
+  .act-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .act-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .act-btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .act-btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .act-btn-disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+
+  /* Copy Toast */
+  .copy-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: #fff; font-size: 13px; font-weight: 500; padding: 10px 20px; border-radius: var(--radius-sm); opacity: 0; transition: all 0.3s ease; z-index: 10000; pointer-events: none; }
+  .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Quick Access Bar */
+  .quick-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 40px; }
+  .quick-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+  .quick-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .quick-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .quick-icon svg { width: 20px; height: 20px; }
+  .quick-label { font-size: 14px; font-weight: 600; color: var(--text); }
+  .quick-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+
+  /* Path Copier */
+  .path-copy { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-tertiary); font-family: var(--mono); background: #F5F1EB; padding: 4px 10px; border-radius: var(--radius-xs); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+  .path-copy:hover { border-color: var(--accent); color: var(--accent); }
+  .path-copy svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  /* Progress Bar */
   .progress-row { margin-bottom: 14px; }
-  .progress-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-  }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
   .progress-label { font-size: 12px; color: var(--text-secondary); }
-  .progress-pct {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    font-family: var(--mono);
-  }
-  .progress-track {
-    height: 4px;
-    background: #EDE8E0;
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+  .progress-pct { font-size: 12px; color: var(--text-tertiary); font-family: var(--mono); }
+  .progress-track { height: 4px; background: #EDE8E0; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
   .fill-accent { background: linear-gradient(90deg, #FBBF24, #D97706); }
   .fill-success { background: var(--success); }
-  .fill-muted { background: var(--border-hover); }
-
-  /* Scores */
-  .scores {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 48px;
-  }
-  .score-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    text-align: center;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .score-card:hover {
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-md);
-  }
-  .score-value {
-    font-size: 32px;
-    font-weight: 700;
-    font-family: var(--mono);
-    color: var(--text);
-    letter-spacing: -1px;
-  }
-  .score-highlight { color: var(--accent); }
-  .score-perfect { color: var(--success); }
-  .score-label {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    margin-top: 4px;
-  }
-  .score-sub {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    margin-top: 6px;
-    opacity: 0.7;
-  }
-
-  /* Checklists */
-  .checklists {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 48px;
-  }
-  .cl-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    transition: border-color 0.2s;
-  }
-  .cl-card:hover { border-color: var(--border-hover); }
-  .cl-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .cl-icon {
-    width: 22px;
-    height: 22px;
-    border-radius: var(--radius-xs);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-  }
-  .cl-icon-accent { background: var(--accent-soft); color: var(--accent); }
-  .cl-icon-success { background: var(--success-soft); color: var(--success); }
-  .cl-icon-info { background: var(--info-soft); color: var(--info); }
-  .cl-icon-muted { background: #F0EBE3; color: var(--text-tertiary); }
-  .cl-item {
-    font-size: 13px;
-    padding: 5px 0;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    line-height: 1.45;
-  }
-  .cl-check {
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 2px;
-    font-size: 10px;
-    color: transparent;
-    transition: all 0.2s;
-  }
-  .cl-check.done {
-    background: var(--accent-soft);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .cl-check.done::after { content: "\2713"; }
-  .cl-item.done { color: var(--text-tertiary); text-decoration: line-through; }
-  .cl-info {
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 2px;
-    font-size: 9px;
-    color: var(--text-tertiary);
-  }
-
-  /* Playbook Cards */
-  .playbooks {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 48px;
-  }
-  .pb-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .pb-card:hover {
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-md);
-  }
-  .pb-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .pb-desc {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-    line-height: 1.5;
-  }
-  .pb-path {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    font-family: var(--mono);
-    background: #F5F1EB;
-    padding: 4px 10px;
-    border-radius: var(--radius-xs);
-    display: inline-block;
-    border: 1px solid var(--border);
-  }
-
-  /* Architecture Cards */
-  .arch-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 48px;
-  }
 
   /* Activity Log */
-  .activity-log {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 48px;
-    overflow: hidden;
-  }
-  .log-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .log-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  .log-count {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    background: #F0EBE3;
-    padding: 2px 8px;
-    border-radius: 100px;
-  }
-  .log-item {
-    padding: 12px 20px;
-    border-bottom: 1px solid #F3F0EB;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    transition: background 0.15s;
-  }
+  .activity-log { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 48px; overflow: hidden; }
+  .log-item { padding: 12px 20px; border-bottom: 1px solid #F3F0EB; display: flex; align-items: flex-start; gap: 12px; transition: background 0.15s; }
   .log-item:last-child { border-bottom: none; }
   .log-item:hover { background: var(--surface-hover); }
-  .log-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-top: 6px;
-    flex-shrink: 0;
-  }
+  .log-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
   .log-dot-build { background: var(--accent); }
   .log-dot-deploy { background: var(--success); }
   .log-dot-plan { background: var(--info); }
   .log-dot-fix { background: var(--danger); }
   .log-body { flex: 1; }
-  .log-msg {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.45;
-  }
-  .log-msg code {
-    font-family: var(--mono);
-    font-size: 12px;
-    background: #F5F1EB;
-    padding: 1px 5px;
-    border-radius: 3px;
-    color: var(--accent);
-  }
-  .log-time {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    font-family: var(--mono);
-    margin-top: 2px;
-  }
+  .log-msg { font-size: 13px; color: var(--text); line-height: 1.45; }
+  .log-msg code { font-family: var(--mono); font-size: 12px; background: #F5F1EB; padding: 1px 5px; border-radius: 3px; color: var(--accent); }
+  .log-time { font-size: 11px; color: var(--text-tertiary); font-family: var(--mono); margin-top: 2px; }
+  .log-count { font-size: 11px; font-weight: 500; color: var(--text-tertiary); background: #F0EBE3; padding: 2px 8px; border-radius: 100px; }
 
   /* Footer */
-  .footer {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 24px 32px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .footer-text {
-    font-size: 12px;
-    color: var(--text-tertiary);
-  }
+  .footer { max-width: 1120px; margin: 0 auto; padding: 24px 32px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .footer-text { font-size: 12px; color: var(--text-tertiary); }
   .footer-links { display: flex; gap: 16px; }
-  .footer-link {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
+  .footer-link { font-size: 12px; color: var(--text-tertiary); text-decoration: none; transition: color 0.2s; }
   .footer-link:hover { color: var(--accent); }
 
   /* Responsive */
   @media (max-width: 900px) {
-    .projects, .playbooks { grid-template-columns: 1fr; }
-    .checklists, .arch-grid { grid-template-columns: 1fr; }
-    .scores, .stats-bar { grid-template-columns: 1fr 1fr; }
-    .nav-links { display: none; }
+    .projects { grid-template-columns: 1fr; }
+    .quick-bar { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 600px) {
-    .stats-bar, .scores { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: 1fr; }
     .header h1 { font-size: 22px; }
-    .nav-inner { padding: 0 16px; }
-    .header { padding: 32px 16px 0; }
-    .main { padding: 0 16px 60px; }
-    .footer { padding: 24px 16px; }
+    .nav-inner, .header, .main, .footer { padding-left: 16px; padding-right: 16px; }
   }
 </style>
 </head>
@@ -777,10 +210,7 @@
       <div class="piece p4"></div>
     </div>
     <div class="lock-dots">
-      <span class="ldot"></span>
-      <span class="ldot"></span>
-      <span class="ldot"></span>
-      <span class="ldot"></span>
+      <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
     </div>
     <div class="lock-hint">Access Code</div>
   </div>
@@ -789,26 +219,19 @@
 <!-- ===== DASHBOARD ===== -->
 <div id="dash">
 
-<!-- Nav -->
 <nav class="nav">
   <div class="nav-inner">
     <a class="nav-brand" href="#">
       <div class="nav-logo">J</div>
       Command Center
     </a>
-    <div class="nav-links">
-      <a class="nav-link active" href="#">Dashboard</a>
-      <a class="nav-link" href="#">Projects</a>
-      <a class="nav-link" href="#">Playbooks</a>
-      <a class="nav-link" href="#">Logs</a>
-    </div>
-    <span class="nav-meta" id="cc-timestamp">2026-03-01</span>
+    <span class="nav-meta" id="cc-timestamp"></span>
   </div>
 </nav>
 
 <div class="header">
   <h1>Overview</h1>
-  <p class="header-sub">Projects, performance, and what's next.</p>
+  <p class="header-sub">Everything you've built. One click to get anywhere.</p>
 </div>
 
 <div class="main">
@@ -831,36 +254,43 @@
       <div class="stat-delta">All in one session</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Playbooks</div>
-      <div class="stat-num">3</div>
-      <div class="stat-delta">Nightcrawler 2.0</div>
+      <div class="stat-label">GitHub Repos</div>
+      <div class="stat-num">2</div>
+      <div class="stat-delta">4 more to push</div>
     </div>
   </div>
 
-  <!-- Performance Scores -->
+  <!-- Quick Access -->
   <div class="section-header">
-    <div class="section-label">Performance Scores</div>
+    <div class="section-label">Quick Access</div>
   </div>
-  <div class="scores">
-    <div class="score-card">
-      <div class="score-value score-highlight">88</div>
-      <div class="score-label">PageSpeed Mobile</div>
-      <div class="score-sub">+4 from baseline</div>
-    </div>
-    <div class="score-card">
-      <div class="score-value score-highlight">96</div>
-      <div class="score-label">PageSpeed Desktop</div>
-      <div class="score-sub">Solid baseline</div>
-    </div>
-    <div class="score-card">
-      <div class="score-value score-perfect">100</div>
-      <div class="score-label">Accessibility</div>
-      <div class="score-sub">WCAG 2.1 AA</div>
-    </div>
-    <div class="score-card">
-      <div class="score-value" style="font-size:20px;padding-top:6px;">SEO</div>
-      <div class="score-label">AEO Strategy</div>
-      <div class="score-sub">4 pages, more planned</div>
+  <div class="quick-bar">
+    <a class="quick-card" href="https://github.com/lordshua1337" target="_blank">
+      <div class="quick-icon" style="background:var(--text);color:#fff;border-radius:50%">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+      </div>
+      <div>
+        <div class="quick-label">GitHub Profile</div>
+        <div class="quick-sub">lordshua1337</div>
+      </div>
+    </a>
+    <a class="quick-card" href="https://lordshua1337.github.io/ctax-partner-site/" target="_blank">
+      <div class="quick-icon" style="background:var(--accent-soft);color:var(--accent)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </div>
+      <div>
+        <div class="quick-label">Partner Site (Live)</div>
+        <div class="quick-sub">lordshua1337.github.io</div>
+      </div>
+    </a>
+    <div class="quick-card" onclick="copyText('cd ~/projects/ctax-partner-site && npx http-server -p 3000 -c-1')">
+      <div class="quick-icon" style="background:var(--success-soft);color:var(--success)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      </div>
+      <div>
+        <div class="quick-label">Start Dev Server</div>
+        <div class="quick-sub">Click to copy command</div>
+      </div>
     </div>
   </div>
 
@@ -877,7 +307,7 @@
         <div class="card-title">Community Tax Partner Site</div>
         <span class="badge badge-active">Active</span>
       </div>
-      <div class="card-desc">Enterprise partner program SPA -- referral portal, dashboard, AI tools (ICP Builder, Script Builder, Ad Maker), gamification, CE training, and marketing kit.</div>
+      <div class="card-desc">Enterprise partner program SPA -- referral portal, dashboard, AI tools, gamification, CE training, and marketing kit.</div>
       <div class="card-meta">
         <span class="meta-item"><span class="meta-dot dot-active"></span> 24 JS modules</span>
         <span class="meta-item"><span class="meta-dot dot-muted"></span> 6 CSS files</span>
@@ -892,18 +322,19 @@
           <div class="progress-fill fill-accent" style="width:100%;"></div>
         </div>
       </div>
-      <div class="progress-row">
-        <div class="progress-header">
-          <span class="progress-label">AEO Content</span>
-          <span class="progress-pct">40%</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill fill-accent" style="width:40%;"></div>
-        </div>
-      </div>
-      <div class="card-links">
-        <a class="card-link" href="https://github.com/lordshua1337/josh-hub" target="_blank">Repo</a>
-        <span class="card-link-disabled">Live (TBD)</span>
+      <div class="card-actions">
+        <a class="act-btn act-btn-primary" href="https://lordshua1337.github.io/ctax-partner-site/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Live Site
+        </a>
+        <a class="act-btn" href="https://github.com/lordshua1337/ctax-partner-site" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <button class="act-btn" onclick="copyText('~/projects/ctax-partner-site')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Path
+        </button>
       </div>
     </div>
 
@@ -914,11 +345,11 @@
         <div class="card-title">DoodleForge</div>
         <span class="badge badge-active">Built</span>
       </div>
-      <div class="card-desc">AI-powered app that transforms kids' drawings into professional art. Dbrand-style marketing, Stripe payments, Etsy print ordering, Stability AI.</div>
+      <div class="card-desc">AI-powered app that transforms kids' drawings into professional art. Dbrand-style marketing, Stripe payments, Etsy print ordering.</div>
       <div class="card-meta">
-        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TypeScript</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TS</span>
         <span class="meta-item"><span class="meta-dot dot-active"></span> Stripe + Etsy</span>
-        <span class="meta-item"><span class="meta-dot dot-active"></span> AI Image Gen</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Port 3001</span>
       </div>
       <div class="progress-row">
         <div class="progress-header">
@@ -929,9 +360,19 @@
           <div class="progress-fill fill-success" style="width:100%;"></div>
         </div>
       </div>
-      <div class="card-links">
-        <span class="card-link-disabled">~/projects/doodleforge</span>
-        <span class="card-link-disabled">Deploy (TBD)</span>
+      <div class="card-actions">
+        <button class="act-btn act-btn-primary" onclick="copyText('cd ~/projects/doodleforge && npm run dev')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Dev
+        </button>
+        <button class="act-btn" onclick="copyText('~/projects/doodleforge')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Path
+        </button>
+        <button class="act-btn" onclick="copyText('cd ~/projects/doodleforge && npx vercel')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          Deploy
+        </button>
       </div>
     </div>
 
@@ -942,11 +383,11 @@
         <div class="card-title">The Well</div>
         <span class="badge badge-active">Built</span>
       </div>
-      <div class="card-desc">Spiritual teaching app. Original Greek translations, WWJD companion chat, infinite-swipe scripture cards, Gnostic Gospels. 9 word corrections, 15 scripture cards.</div>
+      <div class="card-desc">Spiritual teaching app. Original Greek translations, WWJD companion chat, infinite-swipe scripture cards, Gnostic Gospels.</div>
       <div class="card-meta">
-        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TypeScript</span>
-        <span class="meta-item"><span class="meta-dot dot-active"></span> Claude API chat</span>
-        <span class="meta-item"><span class="meta-dot dot-active"></span> Swipe UX</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TS</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Claude API</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Port 3002</span>
       </div>
       <div class="progress-row">
         <div class="progress-header">
@@ -957,9 +398,19 @@
           <div class="progress-fill fill-success" style="width:100%;"></div>
         </div>
       </div>
-      <div class="card-links">
-        <span class="card-link-disabled">~/projects/the-well</span>
-        <span class="card-link-disabled">Deploy (TBD)</span>
+      <div class="card-actions">
+        <button class="act-btn act-btn-primary" onclick="copyText('cd ~/projects/the-well && npm run dev -- -p 3002')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Dev
+        </button>
+        <button class="act-btn" onclick="copyText('~/projects/the-well')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Path
+        </button>
+        <button class="act-btn" onclick="copyText('cd ~/projects/the-well && npx vercel')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          Deploy
+        </button>
       </div>
     </div>
 
@@ -970,10 +421,10 @@
         <div class="card-title">Uncommon Cents</div>
         <span class="badge badge-active">Built</span>
       </div>
-      <div class="card-desc">Financial education app. Roth conversions, 401k overfunding, whole life protection, backdoor Roth, tax-loss harvesting, HSA strategy. Interactive calculators + AI chat.</div>
+      <div class="card-desc">Financial education app. 6 strategies (Roth, 401k, HSA, etc.), interactive calculators, AI chat advisor.</div>
       <div class="card-meta">
-        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TypeScript</span>
-        <span class="meta-item"><span class="meta-dot dot-active"></span> Claude API chat</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TS</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Claude API</span>
         <span class="meta-item"><span class="meta-dot dot-active"></span> Calculators</span>
       </div>
       <div class="progress-row">
@@ -985,9 +436,19 @@
           <div class="progress-fill fill-success" style="width:100%;"></div>
         </div>
       </div>
-      <div class="card-links">
-        <span class="card-link-disabled">~/projects/uncommon-cents</span>
-        <span class="card-link-disabled">Deploy (TBD)</span>
+      <div class="card-actions">
+        <button class="act-btn act-btn-primary" onclick="copyText('cd ~/projects/uncommon-cents && npm run dev -- -p 3003')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Dev
+        </button>
+        <button class="act-btn" onclick="copyText('~/projects/uncommon-cents')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Path
+        </button>
+        <button class="act-btn" onclick="copyText('cd ~/projects/uncommon-cents && npx vercel')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          Deploy
+        </button>
       </div>
     </div>
 
@@ -998,9 +459,9 @@
         <div class="card-title">StockPilot</div>
         <span class="badge badge-active">Built</span>
       </div>
-      <div class="card-desc">AI-powered stock research + portfolio builder. 9 stocks with AI scores, thesis, catalysts, risks. Sector allocation, risk warnings, dividend projections.</div>
+      <div class="card-desc">AI stock research + portfolio builder. 9 stocks with AI scores, thesis, catalysts, risks. Dark Robinhood-style UI.</div>
       <div class="card-meta">
-        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TypeScript</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TS</span>
         <span class="meta-item"><span class="meta-dot dot-active"></span> Portfolio builder</span>
         <span class="meta-item"><span class="meta-dot dot-active"></span> Dark theme</span>
       </div>
@@ -1013,9 +474,19 @@
           <div class="progress-fill fill-success" style="width:100%;"></div>
         </div>
       </div>
-      <div class="card-links">
-        <span class="card-link-disabled">~/projects/stock-pilot</span>
-        <span class="card-link-disabled">Deploy (TBD)</span>
+      <div class="card-actions">
+        <button class="act-btn act-btn-primary" onclick="copyText('cd ~/projects/stock-pilot && npm run dev -- -p 3004')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Dev
+        </button>
+        <button class="act-btn" onclick="copyText('~/projects/stock-pilot')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Path
+        </button>
+        <button class="act-btn" onclick="copyText('cd ~/projects/stock-pilot && npx vercel')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          Deploy
+        </button>
       </div>
     </div>
 
@@ -1026,7 +497,7 @@
         <div class="card-title">AEO Content Pages</div>
         <span class="badge badge-active">Active</span>
       </div>
-      <div class="card-desc">Standalone Answer Engine Optimization pages -- structured data, FAQ schemas, glossary, statistics, and how-to guides targeting AI citation.</div>
+      <div class="card-desc">Answer Engine Optimization pages -- structured data, FAQ schemas, glossary, statistics, how-to guides.</div>
       <div class="card-meta">
         <span class="meta-item"><span class="meta-dot dot-active"></span> 4 pages live</span>
         <span class="meta-item"><span class="meta-dot dot-muted"></span> Self-contained HTML</span>
@@ -1040,17 +511,17 @@
           <div class="progress-fill fill-success" style="width:100%;"></div>
         </div>
       </div>
-      <div class="card-links">
-        <a class="card-link" href="aeo/faq-expanded.html" target="_blank">FAQ</a>
-        <a class="card-link" href="aeo/glossary.html" target="_blank">Glossary</a>
-        <a class="card-link" href="aeo/statistics.html" target="_blank">Statistics</a>
-        <a class="card-link" href="aeo/howto-referral.html" target="_blank">How-To</a>
+      <div class="card-actions">
+        <a class="act-btn" href="https://lordshua1337.github.io/ctax-partner-site/aeo/faq-expanded.html" target="_blank">FAQ</a>
+        <a class="act-btn" href="https://lordshua1337.github.io/ctax-partner-site/aeo/glossary.html" target="_blank">Glossary</a>
+        <a class="act-btn" href="https://lordshua1337.github.io/ctax-partner-site/aeo/statistics.html" target="_blank">Statistics</a>
+        <a class="act-btn" href="https://lordshua1337.github.io/ctax-partner-site/aeo/howto-referral.html" target="_blank">How-To</a>
       </div>
     </div>
 
   </div>
 
-  <!-- Activity Log -->
+  <!-- Build Log -->
   <div class="section-header">
     <div class="section-label">Build Log</div>
     <span class="log-count" id="cc-log-count">0 entries</span>
@@ -1087,35 +558,35 @@
     <div class="log-item">
       <div class="log-dot log-dot-deploy"></div>
       <div class="log-body">
-        <div class="log-msg"><code>Uncommon Cents</code> built -- 6 financial strategies, Roth/HSA calculators, AI chat, green Anthropic style</div>
+        <div class="log-msg"><code>Uncommon Cents</code> built -- 6 financial strategies, Roth/HSA calculators, AI chat</div>
         <div class="log-time">2026-03-01 03:15 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-deploy"></div>
       <div class="log-body">
-        <div class="log-msg"><code>The Well</code> built -- 9 Greek word corrections, 15 scripture cards, swipe UX, WWJD chat, earth tone design</div>
+        <div class="log-msg"><code>The Well</code> built -- 9 Greek word corrections, swipe UX, WWJD chat</div>
         <div class="log-time">2026-03-01 02:45 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-deploy"></div>
       <div class="log-body">
-        <div class="log-msg"><code>DoodleForge</code> built -- Dbrand-style marketing, Stripe + Etsy, AI image gen, 8 art styles, pricing tiers</div>
+        <div class="log-msg"><code>DoodleForge</code> built -- Dbrand-style marketing, Stripe + Etsy, AI image gen</div>
         <div class="log-time">2026-03-01 01:30 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-build"></div>
       <div class="log-body">
-        <div class="log-msg">Command Center redesigned -- Anthropic design language, warm palette, Inter font, refined cards</div>
+        <div class="log-msg">Command Center redesigned -- Anthropic design language, warm palette, Inter font</div>
         <div class="log-time">2026-03-01 00:30 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-build"></div>
       <div class="log-body">
-        <div class="log-msg">Built <code>ICP Builder</code> on ai-tools page -- 6-question questionnaire, Claude API, tabbed results, PDF download</div>
+        <div class="log-msg">Built <code>ICP Builder</code> on ai-tools page -- Claude API, tabbed results, PDF download</div>
         <div class="log-time">2026-03-01 -- ctax-partner-site</div>
       </div>
     </div>
@@ -1128,129 +599,20 @@
     </div>
   </div>
 
-  <!-- What's Next -->
-  <div class="section-header">
-    <div class="section-label">What's Next</div>
-  </div>
-  <div class="checklists">
-
-    <div class="cl-card">
-      <div class="cl-title">
-        <span class="cl-icon cl-icon-accent">D</span>
-        DoodleForge
-      </div>
-      <div class="cl-item done"><span class="cl-check done"></span> Initialize Next.js project</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Design system + layout</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Upload + drawing canvas</div>
-      <div class="cl-item done"><span class="cl-check done"></span> AI image generation API</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Stripe payment flow</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Etsy print ordering</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Gallery + downloads</div>
-      <div class="cl-item"><span class="cl-check"></span> Deploy to Vercel</div>
-    </div>
-
-    <div class="cl-card">
-      <div class="cl-title">
-        <span class="cl-icon cl-icon-info">W</span>
-        The Well
-      </div>
-      <div class="cl-item done"><span class="cl-check done"></span> Research Greek translations</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Curate scripture corpus</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Design infinite swipe UX</div>
-      <div class="cl-item done"><span class="cl-check done"></span> WWJD companion chat</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Word correction system</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Mobile-first build</div>
-      <div class="cl-item"><span class="cl-check"></span> Deploy to Vercel</div>
-    </div>
-
-    <div class="cl-card">
-      <div class="cl-title">
-        <span class="cl-icon cl-icon-success">S</span>
-        Site + AEO
-      </div>
-      <div class="cl-item done"><span class="cl-check done"></span> All 12 site optimizations</div>
-      <div class="cl-item done"><span class="cl-check done"></span> 4 AEO pages live</div>
-      <div class="cl-item"><span class="cl-check"></span> JSON-LD on main SPA</div>
-      <div class="cl-item"><span class="cl-check"></span> Organization schema</div>
-      <div class="cl-item"><span class="cl-check"></span> Dedicated OG image</div>
-      <div class="cl-item"><span class="cl-check"></span> Sitemap for AEO</div>
-      <div class="cl-item"><span class="cl-check"></span> Competitor comparison page</div>
-    </div>
-
-  </div>
-
-  <!-- Playbooks -->
-  <div class="section-header">
-    <div class="section-label">Playbooks</div>
-  </div>
-  <div class="playbooks">
-    <div class="pb-card">
-      <div class="pb-name">Nightcrawler 2.0</div>
-      <div class="pb-desc">Full autonomy build mode. Multi-project, multi-repo, command center logging. Deep-dive development with zero stopping. For when Josh is away and work needs to ship.</div>
-      <div class="pb-path">~/.claude/playbooks/nightcrawler.md</div>
-    </div>
-    <div class="pb-card">
-      <div class="pb-name">Page Speed Ninja</div>
-      <div class="pb-desc">Systematic PageSpeed optimization. The four metrics, golden rules, optimal loading, pre-flight checklist, diagnostic protocol. Target: 90+ mobile.</div>
-      <div class="pb-path">~/.claude/playbooks/page-speed-ninja.md</div>
-    </div>
-    <div class="pb-card">
-      <div class="pb-name">PDF Generation</div>
-      <div class="pb-desc">html2pdf.js playbook. 816px containers, 1056px covers, CSS-only pagebreaks, append-generate-remove. Proven across 3 PDF builders.</div>
-      <div class="pb-path">~/.claude/projects/.../memory/pdf-generation.md</div>
-    </div>
-  </div>
-
-  <!-- Architecture -->
-  <div class="section-header">
-    <div class="section-label">Architecture Quick Reference</div>
-  </div>
-  <div class="arch-grid">
-    <div class="cl-card">
-      <div class="cl-title">
-        <span class="cl-icon cl-icon-accent">P</span>
-        Partner Site Stack
-      </div>
-      <div class="cl-item"><span class="cl-info">i</span> Vanilla HTML/CSS/JS SPA</div>
-      <div class="cl-item"><span class="cl-info">i</span> showPage() toggles .page divs</div>
-      <div class="cl-item"><span class="cl-info">i</span> http-server on port 3000</div>
-      <div class="cl-item"><span class="cl-info">i</span> 24 JS modules, 6 CSS files</div>
-      <div class="cl-item"><span class="cl-info">i</span> Portal sidebar + section arch</div>
-    </div>
-    <div class="cl-card">
-      <div class="cl-title">
-        <span class="cl-icon cl-icon-success">C</span>
-        CSS Strategy
-      </div>
-      <div class="cl-item"><span class="cl-info">i</span> base.css + nav.css = sync</div>
-      <div class="cl-item"><span class="cl-info">i</span> components/pages/dark = deferred</div>
-      <div class="cl-item"><span class="cl-info">i</span> Inline critical CSS in head</div>
-      <div class="cl-item"><span class="cl-info">i</span> CSS vars for theming</div>
-      <div class="cl-item"><span class="cl-info">i</span> 768px / 480px breakpoints</div>
-    </div>
-    <div class="cl-card">
-      <div class="cl-title">
-        <span class="cl-icon cl-icon-muted">A</span>
-        API Layer
-      </div>
-      <div class="cl-item"><span class="cl-info">i</span> portal-api.js service layer</div>
-      <div class="cl-item"><span class="cl-info">i</span> In-memory cache with TTL</div>
-      <div class="cl-item"><span class="cl-info">i</span> WebSocket + auto-reconnect</div>
-      <div class="cl-item"><span class="cl-info">i</span> Webhook event handlers</div>
-      <div class="cl-item"><span class="cl-info">i</span> Falls back to demo mode</div>
-    </div>
-  </div>
-
 </div>
 
 <div class="footer">
   <span class="footer-text">Built with Claude Code</span>
   <div class="footer-links">
     <a class="footer-link" href="https://github.com/lordshua1337/josh-hub" target="_blank">GitHub</a>
+    <a class="footer-link" href="https://github.com/lordshua1337" target="_blank">Profile</a>
   </div>
 </div>
 
 </div><!-- end #dash -->
+
+<!-- Copy Toast -->
+<div class="copy-toast" id="copy-toast">Copied!</div>
 
 <script>
 (function() {
@@ -1274,7 +636,7 @@
     return;
   }
 
-  // Lock mechanism
+  // Lock mechanism -- code: 1337
   var code = [1, 3, 3, 7];
   var progress = 0;
   var pieces = document.querySelectorAll('.piece');
@@ -1297,33 +659,51 @@
         locked = false;
         setTimeout(function() {
           pieces.forEach(function(p) { p.classList.add('merge'); });
-          ring.classList.add('spin');
         }, 350);
-        setTimeout(function() {
-          ring.classList.add('glow');
-        }, 600);
-        setTimeout(function() {
-          lock.classList.add('unlocked');
-        }, 1000);
+        setTimeout(function() { ring.classList.add('spin'); }, 600);
+        setTimeout(function() { ring.classList.add('glow'); }, 800);
+        setTimeout(function() { lock.classList.add('unlocked'); }, 1200);
         setTimeout(function() {
           lock.style.display = 'none';
           dash.style.display = 'block';
           dash.offsetHeight;
           dash.classList.add('revealed');
           sessionStorage.setItem('hub_unlocked', '1');
-        }, 1600);
+        }, 1800);
       }
     } else {
       inner.classList.add('shake');
-      setTimeout(function() {
-        inner.classList.remove('shake');
-      }, 500);
+      setTimeout(function() { inner.classList.remove('shake'); }, 500);
       pieces.forEach(function(p) { p.classList.remove('in'); });
       dots.forEach(function(d) { d.classList.remove('filled'); });
       progress = 0;
     }
   });
 })();
+
+// Copy to clipboard utility
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    var toast = document.getElementById('copy-toast');
+    toast.textContent = 'Copied: ' + text;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+  }).catch(function() {
+    // Fallback
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    var toast = document.getElementById('copy-toast');
+    toast.textContent = 'Copied: ' + text;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+  });
+}
 </script>
 </body>
 </html>
