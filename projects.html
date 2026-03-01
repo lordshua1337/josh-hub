@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Josh H. | Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #14141c;
+    --surface-hover: #1a1a26;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --text: #f0f0f5;
+    --text-secondary: #9b97a8;
+    --text-tertiary: #6b6778;
+    --accent: #6366f1;
+    --accent-soft: rgba(99,102,241,0.1);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+    --shadow-hover: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== LAYOUT ===== */
+  .portfolio {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  /* ===== HEADER ===== */
+  .portfolio-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .portfolio-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #a78bfa, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .portfolio-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .portfolio-bio {
+    font-size: 15px;
+    color: var(--text-secondary);
+    max-width: 420px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ===== PROJECT CARDS ===== */
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card:hover {
+    border-color: var(--border-hover);
+    background: var(--surface-hover);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  /* Color strip at top of card */
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--card-accent, var(--accent));
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .project-card:hover::before {
+    opacity: 1;
+  }
+
+  .project-card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  .project-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 20px;
+  }
+
+  .project-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .project-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .project-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  .project-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .project-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text-tertiary);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .project-launch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--card-accent, var(--accent));
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .project-launch:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+  .project-launch svg {
+    transition: transform 0.2s;
+  }
+  .project-launch:hover svg {
+    transform: translateX(3px);
+  }
+
+  /* ===== CARD ACCENT COLORS ===== */
+  .card-coral { --card-accent: #f87171; }
+  .card-coral .project-icon { background: rgba(248,113,113,0.12); color: #f87171; }
+
+  .card-violet { --card-accent: #8b5cf6; }
+  .card-violet .project-icon { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+
+  .card-emerald { --card-accent: #10b981; }
+  .card-emerald .project-icon { background: rgba(16,185,129,0.12); color: #10b981; }
+
+  .card-sky { --card-accent: #38bdf8; }
+  .card-sky .project-icon { background: rgba(56,189,248,0.12); color: #38bdf8; }
+
+  .card-amber { --card-accent: #f59e0b; }
+  .card-amber .project-icon { background: rgba(245,158,11,0.12); color: #f59e0b; }
+
+  .card-indigo { --card-accent: #6366f1; }
+  .card-indigo .project-icon { background: rgba(99,102,241,0.12); color: #6366f1; }
+
+  /* ===== FOOTER ===== */
+  .portfolio-footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .portfolio-footer-text {
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+  .portfolio-footer-text a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .portfolio-footer-text a:hover {
+    color: var(--text);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 480px) {
+    .portfolio { padding: 40px 16px 60px; }
+    .portfolio-name { font-size: 20px; }
+    .project-card { padding: 20px; }
+    .project-card-top { gap: 12px; }
+    .project-icon { width: 40px; height: 40px; font-size: 18px; }
+    .project-name { font-size: 15px; }
+    .project-desc { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="portfolio">
+
+  <!-- Header -->
+  <div class="portfolio-header">
+    <div class="portfolio-avatar">JH</div>
+    <h1 class="portfolio-name">Josh H.</h1>
+    <p class="portfolio-bio">Full-stack projects built with AI. Click any card to launch the live app.</p>
+  </div>
+
+  <!-- Project Cards -->
+  <div class="project-list">
+
+    <!-- CTAX Partner Site -->
+    <div class="project-card card-indigo">
+      <div class="project-card-top">
+        <div class="project-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="project-info">
+          <div class="project-name">CTAX Partner Site</div>
+          <div class="project-desc">Enterprise partner program portal with AI-powered tools, immersive scroll experience, referral dashboard, and marketing kit.</div>
+        </div>
+      </div>
+      <div class="project-tags">
+        <span class="project-tag">Vanilla JS</span>
+        <span class="project-tag">SPA</span>
+        <span class="project-tag">AI Tools</span>
+        <span class="project-tag">Portal</span>
+      </div>
+      <a class="project-launch" href="https://lordshua1337.github.io/ctax-partner-site/" target="_blank" rel="noopener">
+        Launch
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <!-- DoodleForge -->
+    <div class="project-card card-coral">
+      <div class="project-card-top">
+        <div class="project-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+        </div>
+        <div class="project-info">
+          <div class="project-name">DoodleForge</div>
+          <div class="project-desc">AI-powered app that transforms kids' drawings into professional art. Upload, pick a style, and get a masterpiece back.</div>
+        </div>
+      </div>
+      <div class="project-tags">
+        <span class="project-tag">Next.js</span>
+        <span class="project-tag">TypeScript</span>
+        <span class="project-tag">AI Art</span>
+        <span class="project-tag">Stripe</span>
+      </div>
+      <a class="project-launch" href="https://doodleforge.vercel.app" target="_blank" rel="noopener">
+        Launch
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <!-- The Well -->
+    <div class="project-card card-violet">
+      <div class="project-card-top">
+        <div class="project-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        </div>
+        <div class="project-info">
+          <div class="project-name">The Well</div>
+          <div class="project-desc">Spiritual teaching app with original Greek translations, WWJD companion chat, infinite-swipe scripture cards, and Gnostic Gospels.</div>
+        </div>
+      </div>
+      <div class="project-tags">
+        <span class="project-tag">Next.js</span>
+        <span class="project-tag">Claude API</span>
+        <span class="project-tag">Scripture</span>
+      </div>
+      <a class="project-launch" href="https://the-well-eight.vercel.app" target="_blank" rel="noopener">
+        Launch
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <!-- Uncommon Cents -->
+    <div class="project-card card-emerald">
+      <div class="project-card-top">
+        <div class="project-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <div class="project-info">
+          <div class="project-name">Uncommon Cents</div>
+          <div class="project-desc">Financial education app with 6 wealth-building strategies, interactive calculators, and an AI chat advisor for personal finance.</div>
+        </div>
+      </div>
+      <div class="project-tags">
+        <span class="project-tag">Next.js</span>
+        <span class="project-tag">Claude API</span>
+        <span class="project-tag">Finance</span>
+        <span class="project-tag">Calculators</span>
+      </div>
+      <a class="project-launch" href="https://uncommon-cents.vercel.app" target="_blank" rel="noopener">
+        Launch
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <!-- StockPilot -->
+    <div class="project-card card-sky">
+      <div class="project-card-top">
+        <div class="project-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="project-info">
+          <div class="project-name">StockPilot</div>
+          <div class="project-desc">AI stock research and portfolio builder. AI-scored picks with thesis, catalysts, and risk analysis in a Robinhood-style interface.</div>
+        </div>
+      </div>
+      <div class="project-tags">
+        <span class="project-tag">Next.js</span>
+        <span class="project-tag">AI Research</span>
+        <span class="project-tag">Stocks</span>
+      </div>
+      <a class="project-launch" href="https://stock-pilot-puce.vercel.app" target="_blank" rel="noopener">
+        Launch
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="portfolio-footer">
+    <p class="portfolio-footer-text">Built with AI -- <a href="https://github.com/lordshua1337">GitHub</a></p>
+  </div>
+
+</div>
+
+</body>
+</html>
