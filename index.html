@@ -126,7 +126,7 @@
   .xp-char {
     position: relative;
     width: 120px;
-    height: 140px;
+    height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -142,15 +142,12 @@
     0% { opacity: 0.4; transform: scale(0.95); }
     100% { opacity: 1; transform: scale(1.05); }
   }
-  .xp-char pre {
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.2;
-    color: var(--accent);
+  .xp-char svg {
     position: relative;
     z-index: 1;
-    margin: 0;
-    text-align: center;
+    width: 88px;
+    height: 88px;
+    filter: drop-shadow(0 2px 8px rgba(217,119,6,0.3));
   }
 
   /* Level + XP info */
@@ -443,14 +440,38 @@
       <!-- Pixel Claudey Character -->
       <div class="xp-char">
         <div class="xp-char-glow"></div>
-        <pre>
-     /^^\
-    | ** |
-   /| oo |\
-  | |_/\_| |
-   \|_||_|/
-    _/  \_
-   |_/  \_|</pre>
+        <!-- Classic crab-type space invader (11x8 pixel grid) -->
+        <svg viewBox="0 0 11 8" fill="var(--accent)" shape-rendering="crispEdges">
+          <!-- Row 0: antennae -->
+          <rect x="2" y="0" width="1" height="1"/>
+          <rect x="8" y="0" width="1" height="1"/>
+          <!-- Row 1: inner antenna -->
+          <rect x="3" y="1" width="1" height="1"/>
+          <rect x="7" y="1" width="1" height="1"/>
+          <!-- Row 2: head -->
+          <rect x="2" y="2" width="7" height="1"/>
+          <!-- Row 3: body with eyes -->
+          <rect x="1" y="3" width="2" height="1"/>
+          <rect x="4" y="3" width="3" height="1"/>
+          <rect x="8" y="3" width="2" height="1"/>
+          <!-- Row 4: full body -->
+          <rect x="0" y="4" width="11" height="1"/>
+          <!-- Row 5: body with gaps -->
+          <rect x="0" y="5" width="1" height="1"/>
+          <rect x="2" y="5" width="7" height="1"/>
+          <rect x="10" y="5" width="1" height="1"/>
+          <!-- Row 6: inner legs -->
+          <rect x="0" y="6" width="1" height="1"/>
+          <rect x="2" y="6" width="1" height="1"/>
+          <rect x="4" y="6" width="3" height="1"/>
+          <rect x="8" y="6" width="1" height="1"/>
+          <rect x="10" y="6" width="1" height="1"/>
+          <!-- Row 7: feet -->
+          <rect x="1" y="7" width="1" height="1"/>
+          <rect x="3" y="7" width="1" height="1"/>
+          <rect x="7" y="7" width="1" height="1"/>
+          <rect x="9" y="7" width="1" height="1"/>
+        </svg>
       </div>
 
       <!-- Level + XP Bar -->
