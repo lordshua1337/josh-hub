@@ -29,6 +29,7 @@
     --warning-soft: #FEF3C7;
     --danger: #DC2626;
     --danger-soft: #FEE2E2;
+    --xp-glow: rgba(217, 119, 6, 0.15);
     --radius: 12px;
     --radius-sm: 8px;
     --radius-xs: 6px;
@@ -96,6 +97,196 @@
   .main { max-width: 1120px; margin: 0 auto; padding: 0 32px 80px; }
   .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .section-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.3px; }
+
+  /* ===== GAMIFIED XP HERO ===== */
+  .xp-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .xp-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FBBF24, #D97706, #B45309);
+  }
+  .xp-hero-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 32px;
+    align-items: center;
+  }
+
+  /* Pixel character */
+  .xp-char {
+    position: relative;
+    width: 120px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .xp-char-glow {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--xp-glow) 0%, transparent 70%);
+    animation: charGlow 3s ease-in-out infinite alternate;
+  }
+  @keyframes charGlow {
+    0% { opacity: 0.4; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1.05); }
+  }
+  .xp-char pre {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.2;
+    color: var(--accent);
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    text-align: center;
+  }
+
+  /* Level + XP info */
+  .xp-info { min-width: 0; }
+  .xp-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .xp-level {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+  .xp-title-badge {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 12px;
+    border-radius: 100px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .xp-subtitle {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+  }
+  .xp-bar-wrap { margin-bottom: 16px; }
+  .xp-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .xp-bar-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-family: var(--mono);
+  }
+  .xp-bar-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+  .xp-bar-track {
+    height: 12px;
+    background: #EDE8E0;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .xp-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #FDE68A, #FBBF24, #D97706);
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  .xp-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 40px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+    border-radius: 0 6px 6px 0;
+    animation: xpShine 2s ease-in-out infinite;
+  }
+  @keyframes xpShine {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+  .xp-counters {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .xp-counter {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .xp-counter strong {
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+
+  /* Achievements sidebar */
+  .xp-achievements {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+  }
+  .xp-ach-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .xp-ach {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    background: #FAF8F5;
+    border-radius: var(--radius-xs);
+    border: 1px solid #F0EBE3;
+  }
+  .xp-ach-icon {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-soft);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .xp-ach-name { font-weight: 600; color: var(--text); }
 
   /* Quick Stats */
   .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 40px; }
@@ -188,11 +379,20 @@
     .projects { grid-template-columns: 1fr; }
     .quick-bar { grid-template-columns: 1fr; }
     .stats-bar { grid-template-columns: 1fr 1fr; }
+    .xp-hero-inner { grid-template-columns: 1fr; text-align: center; }
+    .xp-char { margin: 0 auto; }
+    .xp-title-row { justify-content: center; }
+    .xp-counters { justify-content: center; }
+    .xp-achievements { flex-direction: row; flex-wrap: wrap; justify-content: center; min-width: 0; }
   }
   @media (max-width: 600px) {
     .stats-bar { grid-template-columns: 1fr; }
     .header h1 { font-size: 22px; }
     .nav-inner, .header, .main, .footer { padding-left: 16px; padding-right: 16px; }
+    .xp-hero { padding: 20px; }
+    .xp-level { font-size: 24px; }
+    .xp-char { width: 90px; height: 110px; }
+    .xp-char pre { font-size: 10px; }
   }
 </style>
 </head>
@@ -230,33 +430,100 @@
 </nav>
 
 <div class="header">
-  <h1>Overview</h1>
-  <p class="header-sub">Everything you've built. One click to get anywhere.</p>
+  <h1>Command Center</h1>
+  <p class="header-sub">Level up. Ship code. Earn XP.</p>
 </div>
 
 <div class="main">
+
+  <!-- ===== GAMIFIED XP HERO ===== -->
+  <div class="xp-hero">
+    <div class="xp-hero-inner">
+
+      <!-- Pixel Claudey Character -->
+      <div class="xp-char">
+        <div class="xp-char-glow"></div>
+        <pre>
+  .---.
+ | . . |
+ | '_' |
+  '---'
+   /|\
+  / | \</pre>
+      </div>
+
+      <!-- Level + XP Bar -->
+      <div class="xp-info">
+        <div class="xp-title-row">
+          <span class="xp-level">LVL 3</span>
+          <span class="xp-title-badge">Hatchling</span>
+        </div>
+        <div class="xp-subtitle">215 XP to next level -- keep shipping!</div>
+
+        <div class="xp-bar-wrap">
+          <div class="xp-bar-header">
+            <span class="xp-bar-label">1,285 / 1,500 XP</span>
+            <span class="xp-bar-pct">69%</span>
+          </div>
+          <div class="xp-bar-track">
+            <div class="xp-bar-fill" style="width: 69%;"></div>
+          </div>
+        </div>
+
+        <div class="xp-counters">
+          <div class="xp-counter"><strong>18</strong> Tasks</div>
+          <div class="xp-counter"><strong>11</strong> Commits</div>
+          <div class="xp-counter"><strong>55</strong> Skills</div>
+          <div class="xp-counter"><strong>9</strong> Features</div>
+          <div class="xp-counter"><strong>6</strong> Repos</div>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="xp-achievements">
+        <div class="xp-ach-label">Achievements</div>
+        <div class="xp-ach">
+          <div class="xp-ach-icon">*</div>
+          <span class="xp-ach-name">First Blood</span>
+        </div>
+        <div class="xp-ach">
+          <div class="xp-ach-icon">*</div>
+          <span class="xp-ach-name">Skill Collector</span>
+        </div>
+        <div class="xp-ach">
+          <div class="xp-ach-icon">*</div>
+          <span class="xp-ach-name">Arsenal Unlocked</span>
+        </div>
+        <div class="xp-ach">
+          <div class="xp-ach-icon">*</div>
+          <span class="xp-ach-name">Ship It</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Quick Stats -->
   <div class="stats-bar">
     <div class="stat-card">
       <div class="stat-label">Active Projects</div>
-      <div class="stat-num">5</div>
-      <div class="stat-delta">+4 this week</div>
+      <div class="stat-num">6</div>
+      <div class="stat-delta">All on GitHub</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Builds Shipped</div>
-      <div class="stat-num">21</div>
-      <div class="stat-delta">+7 today</div>
+      <div class="stat-label">Total XP</div>
+      <div class="stat-num">1,285</div>
+      <div class="stat-delta">Level 3 Hatchling</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Apps Built</div>
-      <div class="stat-num">4</div>
-      <div class="stat-delta">All in one session</div>
+      <div class="stat-label">Skills Created</div>
+      <div class="stat-num">55</div>
+      <div class="stat-delta">Growth + marketing</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">GitHub Repos</div>
-      <div class="stat-num">2</div>
-      <div class="stat-delta">4 more to push</div>
+      <div class="stat-num">6</div>
+      <div class="stat-delta">All pushed</div>
     </div>
   </div>
 
@@ -361,17 +628,17 @@
         </div>
       </div>
       <div class="card-actions">
-        <button class="act-btn act-btn-primary" onclick="copyText('cd ~/projects/doodleforge && npm run dev')">
+        <a class="act-btn act-btn-primary" href="https://github.com/lordshua1337/doodleforge" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <button class="act-btn" onclick="copyText('cd ~/projects/doodleforge && npm run dev')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Run Dev
         </button>
         <button class="act-btn" onclick="copyText('~/projects/doodleforge')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy Path
-        </button>
-        <button class="act-btn" onclick="copyText('cd ~/projects/doodleforge && npx vercel')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-          Deploy
         </button>
       </div>
     </div>
@@ -399,17 +666,17 @@
         </div>
       </div>
       <div class="card-actions">
-        <button class="act-btn act-btn-primary" onclick="copyText('cd ~/projects/the-well && npm run dev -- -p 3002')">
+        <a class="act-btn act-btn-primary" href="https://github.com/lordshua1337/the-well" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <button class="act-btn" onclick="copyText('cd ~/projects/the-well && npm run dev -- -p 3002')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Run Dev
         </button>
         <button class="act-btn" onclick="copyText('~/projects/the-well')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy Path
-        </button>
-        <button class="act-btn" onclick="copyText('cd ~/projects/the-well && npx vercel')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-          Deploy
         </button>
       </div>
     </div>
@@ -437,17 +704,17 @@
         </div>
       </div>
       <div class="card-actions">
-        <button class="act-btn act-btn-primary" onclick="copyText('cd ~/projects/uncommon-cents && npm run dev -- -p 3003')">
+        <a class="act-btn act-btn-primary" href="https://github.com/lordshua1337/uncommon-cents" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <button class="act-btn" onclick="copyText('cd ~/projects/uncommon-cents && npm run dev -- -p 3003')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Run Dev
         </button>
         <button class="act-btn" onclick="copyText('~/projects/uncommon-cents')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy Path
-        </button>
-        <button class="act-btn" onclick="copyText('cd ~/projects/uncommon-cents && npx vercel')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-          Deploy
         </button>
       </div>
     </div>
@@ -475,17 +742,17 @@
         </div>
       </div>
       <div class="card-actions">
-        <button class="act-btn act-btn-primary" onclick="copyText('cd ~/projects/stock-pilot && npm run dev -- -p 3004')">
+        <a class="act-btn act-btn-primary" href="https://github.com/lordshua1337/stock-pilot" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <button class="act-btn" onclick="copyText('cd ~/projects/stock-pilot && npm run dev -- -p 3004')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Run Dev
         </button>
         <button class="act-btn" onclick="copyText('~/projects/stock-pilot')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy Path
-        </button>
-        <button class="act-btn" onclick="copyText('cd ~/projects/stock-pilot && npx vercel')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-          Deploy
         </button>
       </div>
     </div>
@@ -530,71 +797,85 @@
     <div class="log-item">
       <div class="log-dot log-dot-build"></div>
       <div class="log-body">
-        <div class="log-msg"><code>ICP Builder</code> reworked -- Apple.com-style immersive scroll, 6-act experience, IntersectionObserver reveals</div>
-        <div class="log-time">2026-03-01 05:00 -- nightcrawler 2.0</div>
+        <div class="log-msg">Gamified Command Center -- XP hero, pixel Claudey, achievements, GitHub links for all projects</div>
+        <div class="log-time">2026-03-01 -- command center</div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-deploy"></div>
+      <div class="log-body">
+        <div class="log-msg">Pushed 4 repos to GitHub: <code>doodleforge</code>, <code>the-well</code>, <code>uncommon-cents</code>, <code>stock-pilot</code></div>
+        <div class="log-time">2026-03-01 -- github</div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-build"></div>
+      <div class="log-body">
+        <div class="log-msg">Created 55 growth/marketing skills -- CRO, SEO, copywriting, analytics, automation, lead gen</div>
+        <div class="log-time">2026-03-01 -- skills</div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-build"></div>
+      <div class="log-body">
+        <div class="log-msg"><code>ICP Builder</code> reworked -- Apple.com-style cinematic scroll, sticky hero, gradient orb, staggered reveals</div>
+        <div class="log-time">2026-03-01 -- ctax-partner-site</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-build"></div>
       <div class="log-body">
         <div class="log-msg"><code>30-Day Challenge</code> redesigned -- identity system (Starter/Connector/Builder/Rainmaker), motivational UX</div>
-        <div class="log-time">2026-03-01 04:30 -- nightcrawler 2.0</div>
+        <div class="log-time">2026-03-01 -- ctax-partner-site</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-fix"></div>
       <div class="log-body">
         <div class="log-msg"><code>ctax-partner-site</code> lightbulb widget repositioned -- moved away from Go Pro button</div>
-        <div class="log-time">2026-03-01 04:15 -- nightcrawler 2.0</div>
+        <div class="log-time">2026-03-01 -- ctax-partner-site</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-deploy"></div>
       <div class="log-body">
         <div class="log-msg"><code>StockPilot</code> built -- AI portfolio intelligence, 9 stocks w/ research, dark Robinhood-style UI</div>
-        <div class="log-time">2026-03-01 03:45 -- nightcrawler 2.0</div>
+        <div class="log-time">2026-03-01 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-deploy"></div>
       <div class="log-body">
         <div class="log-msg"><code>Uncommon Cents</code> built -- 6 financial strategies, Roth/HSA calculators, AI chat</div>
-        <div class="log-time">2026-03-01 03:15 -- nightcrawler 2.0</div>
+        <div class="log-time">2026-03-01 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-deploy"></div>
       <div class="log-body">
         <div class="log-msg"><code>The Well</code> built -- 9 Greek word corrections, swipe UX, WWJD chat</div>
-        <div class="log-time">2026-03-01 02:45 -- nightcrawler 2.0</div>
+        <div class="log-time">2026-03-01 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-deploy"></div>
       <div class="log-body">
         <div class="log-msg"><code>DoodleForge</code> built -- Dbrand-style marketing, Stripe + Etsy, AI image gen</div>
-        <div class="log-time">2026-03-01 01:30 -- nightcrawler 2.0</div>
+        <div class="log-time">2026-03-01 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-build"></div>
       <div class="log-body">
         <div class="log-msg">Command Center redesigned -- Anthropic design language, warm palette, Inter font</div>
-        <div class="log-time">2026-03-01 00:30 -- nightcrawler 2.0</div>
-      </div>
-    </div>
-    <div class="log-item">
-      <div class="log-dot log-dot-build"></div>
-      <div class="log-body">
-        <div class="log-msg">Built <code>ICP Builder</code> on ai-tools page -- Claude API, tabbed results, PDF download</div>
-        <div class="log-time">2026-03-01 -- ctax-partner-site</div>
+        <div class="log-time">2026-03-01 -- nightcrawler 2.0</div>
       </div>
     </div>
     <div class="log-item">
       <div class="log-dot log-dot-plan"></div>
       <div class="log-body">
         <div class="log-msg">Nightcrawler 2.0 playbook activated -- multi-project scope, zero permissions, command center logging</div>
-        <div class="log-time">2026-03-01 00:00 -- nightcrawler 2.0</div>
+        <div class="log-time">2026-03-01 -- nightcrawler 2.0</div>
       </div>
     </div>
   </div>
