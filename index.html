@@ -303,6 +303,17 @@
   .badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; white-space: nowrap; }
   .badge-active { background: var(--success-soft); color: var(--success); }
   .badge-planning { background: var(--warning-soft); color: var(--warning); }
+  .badge-idea { background: var(--info-soft); color: var(--info); }
+  .grocery-list { margin-top: 12px; padding: 0; list-style: none; }
+  .grocery-list li { font-size: 13px; color: var(--text-secondary); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 8px; line-height: 1.45; }
+  .grocery-list li:last-child { border-bottom: none; }
+  .grocery-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+  .grocery-tag-infra { background: #EDE9FE; color: #7C3AED; }
+  .grocery-tag-api { background: #FEF3C7; color: #D97706; }
+  .grocery-tag-ui { background: #DBEAFE; color: #2563EB; }
+  .grocery-tag-auth { background: #FEE2E2; color: #DC2626; }
+  .grocery-tag-data { background: #D1FAE5; color: #059669; }
+  .grocery-tag-ai { background: #F3E8FF; color: #9333EA; }
   .card-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.55; }
   .card-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
   .meta-item { font-size: 12px; color: var(--text-tertiary); display: flex; align-items: center; gap: 5px; }
@@ -310,6 +321,7 @@
   .dot-active { background: var(--success); }
   .dot-warning { background: var(--warning); }
   .dot-muted { background: var(--border-hover); }
+  .dot-info { background: var(--info); }
 
   /* Action Buttons */
   .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -347,6 +359,7 @@
   .progress-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
   .fill-accent { background: linear-gradient(90deg, #FBBF24, #D97706); }
   .fill-success { background: var(--success); }
+  .fill-info { background: var(--info); }
 
   /* Activity Log */
   .activity-log { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 48px; overflow: hidden; }
@@ -650,7 +663,11 @@
         </div>
       </div>
       <div class="card-actions">
-        <a class="act-btn act-btn-primary" href="https://github.com/lordshua1337/doodleforge" target="_blank">
+        <a class="act-btn act-btn-primary" href="https://doodleforge.vercel.app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live Site
+        </a>
+        <a class="act-btn" href="https://github.com/lordshua1337/doodleforge" target="_blank">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
           GitHub
         </a>
@@ -688,7 +705,11 @@
         </div>
       </div>
       <div class="card-actions">
-        <a class="act-btn act-btn-primary" href="https://github.com/lordshua1337/the-well" target="_blank">
+        <a class="act-btn act-btn-primary" href="https://the-well-eight.vercel.app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live Site
+        </a>
+        <a class="act-btn" href="https://github.com/lordshua1337/the-well" target="_blank">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
           GitHub
         </a>
@@ -726,7 +747,11 @@
         </div>
       </div>
       <div class="card-actions">
-        <a class="act-btn act-btn-primary" href="https://github.com/lordshua1337/uncommon-cents" target="_blank">
+        <a class="act-btn act-btn-primary" href="https://uncommon-cents.vercel.app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live Site
+        </a>
+        <a class="act-btn" href="https://github.com/lordshua1337/uncommon-cents" target="_blank">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
           GitHub
         </a>
@@ -764,7 +789,11 @@
         </div>
       </div>
       <div class="card-actions">
-        <a class="act-btn act-btn-primary" href="https://github.com/lordshua1337/stock-pilot" target="_blank">
+        <a class="act-btn act-btn-primary" href="https://stock-pilot-puce.vercel.app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live Site
+        </a>
+        <a class="act-btn" href="https://github.com/lordshua1337/stock-pilot" target="_blank">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
           GitHub
         </a>
@@ -805,6 +834,131 @@
         <a class="act-btn" href="https://lordshua1337.github.io/ctax-partner-site/aeo/glossary.html" target="_blank">Glossary</a>
         <a class="act-btn" href="https://lordshua1337.github.io/ctax-partner-site/aeo/statistics.html" target="_blank">Statistics</a>
         <a class="act-btn" href="https://lordshua1337.github.io/ctax-partner-site/aeo/howto-referral.html" target="_blank">How-To</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Future Projects -->
+  <div class="section-header" style="margin-top:32px">
+    <div class="section-label">Future Projects</div>
+    <span class="badge badge-idea">Ideas</span>
+  </div>
+  <div class="projects">
+
+    <!-- Headless CMS -->
+    <div class="card" style="grid-column: 1 / -1;">
+      <div class="card-accent" style="background: linear-gradient(90deg, #7C3AED, #3B82F6);"></div>
+      <div class="card-header">
+        <div class="card-title">Custom Headless CMS</div>
+        <span class="badge badge-idea">Advanced Experiment</span>
+      </div>
+      <div class="card-desc">Full builder.io-style platform. Users define content models (like database schemas), create content against those models, build pages visually with drag-and-drop, then deliver everything via API to any frontend -- React, Vue, mobile, whatever. Includes visual editor, structured data, workflow publishing, RBAC, AI content generation, and multi-channel delivery.</div>
+      <div class="card-meta">
+        <span class="meta-item"><span class="meta-dot dot-info"></span> Next.js + TS</span>
+        <span class="meta-item"><span class="meta-dot dot-info"></span> PostgreSQL</span>
+        <span class="meta-item"><span class="meta-dot dot-info"></span> GraphQL + REST</span>
+        <span class="meta-item"><span class="meta-dot dot-info"></span> Cloudflare R2</span>
+        <span class="meta-item"><span class="meta-dot dot-info"></span> Redis</span>
+        <span class="meta-item"><span class="meta-dot dot-info"></span> Claude API</span>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Research / Planning</span>
+          <span class="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill fill-info" style="width:0%;"></div>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div style="margin-top:20px;font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">How It Works</div>
+      <ul class="grocery-list">
+        <li><span class="grocery-tag grocery-tag-data">FLOW</span> Admin defines a Content Model (e.g. "Blog Post" with title, body, image, author ref, tags)</li>
+        <li><span class="grocery-tag grocery-tag-data">FLOW</span> Editors create Content Entries against that model -- fill in fields, upload images, link references</li>
+        <li><span class="grocery-tag grocery-tag-ui">FLOW</span> Page Builder lets you visually drag components (hero, cards, text, images) onto a canvas and bind them to content</li>
+        <li><span class="grocery-tag grocery-tag-api">FLOW</span> Published content is served via REST + GraphQL APIs -- any frontend fetches it and renders however it wants</li>
+        <li><span class="grocery-tag grocery-tag-api">FLOW</span> Webhooks fire on publish, triggering rebuilds on Vercel/Netlify or pushing to CDN cache</li>
+        <li><span class="grocery-tag grocery-tag-auth">FLOW</span> Roles control who can do what: Devs define models, Editors write content, Designers build pages, Admins manage everything</li>
+      </ul>
+
+      <!-- ARCHITECTURE -->
+      <div style="margin-top:20px;font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Architecture</div>
+      <ul class="grocery-list">
+        <li><span class="grocery-tag grocery-tag-ui">FRONTEND</span> Next.js admin dashboard -- content model editor, entry editor, page builder, media library, team settings</li>
+        <li><span class="grocery-tag grocery-tag-ui">FRONTEND</span> Visual page builder using a block-based editor (custom or based on GrapesJS / Plate / Tiptap)</li>
+        <li><span class="grocery-tag grocery-tag-ui">FRONTEND</span> Live preview -- editors see real-time rendered output as they edit, before publishing</li>
+        <li><span class="grocery-tag grocery-tag-api">BACKEND</span> Next.js API routes (or standalone Express/Hono) for the management API (CRUD models, entries, assets)</li>
+        <li><span class="grocery-tag grocery-tag-api">BACKEND</span> Public Content Delivery API -- read-only REST endpoints (GET /api/content/:model/:slug) with CDN caching</li>
+        <li><span class="grocery-tag grocery-tag-api">BACKEND</span> GraphQL layer (Apollo or Yoga) for flexible querying -- nested refs, filtering, pagination</li>
+        <li><span class="grocery-tag grocery-tag-api">BACKEND</span> Write API for programmatic content creation (CI/CD, import scripts, AI pipelines)</li>
+        <li><span class="grocery-tag grocery-tag-infra">DATABASE</span> PostgreSQL (Supabase or Neon) -- tables for models, entries, assets, users, teams, versions, locales</li>
+        <li><span class="grocery-tag grocery-tag-infra">DATABASE</span> JSONB columns for flexible content fields (each model has different shape)</li>
+        <li><span class="grocery-tag grocery-tag-infra">DATABASE</span> Version table tracks every edit -- full history, diff view, one-click rollback</li>
+        <li><span class="grocery-tag grocery-tag-infra">STORAGE</span> Cloudflare R2 (or S3) for images, videos, PDFs -- signed upload URLs from backend</li>
+        <li><span class="grocery-tag grocery-tag-infra">STORAGE</span> Image transform pipeline (sharp or Cloudflare Images) -- auto-resize, WebP, thumbnails on upload</li>
+        <li><span class="grocery-tag grocery-tag-infra">CACHE</span> Redis (Upstash) for API response caching, rate limiting, real-time collab state</li>
+        <li><span class="grocery-tag grocery-tag-infra">CACHE</span> CDN edge caching with cache-tag invalidation on publish</li>
+      </ul>
+
+      <!-- FEATURES -->
+      <div style="margin-top:20px;font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Core Features</div>
+      <ul class="grocery-list">
+        <li><span class="grocery-tag grocery-tag-data">MODEL</span> Content Model Designer -- define fields (text, rich text, number, boolean, date, image, reference, JSON)</li>
+        <li><span class="grocery-tag grocery-tag-data">MODEL</span> Field validation rules (required, min/max, regex, unique)</li>
+        <li><span class="grocery-tag grocery-tag-data">MODEL</span> Content relationships -- one-to-one, one-to-many, many-to-many refs between models</li>
+        <li><span class="grocery-tag grocery-tag-ui">EDITOR</span> Rich text editor with embeds, code blocks, tables (Tiptap or Plate)</li>
+        <li><span class="grocery-tag grocery-tag-ui">EDITOR</span> Visual page builder -- drag-and-drop component blocks, layout grid, responsive preview</li>
+        <li><span class="grocery-tag grocery-tag-ui">EDITOR</span> Component library -- pre-built blocks (hero, cards, CTA, testimonials, pricing, FAQ) that map to content</li>
+        <li><span class="grocery-tag grocery-tag-data">PUBLISH</span> Workflow engine: Draft > In Review > Approved > Published (configurable per model)</li>
+        <li><span class="grocery-tag grocery-tag-data">PUBLISH</span> Scheduled publishing -- set future go-live date, auto-publish via cron/queue</li>
+        <li><span class="grocery-tag grocery-tag-data">PUBLISH</span> Multi-locale -- same entry in EN, ES, FR etc., locale fallback chain</li>
+        <li><span class="grocery-tag grocery-tag-data">PUBLISH</span> Multi-environment -- staging vs production content, promote between envs</li>
+        <li><span class="grocery-tag grocery-tag-auth">ACCESS</span> Roles: Admin (everything), Developer (models + API keys), Editor (content), Designer (pages)</li>
+        <li><span class="grocery-tag grocery-tag-auth">ACCESS</span> Team workspaces with invite links, SSO (Google/GitHub OAuth)</li>
+        <li><span class="grocery-tag grocery-tag-auth">ACCESS</span> API key management -- scoped keys per environment, per model, read-only vs read-write</li>
+        <li><span class="grocery-tag grocery-tag-infra">MEDIA</span> Media library -- upload, browse, search, tag, bulk operations</li>
+        <li><span class="grocery-tag grocery-tag-infra">MEDIA</span> Auto-generate alt text and captions via Claude Vision</li>
+        <li><span class="grocery-tag grocery-tag-ai">AI</span> AI draft generation -- Claude writes first draft from a content brief or outline</li>
+        <li><span class="grocery-tag grocery-tag-ai">AI</span> AI SEO -- auto-generate meta titles, descriptions, Open Graph tags</li>
+        <li><span class="grocery-tag grocery-tag-ai">AI</span> AI search -- embed all content into vector DB (pgvector), semantic search across everything</li>
+        <li><span class="grocery-tag grocery-tag-ai">AI</span> AI translation -- auto-translate content to target locales via Claude</li>
+      </ul>
+
+      <!-- WHAT YOU NEED -->
+      <div style="margin-top:20px;font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">What You Need (Grocery List)</div>
+      <ul class="grocery-list">
+        <li><span class="grocery-tag grocery-tag-infra">INFRA</span> Vercel (hosting + serverless functions + edge)</li>
+        <li><span class="grocery-tag grocery-tag-infra">INFRA</span> Supabase or Neon (managed PostgreSQL with pgvector extension)</li>
+        <li><span class="grocery-tag grocery-tag-infra">INFRA</span> Cloudflare R2 (S3-compatible object storage, free egress)</li>
+        <li><span class="grocery-tag grocery-tag-infra">INFRA</span> Upstash Redis (serverless Redis for caching + rate limits)</li>
+        <li><span class="grocery-tag grocery-tag-infra">INFRA</span> Cloudflare Images or imgproxy (image transform CDN)</li>
+        <li><span class="grocery-tag grocery-tag-auth">AUTH</span> NextAuth.js or Clerk (authentication + OAuth providers)</li>
+        <li><span class="grocery-tag grocery-tag-auth">AUTH</span> Custom RBAC middleware (role checks on every API route)</li>
+        <li><span class="grocery-tag grocery-tag-api">API</span> GraphQL Yoga or Apollo Server (GraphQL layer)</li>
+        <li><span class="grocery-tag grocery-tag-api">API</span> Prisma or Drizzle ORM (type-safe database access)</li>
+        <li><span class="grocery-tag grocery-tag-api">API</span> Zod (runtime validation for all content inputs)</li>
+        <li><span class="grocery-tag grocery-tag-ui">UI</span> Tiptap or Plate (rich text editor framework)</li>
+        <li><span class="grocery-tag grocery-tag-ui">UI</span> dnd-kit or @hello-pangea/dnd (drag-and-drop for page builder)</li>
+        <li><span class="grocery-tag grocery-tag-ui">UI</span> Tailwind + Radix UI (admin dashboard components)</li>
+        <li><span class="grocery-tag grocery-tag-ai">AI</span> Anthropic Claude API (content generation, translation, alt text)</li>
+        <li><span class="grocery-tag grocery-tag-ai">AI</span> pgvector (vector embeddings stored in PostgreSQL for semantic search)</li>
+        <li><span class="grocery-tag grocery-tag-infra">SDK</span> Published npm package -- @joshs-cms/react, @joshs-cms/vue, @joshs-cms/js</li>
+        <li><span class="grocery-tag grocery-tag-infra">SDK</span> CLI tool (cms init, cms pull, cms push, cms migrate)</li>
+        <li><span class="grocery-tag grocery-tag-infra">DEVOPS</span> GitHub Actions for CI/CD (lint, test, deploy)</li>
+        <li><span class="grocery-tag grocery-tag-infra">DEVOPS</span> Turborepo monorepo (apps/admin, apps/api, packages/sdk, packages/shared)</li>
+      </ul>
+
+      <div class="card-actions" style="margin-top:16px">
+        <a class="act-btn" href="https://www.builder.io/headless-cms" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Builder.io Reference
+        </a>
+        <button class="act-btn" onclick="copyText('Custom Headless CMS -- builder.io clone with visual editor, structured data, GraphQL, RBAC, AI content gen')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Brief
+        </button>
       </div>
     </div>
 
