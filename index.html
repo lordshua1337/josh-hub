@@ -4,32 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Command Center | Josh H.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #050505;
-    --surface: #0d0d0d;
-    --surface-2: #141414;
-    --border: #1a1a1a;
-    --border-hover: #2a2a2a;
-    --text: #e8e8e8;
-    --text-dim: #999;
-    --text-muted: #555;
-    --fire-1: #ff4500;
-    --fire-2: #ff6b00;
-    --fire-3: #ffaa00;
-    --fire-4: #ffcc33;
-    --fire-glow: rgba(255,69,0,0.15);
-    --fire-glow-strong: rgba(255,69,0,0.35);
-    --grad-fire: linear-gradient(135deg, #ff4500, #ff6b00, #ffaa00, #ffcc33);
-    --grad-fire-h: linear-gradient(90deg, #ff4500, #ff6b00, #ffaa00, #ffcc33);
+    --bg: #F9F6F1;
+    --surface: #FFFFFF;
+    --surface-hover: #FAF8F5;
+    --border: #E8E2D9;
+    --border-hover: #D4CBC0;
+    --text: #1A1612;
+    --text-secondary: #6B6258;
+    --text-tertiary: #9B9287;
+    --accent: #D97706;
+    --accent-soft: #FEF3C7;
+    --accent-hover: #B45309;
+    --success: #059669;
+    --success-soft: #D1FAE5;
+    --info: #2563EB;
+    --info-soft: #DBEAFE;
+    --warning: #D97706;
+    --warning-soft: #FEF3C7;
+    --danger: #DC2626;
+    --danger-soft: #FEE2E2;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.03);
+    --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* ===== LOCK SCREEN ===== */
@@ -37,7 +51,7 @@
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: #020202;
+    background: #FDFCFA;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -45,13 +59,13 @@
   }
   #lock.unlocked {
     opacity: 0;
-    transform: scale(1.08);
+    transform: scale(1.02);
     pointer-events: none;
   }
   .lock-bg {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(255,69,0,0.03) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 40%, rgba(217,119,6,0.04) 0%, transparent 60%);
   }
   .lock-inner {
     position: relative;
@@ -59,38 +73,37 @@
     z-index: 1;
   }
   .lock-label {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 3px;
-    color: #333;
-    margin-bottom: 60px;
+    color: var(--text-tertiary);
+    margin-bottom: 56px;
     text-transform: uppercase;
   }
   .lock-ring {
     position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 48px;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 44px;
   }
-  /* Subtle rotating glow behind pieces */
   .lock-ring::before {
     content: '';
     position: absolute;
-    inset: -20px;
+    inset: -16px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,69,0,0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(217,119,6,0.06) 0%, transparent 70%);
     animation: lockPulse 3s ease-in-out infinite;
   }
   @keyframes lockPulse {
-    0%, 100% { opacity: 0.4; transform: scale(0.95); }
-    50% { opacity: 1; transform: scale(1.05); }
+    0%, 100% { opacity: 0.3; transform: scale(0.96); }
+    50% { opacity: 1; transform: scale(1.04); }
   }
   .piece {
     position: absolute;
-    width: 54px;
-    height: 54px;
-    background: #111;
-    border: 1px solid #1a1a1a;
+    width: 44px;
+    height: 44px;
+    background: #F0EBE3;
+    border: 1px solid var(--border);
     opacity: 0.2;
     transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1),
                 opacity 0.4s ease,
@@ -98,26 +111,26 @@
                 border-color 0.4s ease,
                 box-shadow 0.4s ease;
   }
-  .p1 { top: 0; left: 0; border-radius: 100% 8px 8px 8px; transform: translate(-36px, -36px); }
-  .p2 { top: 0; right: 0; border-radius: 8px 100% 8px 8px; transform: translate(36px, -36px); }
-  .p3 { bottom: 0; left: 0; border-radius: 8px 8px 8px 100%; transform: translate(-36px, 36px); }
-  .p4 { bottom: 0; right: 0; border-radius: 8px 8px 100% 8px; transform: translate(36px, 36px); }
+  .p1 { top: 0; left: 0; border-radius: 100% 6px 6px 6px; transform: translate(-30px, -30px); }
+  .p2 { top: 0; right: 0; border-radius: 6px 100% 6px 6px; transform: translate(30px, -30px); }
+  .p3 { bottom: 0; left: 0; border-radius: 6px 6px 6px 100%; transform: translate(-30px, 30px); }
+  .p4 { bottom: 0; right: 0; border-radius: 6px 6px 100% 6px; transform: translate(30px, 30px); }
   .piece.in {
     transform: translate(0, 0);
     opacity: 1;
-    border-color: var(--fire-1);
+    border-color: var(--accent);
   }
-  .p1.in { background: linear-gradient(135deg, #ff4500, #ff5500); box-shadow: 0 0 20px rgba(255,69,0,0.3); }
-  .p2.in { background: linear-gradient(135deg, #ff5500, #ff6b00); box-shadow: 0 0 20px rgba(255,107,0,0.3); }
-  .p3.in { background: linear-gradient(135deg, #ff8800, #ffaa00); box-shadow: 0 0 20px rgba(255,170,0,0.3); }
-  .p4.in { background: linear-gradient(135deg, #ffaa00, #ffcc33); box-shadow: 0 0 20px rgba(255,204,51,0.3); }
+  .p1.in { background: #FDE68A; box-shadow: 0 0 16px rgba(217,119,6,0.15); }
+  .p2.in { background: #FCD34D; box-shadow: 0 0 16px rgba(217,119,6,0.15); }
+  .p3.in { background: #FBBF24; box-shadow: 0 0 16px rgba(217,119,6,0.15); }
+  .p4.in { background: #F59E0B; box-shadow: 0 0 16px rgba(217,119,6,0.15); }
   .piece.merge {
     transition: transform 0.35s ease, box-shadow 0.35s ease;
   }
-  .p1.merge { transform: translate(4px, 4px); }
-  .p2.merge { transform: translate(-4px, -4px); }
-  .p3.merge { transform: translate(4px, -4px); }
-  .p4.merge { transform: translate(-4px, 4px); }
+  .p1.merge { transform: translate(3px, 3px); }
+  .p2.merge { transform: translate(-3px, -3px); }
+  .p3.merge { transform: translate(3px, -3px); }
+  .p4.merge { transform: translate(-3px, 3px); }
   .lock-ring.spin {
     animation: lockSpin 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
@@ -126,45 +139,45 @@
     100% { transform: rotate(180deg); }
   }
   .lock-ring.glow .piece {
-    box-shadow: 0 0 40px rgba(255,69,0,0.6), 0 0 80px rgba(255,107,0,0.3);
+    box-shadow: 0 0 30px rgba(217,119,6,0.3), 0 0 60px rgba(217,119,6,0.1);
   }
   .lock-dots {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   .ldot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    border: 1.5px solid #222;
+    border: 1.5px solid var(--border);
     transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
   }
   .ldot.filled {
-    background: var(--fire-2);
-    border-color: var(--fire-2);
-    box-shadow: 0 0 8px rgba(255,107,0,0.5);
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 6px rgba(217,119,6,0.3);
   }
   .lock-hint {
     font-size: 11px;
     letter-spacing: 2px;
-    color: #2a2a2a;
+    color: var(--text-tertiary);
     text-transform: uppercase;
   }
   @keyframes lockShake {
     0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-12px); }
-    40% { transform: translateX(10px); }
-    60% { transform: translateX(-8px); }
-    80% { transform: translateX(6px); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(4px); }
   }
-  .lock-inner.shake { animation: lockShake 0.45s ease; }
+  .lock-inner.shake { animation: lockShake 0.4s ease; }
 
-  /* ===== DASHBOARD ===== */
+  /* ===== LAYOUT ===== */
   #dash {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
     transition: opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s;
   }
   #dash.revealed {
@@ -172,129 +185,195 @@
     transform: translateY(0);
   }
 
-  /* Header */
-  .header {
-    padding: 40px 24px 0;
-    max-width: 1200px;
-    margin: 0 auto;
+  /* Nav Bar */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(249,246,241,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
   }
-  .header-top {
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    height: 56px;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-logo {
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .nav-links {
+    display: flex;
+    gap: 4px;
+  }
+  .nav-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: var(--radius-xs);
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-link:hover { background: rgba(0,0,0,0.04); color: var(--text); }
+  .nav-link.active { background: rgba(0,0,0,0.06); color: var(--text); }
+  .nav-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: var(--mono);
+  }
+
+  /* Header */
+  .header {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 32px 0;
   }
   .header h1 {
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -0.5px;
-  }
-  .header h1 span {
-    background: var(--grad-fire);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text);
+    margin-bottom: 6px;
   }
   .header-sub {
     font-size: 15px;
-    color: var(--text-dim);
+    color: var(--text-secondary);
     margin-bottom: 32px;
-  }
-  .timestamp {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-family: 'SF Mono', 'Fira Code', monospace;
   }
 
-  /* Quick Stats Bar */
+  /* Quick Stats */
   .stats-bar {
-    display: flex;
-    gap: 1px;
-    background: var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 32px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
   }
-  .stat-item {
-    flex: 1;
+  .stat-card {
     background: var(--surface);
-    padding: 16px 20px;
-    text-align: center;
-    transition: background 0.3s;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .stat-item:hover { background: var(--surface-2); }
-  .stat-item:first-child { border-radius: 12px 0 0 12px; }
-  .stat-item:last-child { border-radius: 0 12px 12px 0; }
-  .stat-num {
-    font-size: 24px;
-    font-weight: 700;
-    background: var(--grad-fire);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-family: 'SF Mono', 'Fira Code', monospace;
+  .stat-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
   }
   .stat-label {
     font-size: 12px;
-    color: var(--text-muted);
+    font-weight: 500;
+    color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: 2px;
+    margin-bottom: 8px;
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: var(--mono);
+    letter-spacing: -1px;
+  }
+  .stat-delta {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--success);
+    margin-top: 4px;
   }
 
-  /* Main Grid */
+  /* Main */
   .main {
-    max-width: 1200px;
+    max-width: 1120px;
     margin: 0 auto;
-    padding: 0 24px 60px;
+    padding: 0 32px 80px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
   }
   .section-label {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-    padding-left: 4px;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
   }
+  .section-action {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: var(--radius-xs);
+    transition: background 0.2s;
+  }
+  .section-action:hover { background: var(--accent-soft); }
 
   /* Project Cards */
   .projects {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    margin-bottom: 40px;
+    margin-bottom: 48px;
   }
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 24px;
-    transition: border-color 0.3s, transform 0.15s, box-shadow 0.3s;
-    cursor: default;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
     position: relative;
-    overflow: hidden;
   }
   .card:hover {
-    border-color: #333;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
   }
   .card-accent {
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
+    left: 24px;
+    right: 24px;
+    height: 2px;
+    border-radius: 0 0 2px 2px;
   }
   .card-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
-  .card-title { font-size: 18px; font-weight: 600; }
-  .card-badge {
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .badge {
     font-size: 11px;
     font-weight: 600;
     padding: 3px 10px;
@@ -302,21 +381,26 @@
     white-space: nowrap;
   }
   .badge-active {
-    background: rgba(255,69,0,0.12);
-    color: var(--fire-2);
-    border: 1px solid rgba(255,69,0,0.2);
+    background: var(--success-soft);
+    color: var(--success);
   }
   .badge-planning {
-    background: rgba(255,170,0,0.1);
-    color: var(--fire-3);
-    border: 1px solid rgba(255,170,0,0.2);
+    background: var(--warning-soft);
+    color: var(--warning);
   }
-  .badge-done { background: #111; color: var(--text-muted); border: 1px solid #1a1a1a; }
+  .badge-idea {
+    background: var(--info-soft);
+    color: var(--info);
+  }
+  .badge-done {
+    background: #F3F0EB;
+    color: var(--text-tertiary);
+  }
   .card-desc {
     font-size: 14px;
-    color: var(--text-dim);
+    color: var(--text-secondary);
     margin-bottom: 16px;
-    line-height: 1.5;
+    line-height: 1.55;
   }
   .card-meta {
     display: flex;
@@ -326,10 +410,10 @@
   }
   .meta-item {
     font-size: 12px;
-    color: var(--text-muted);
+    color: var(--text-tertiary);
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
   }
   .meta-dot {
     width: 6px;
@@ -337,9 +421,9 @@
     border-radius: 50%;
     display: inline-block;
   }
-  .dot-fire { background: var(--fire-1); box-shadow: 0 0 6px rgba(255,69,0,0.4); }
-  .dot-amber { background: var(--fire-3); box-shadow: 0 0 6px rgba(255,170,0,0.3); }
-  .dot-dim { background: #444; }
+  .dot-active { background: var(--success); }
+  .dot-warning { background: var(--warning); }
+  .dot-muted { background: var(--border-hover); }
   .card-links {
     display: flex;
     gap: 8px;
@@ -348,267 +432,334 @@
   .card-link {
     font-size: 12px;
     font-weight: 500;
-    color: var(--fire-2);
+    color: var(--accent);
     text-decoration: none;
     padding: 5px 12px;
-    border: 1px solid rgba(255,107,0,0.2);
-    border-radius: 6px;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
   .card-link:hover {
-    background: var(--fire-1);
+    background: var(--accent);
+    border-color: var(--accent);
     color: #fff;
-    box-shadow: 0 0 16px rgba(255,69,0,0.25);
   }
   .card-link-disabled {
     font-size: 12px;
     font-weight: 500;
-    color: #333;
+    color: var(--text-tertiary);
     padding: 5px 12px;
-    border: 1px solid #1a1a1a;
-    border-radius: 6px;
-    cursor: default;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    opacity: 0.5;
   }
 
   /* Progress Bars */
-  .progress-row { margin-bottom: 16px; }
+  .progress-row { margin-bottom: 14px; }
   .progress-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 4px;
   }
-  .progress-label { font-size: 12px; color: var(--text-dim); }
+  .progress-label { font-size: 12px; color: var(--text-secondary); }
   .progress-pct {
     font-size: 12px;
-    color: var(--text-muted);
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-tertiary);
+    font-family: var(--mono);
   }
   .progress-track {
-    height: 6px;
-    background: #1a1a1a;
-    border-radius: 3px;
+    height: 4px;
+    background: #EDE8E0;
+    border-radius: 2px;
     overflow: hidden;
   }
   .progress-fill {
     height: 100%;
-    border-radius: 3px;
-    transition: width 0.6s ease;
+    border-radius: 2px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .fill-fire { background: var(--grad-fire-h); box-shadow: 0 0 8px rgba(255,69,0,0.3); }
-  .fill-dim { background: #333; }
+  .fill-accent { background: linear-gradient(90deg, #FBBF24, #D97706); }
+  .fill-success { background: var(--success); }
+  .fill-muted { background: var(--border-hover); }
 
-  /* Checklist Section */
-  .checklist-grid {
+  /* Scores */
+  .scores {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 40px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 48px;
   }
-  .checklist-card {
+  .score-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 20px;
-    transition: border-color 0.3s;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .checklist-card:hover { border-color: #2a2a2a; }
-  .checklist-title {
+  .score-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+  }
+  .score-value {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+  .score-highlight { color: var(--accent); }
+  .score-perfect { color: var(--success); }
+  .score-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+  .score-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    opacity: 0.7;
+  }
+
+  /* Checklists */
+  .checklists {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .cl-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .cl-card:hover { border-color: var(--border-hover); }
+  .cl-title {
     font-size: 14px;
     font-weight: 600;
-    margin-bottom: 12px;
+    color: var(--text);
+    margin-bottom: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .checklist-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
+  .cl-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-xs);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 11px;
     font-weight: 700;
   }
-  .icon-fire { background: rgba(255,69,0,0.15); color: var(--fire-2); }
-  .icon-amber { background: rgba(255,170,0,0.12); color: var(--fire-3); }
-  .icon-dim { background: #1a1a1a; color: #555; }
+  .cl-icon-accent { background: var(--accent-soft); color: var(--accent); }
+  .cl-icon-success { background: var(--success-soft); color: var(--success); }
+  .cl-icon-info { background: var(--info-soft); color: var(--info); }
+  .cl-icon-muted { background: #F0EBE3; color: var(--text-tertiary); }
   .cl-item {
     font-size: 13px;
-    padding: 6px 0;
-    color: var(--text-dim);
+    padding: 5px 0;
+    color: var(--text-secondary);
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    line-height: 1.4;
+    line-height: 1.45;
   }
   .cl-check {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
-    border: 1.5px solid #222;
+    border: 1.5px solid var(--border);
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 2px;
     font-size: 10px;
+    color: transparent;
+    transition: all 0.2s;
   }
   .cl-check.done {
-    background: rgba(255,69,0,0.12);
-    border-color: var(--fire-1);
-    color: var(--fire-2);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
   }
   .cl-check.done::after { content: "\2713"; }
-  .cl-item.done { color: var(--text-muted); text-decoration: line-through; }
+  .cl-item.done { color: var(--text-tertiary); text-decoration: line-through; }
   .cl-info {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
-    border: 1.5px solid #222;
+    border: 1.5px solid var(--border);
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 2px;
     font-size: 9px;
-    color: #444;
+    color: var(--text-tertiary);
   }
 
   /* Playbook Cards */
-  .playbook-row {
-    display: flex;
+  .playbooks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
-    margin-bottom: 40px;
+    margin-bottom: 48px;
   }
-  .playbook-card {
-    flex: 1;
+  .pb-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 20px;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .playbook-card:hover {
-    border-color: rgba(255,69,0,0.3);
-    box-shadow: 0 0 24px rgba(255,69,0,0.06);
+  .pb-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
   }
-  .playbook-name {
+  .pb-name {
     font-size: 15px;
     font-weight: 600;
+    color: var(--text);
     margin-bottom: 6px;
   }
-  .playbook-desc {
+  .pb-desc {
     font-size: 13px;
-    color: var(--text-dim);
+    color: var(--text-secondary);
     margin-bottom: 12px;
+    line-height: 1.5;
   }
-  .playbook-path {
+  .pb-path {
     font-size: 11px;
-    color: var(--text-muted);
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    background: #0a0a0a;
-    padding: 4px 8px;
-    border-radius: 4px;
+    color: var(--text-tertiary);
+    font-family: var(--mono);
+    background: #F5F1EB;
+    padding: 4px 10px;
+    border-radius: var(--radius-xs);
     display: inline-block;
-    border: 1px solid #1a1a1a;
+    border: 1px solid var(--border);
   }
 
-  /* Score Cards */
-  .scores {
-    display: flex;
+  /* Architecture Cards */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    margin-bottom: 40px;
+    margin-bottom: 48px;
   }
-  .score-card {
-    flex: 1;
+
+  /* Activity Log */
+  .activity-log {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    position: relative;
+    border-radius: var(--radius);
+    margin-bottom: 48px;
     overflow: hidden;
   }
-  .score-card:hover {
-    border-color: #2a2a2a;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  .log-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
-  .score-card.glow-card {
-    animation: cardGlow 3s ease-in-out infinite;
+  .log-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
   }
-  @keyframes cardGlow {
-    0%, 100% { box-shadow: 0 0 0 rgba(255,69,0,0); }
-    50% { box-shadow: 0 0 20px rgba(255,69,0,0.08); }
-  }
-  .score-value {
-    font-size: 36px;
-    font-weight: 700;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-  }
-  .score-fire {
-    background: var(--grad-fire);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .score-white { color: #ccc; }
-  .score-label {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 4px;
-  }
-  .score-sub {
+  .log-count {
     font-size: 11px;
-    color: #333;
-    margin-top: 8px;
-    font-style: italic;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    background: #F0EBE3;
+    padding: 2px 8px;
+    border-radius: 100px;
   }
-
-  /* Pulse border on key cards */
-  .pulse-border {
-    animation: borderPulse 4s ease-in-out infinite;
+  .log-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid #F3F0EB;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: background 0.15s;
   }
-  @keyframes borderPulse {
-    0%, 100% { border-color: var(--border); }
-    50% { border-color: rgba(255,69,0,0.2); }
+  .log-item:last-child { border-bottom: none; }
+  .log-item:hover { background: var(--surface-hover); }
+  .log-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .log-dot-build { background: var(--accent); }
+  .log-dot-deploy { background: var(--success); }
+  .log-dot-plan { background: var(--info); }
+  .log-dot-fix { background: var(--danger); }
+  .log-body { flex: 1; }
+  .log-msg {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .log-msg code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #F5F1EB;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+  .log-time {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: var(--mono);
+    margin-top: 2px;
   }
 
   /* Footer */
   .footer {
-    max-width: 1200px;
+    max-width: 1120px;
     margin: 0 auto;
-    padding: 24px;
+    padding: 24px 32px;
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .footer-text { font-size: 12px; color: #333; }
+  .footer-text {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
   .footer-links { display: flex; gap: 16px; }
   .footer-link {
     font-size: 12px;
-    color: var(--text-muted);
+    color: var(--text-tertiary);
     text-decoration: none;
     transition: color 0.2s;
   }
-  .footer-link:hover { color: var(--fire-2); }
+  .footer-link:hover { color: var(--accent); }
 
   /* Responsive */
   @media (max-width: 900px) {
-    .projects { grid-template-columns: 1fr; }
-    .checklist-grid { grid-template-columns: 1fr; }
-    .scores { flex-direction: column; }
-    .playbook-row { flex-direction: column; }
+    .projects, .playbooks { grid-template-columns: 1fr; }
+    .checklists, .arch-grid { grid-template-columns: 1fr; }
+    .scores, .stats-bar { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
   }
   @media (max-width: 600px) {
-    .stats-bar { flex-direction: column; gap: 1px; }
-    .stat-item { border-radius: 0; }
-    .stat-item:first-child { border-radius: 12px 12px 0 0; }
-    .stat-item:last-child { border-radius: 0 0 12px 12px; }
+    .stats-bar, .scores { grid-template-columns: 1fr; }
     .header h1 { font-size: 22px; }
-    .header-top { flex-direction: column; gap: 8px; }
+    .nav-inner { padding: 0 16px; }
+    .header { padding: 32px 16px 0; }
+    .main { padding: 0 16px 60px; }
+    .footer { padding: 24px 16px; }
   }
 </style>
 </head>
@@ -618,7 +769,7 @@
 <div id="lock">
   <div class="lock-bg"></div>
   <div class="lock-inner">
-    <div class="lock-label">// Command Center</div>
+    <div class="lock-label">Command Center</div>
     <div class="lock-ring">
       <div class="piece p1"></div>
       <div class="piece p2"></div>
@@ -638,282 +789,416 @@
 <!-- ===== DASHBOARD ===== -->
 <div id="dash">
 
-<div class="header">
-  <div class="header-top">
-    <h1><span>//</span> Command Center</h1>
-    <span class="timestamp">Last updated: 2026-02-27</span>
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">
+      <div class="nav-logo">J</div>
+      Command Center
+    </a>
+    <div class="nav-links">
+      <a class="nav-link active" href="#">Dashboard</a>
+      <a class="nav-link" href="#">Projects</a>
+      <a class="nav-link" href="#">Playbooks</a>
+      <a class="nav-link" href="#">Logs</a>
+    </div>
+    <span class="nav-meta" id="cc-timestamp">2026-03-01</span>
   </div>
-  <p class="header-sub">Projects, playbooks, optimization scores, and what's next.</p>
+</nav>
+
+<div class="header">
+  <h1>Overview</h1>
+  <p class="header-sub">Projects, performance, and what's next.</p>
 </div>
 
 <div class="main">
 
   <!-- Quick Stats -->
   <div class="stats-bar">
-    <div class="stat-item">
-      <div class="stat-num">1</div>
+    <div class="stat-card">
       <div class="stat-label">Active Projects</div>
+      <div class="stat-num">5</div>
+      <div class="stat-delta">+4 this week</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num">12</div>
-      <div class="stat-label">Optimizations Done</div>
+    <div class="stat-card">
+      <div class="stat-label">Builds Shipped</div>
+      <div class="stat-num">18</div>
+      <div class="stat-delta">+7 today</div>
     </div>
-    <div class="stat-item">
+    <div class="stat-card">
+      <div class="stat-label">Apps Built</div>
       <div class="stat-num">4</div>
-      <div class="stat-label">AEO Pages</div>
+      <div class="stat-delta">All in one session</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num">2</div>
+    <div class="stat-card">
       <div class="stat-label">Playbooks</div>
+      <div class="stat-num">3</div>
+      <div class="stat-delta">Nightcrawler 2.0</div>
     </div>
   </div>
 
   <!-- Performance Scores -->
-  <div class="section-label">Performance Scores</div>
+  <div class="section-header">
+    <div class="section-label">Performance Scores</div>
+  </div>
   <div class="scores">
-    <div class="score-card glow-card pulse-border">
-      <div class="score-value score-fire">88</div>
+    <div class="score-card">
+      <div class="score-value score-highlight">88</div>
       <div class="score-label">PageSpeed Mobile</div>
-      <div class="score-sub">Up from 84 (+4)</div>
+      <div class="score-sub">+4 from baseline</div>
     </div>
     <div class="score-card">
-      <div class="score-value score-fire">96</div>
+      <div class="score-value score-highlight">96</div>
       <div class="score-label">PageSpeed Desktop</div>
       <div class="score-sub">Solid baseline</div>
     </div>
     <div class="score-card">
-      <div class="score-value score-fire">100</div>
+      <div class="score-value score-perfect">100</div>
       <div class="score-label">Accessibility</div>
-      <div class="score-sub">WCAG 2.1 AA compliant</div>
+      <div class="score-sub">WCAG 2.1 AA</div>
     </div>
     <div class="score-card">
-      <div class="score-value score-white">SEO</div>
+      <div class="score-value" style="font-size:20px;padding-top:6px;">SEO</div>
       <div class="score-label">AEO Strategy</div>
-      <div class="score-sub">4 pages live, more planned</div>
+      <div class="score-sub">4 pages, more planned</div>
     </div>
   </div>
 
   <!-- Projects -->
-  <div class="section-label">Projects</div>
+  <div class="section-header">
+    <div class="section-label">Projects</div>
+  </div>
   <div class="projects">
 
     <!-- CTAX Partner Site -->
-    <div class="card pulse-border">
-      <div class="card-accent" style="background: var(--grad-fire-h);"></div>
+    <div class="card">
+      <div class="card-accent" style="background: linear-gradient(90deg, #D97706, #F59E0B);"></div>
       <div class="card-header">
         <div class="card-title">Community Tax Partner Site</div>
-        <span class="card-badge badge-active">Active</span>
+        <span class="badge badge-active">Active</span>
       </div>
-      <div class="card-desc">Enterprise partner program SPA — referral portal, dashboard, AI tools (Revenue Lab, Script Builder, Ad Maker), gamification, CE training, and marketing kit.</div>
+      <div class="card-desc">Enterprise partner program SPA -- referral portal, dashboard, AI tools (ICP Builder, Script Builder, Ad Maker), gamification, CE training, and marketing kit.</div>
       <div class="card-meta">
-        <span class="meta-item"><span class="meta-dot dot-fire"></span> 16 JS modules</span>
-        <span class="meta-item"><span class="meta-dot dot-dim"></span> 5 CSS files</span>
-        <span class="meta-item"><span class="meta-dot dot-amber"></span> SPA architecture</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> 24 JS modules</span>
+        <span class="meta-item"><span class="meta-dot dot-muted"></span> 6 CSS files</span>
+        <span class="meta-item"><span class="meta-dot dot-warning"></span> SPA</span>
       </div>
       <div class="progress-row">
         <div class="progress-header">
-          <span class="progress-label">Optimization plan</span>
+          <span class="progress-label">Core Features</span>
           <span class="progress-pct">100%</span>
         </div>
         <div class="progress-track">
-          <div class="progress-fill fill-fire" style="width:100%;"></div>
+          <div class="progress-fill fill-accent" style="width:100%;"></div>
         </div>
       </div>
       <div class="progress-row">
         <div class="progress-header">
-          <span class="progress-label">AEO content</span>
+          <span class="progress-label">AEO Content</span>
           <span class="progress-pct">40%</span>
         </div>
         <div class="progress-track">
-          <div class="progress-fill fill-fire" style="width:40%;"></div>
+          <div class="progress-fill fill-accent" style="width:40%;"></div>
         </div>
       </div>
       <div class="card-links">
-        <a class="card-link" href="https://github.com/lordshua1337/josh-hub" target="_blank">Hub Repo</a>
-        <span class="card-link-disabled">Live Site (TBD)</span>
+        <a class="card-link" href="https://github.com/lordshua1337/josh-hub" target="_blank">Repo</a>
+        <span class="card-link-disabled">Live (TBD)</span>
       </div>
     </div>
 
-    <!-- Mobile App -->
+    <!-- DoodleForge -->
     <div class="card">
-      <div class="card-accent" style="background: linear-gradient(90deg, #ff6b00, #ffaa00);"></div>
+      <div class="card-accent" style="background: linear-gradient(90deg, #FF3B30, #FF6B5B);"></div>
       <div class="card-header">
-        <div class="card-title">Partner Portal Mobile App</div>
-        <span class="card-badge badge-planning">Evaluating</span>
+        <div class="card-title">DoodleForge</div>
+        <span class="badge badge-active">Built</span>
       </div>
-      <div class="card-desc">Mobile-first rebuild of the partner portal — referral submission, earnings tracking, KPI dashboard, push notifications. Evaluated current portal for app-readiness.</div>
+      <div class="card-desc">AI-powered app that transforms kids' drawings into professional art. Dbrand-style marketing, Stripe payments, Etsy print ordering, Stability AI.</div>
       <div class="card-meta">
-        <span class="meta-item"><span class="meta-dot dot-amber"></span> Needs architecture decision</span>
-        <span class="meta-item"><span class="meta-dot dot-dim"></span> PWA vs Native vs Hybrid</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TypeScript</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Stripe + Etsy</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> AI Image Gen</span>
       </div>
       <div class="progress-row">
         <div class="progress-header">
-          <span class="progress-label">Evaluation</span>
+          <span class="progress-label">Core Build</span>
           <span class="progress-pct">100%</span>
         </div>
         <div class="progress-track">
-          <div class="progress-fill fill-fire" style="width:100%;"></div>
-        </div>
-      </div>
-      <div class="progress-row">
-        <div class="progress-header">
-          <span class="progress-label">Implementation</span>
-          <span class="progress-pct">0%</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill fill-dim" style="width:0%;"></div>
+          <div class="progress-fill fill-success" style="width:100%;"></div>
         </div>
       </div>
       <div class="card-links">
-        <span class="card-link-disabled">Prototype (upcoming)</span>
+        <span class="card-link-disabled">~/projects/doodleforge</span>
+        <span class="card-link-disabled">Deploy (TBD)</span>
+      </div>
+    </div>
+
+    <!-- The Well -->
+    <div class="card">
+      <div class="card-accent" style="background: linear-gradient(90deg, #2D6A4F, #40916C);"></div>
+      <div class="card-header">
+        <div class="card-title">The Well</div>
+        <span class="badge badge-active">Built</span>
+      </div>
+      <div class="card-desc">Spiritual teaching app. Original Greek translations, WWJD companion chat, infinite-swipe scripture cards, Gnostic Gospels. 9 word corrections, 15 scripture cards.</div>
+      <div class="card-meta">
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TypeScript</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Claude API chat</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Swipe UX</span>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Core Build</span>
+          <span class="progress-pct">100%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill fill-success" style="width:100%;"></div>
+        </div>
+      </div>
+      <div class="card-links">
+        <span class="card-link-disabled">~/projects/the-well</span>
+        <span class="card-link-disabled">Deploy (TBD)</span>
+      </div>
+    </div>
+
+    <!-- Uncommon Cents -->
+    <div class="card">
+      <div class="card-accent" style="background: linear-gradient(90deg, #16A34A, #22C55E);"></div>
+      <div class="card-header">
+        <div class="card-title">Uncommon Cents</div>
+        <span class="badge badge-active">Built</span>
+      </div>
+      <div class="card-desc">Financial education app. Roth conversions, 401k overfunding, whole life protection, backdoor Roth, tax-loss harvesting, HSA strategy. Interactive calculators + AI chat.</div>
+      <div class="card-meta">
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TypeScript</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Claude API chat</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Calculators</span>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Core Build</span>
+          <span class="progress-pct">100%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill fill-success" style="width:100%;"></div>
+        </div>
+      </div>
+      <div class="card-links">
+        <span class="card-link-disabled">~/projects/uncommon-cents</span>
+        <span class="card-link-disabled">Deploy (TBD)</span>
+      </div>
+    </div>
+
+    <!-- StockPilot -->
+    <div class="card">
+      <div class="card-accent" style="background: linear-gradient(90deg, #00C853, #69F0AE);"></div>
+      <div class="card-header">
+        <div class="card-title">StockPilot</div>
+        <span class="badge badge-active">Built</span>
+      </div>
+      <div class="card-desc">AI-powered stock research + portfolio builder. 9 stocks with AI scores, thesis, catalysts, risks. Sector allocation, risk warnings, dividend projections.</div>
+      <div class="card-meta">
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TypeScript</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Portfolio builder</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> Dark theme</span>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Core Build</span>
+          <span class="progress-pct">100%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill fill-success" style="width:100%;"></div>
+        </div>
+      </div>
+      <div class="card-links">
+        <span class="card-link-disabled">~/projects/stock-pilot</span>
+        <span class="card-link-disabled">Deploy (TBD)</span>
       </div>
     </div>
 
     <!-- AEO Content -->
     <div class="card">
-      <div class="card-accent" style="background: linear-gradient(90deg, #ffaa00, #ffcc33);"></div>
+      <div class="card-accent" style="background: linear-gradient(90deg, #F59E0B, #FCD34D);"></div>
       <div class="card-header">
         <div class="card-title">AEO Content Pages</div>
-        <span class="card-badge badge-active">Active</span>
+        <span class="badge badge-active">Active</span>
       </div>
-      <div class="card-desc">Standalone Answer Engine Optimization pages — structured data, FAQ schemas, glossary, statistics, and how-to guides targeting AI citation.</div>
+      <div class="card-desc">Standalone Answer Engine Optimization pages -- structured data, FAQ schemas, glossary, statistics, and how-to guides targeting AI citation.</div>
       <div class="card-meta">
-        <span class="meta-item"><span class="meta-dot dot-fire"></span> 4 pages live</span>
-        <span class="meta-item"><span class="meta-dot dot-dim"></span> Self-contained HTML</span>
-        <span class="meta-item"><span class="meta-dot dot-amber"></span> Domain-portable</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> 4 pages live</span>
+        <span class="meta-item"><span class="meta-dot dot-muted"></span> Self-contained HTML</span>
       </div>
       <div class="progress-row">
         <div class="progress-header">
-          <span class="progress-label">Phase 1 (content pages)</span>
+          <span class="progress-label">Phase 1</span>
           <span class="progress-pct">100%</span>
         </div>
         <div class="progress-track">
-          <div class="progress-fill fill-fire" style="width:100%;"></div>
-        </div>
-      </div>
-      <div class="progress-row">
-        <div class="progress-header">
-          <span class="progress-label">Phase 2 (main site integration)</span>
-          <span class="progress-pct">0%</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill fill-dim" style="width:0%;"></div>
+          <div class="progress-fill fill-success" style="width:100%;"></div>
         </div>
       </div>
       <div class="card-links">
-        <a class="card-link" href="aeo/faq-expanded.html" target="_blank">FAQ (20 Q&A)</a>
-        <a class="card-link" href="aeo/glossary.html" target="_blank">Glossary (16 terms)</a>
+        <a class="card-link" href="aeo/faq-expanded.html" target="_blank">FAQ</a>
+        <a class="card-link" href="aeo/glossary.html" target="_blank">Glossary</a>
         <a class="card-link" href="aeo/statistics.html" target="_blank">Statistics</a>
-        <a class="card-link" href="aeo/howto-referral.html" target="_blank">How-To Guide</a>
-      </div>
-    </div>
-
-    <!-- Placeholder -->
-    <div class="card" style="border-style: dashed; opacity: 0.35;">
-      <div class="card-accent" style="background: #1a1a1a;"></div>
-      <div class="card-header">
-        <div class="card-title" style="color: var(--text-muted);">Next Project</div>
-        <span class="card-badge badge-done">Upcoming</span>
-      </div>
-      <div class="card-desc" style="color: #333;">Add your next project here. This dashboard grows with you.</div>
-      <div class="card-links">
-        <span class="card-link-disabled">Repo</span>
-        <span class="card-link-disabled">Live Site</span>
+        <a class="card-link" href="aeo/howto-referral.html" target="_blank">How-To</a>
       </div>
     </div>
 
   </div>
 
-  <!-- Checklists -->
-  <div class="section-label">What's Next</div>
-  <div class="checklist-grid">
-
-    <div class="checklist-card">
-      <div class="checklist-title">
-        <span class="checklist-icon icon-fire">S</span>
-        Site Optimizations
+  <!-- Activity Log -->
+  <div class="section-header">
+    <div class="section-label">Build Log</div>
+    <span class="log-count" id="cc-log-count">0 entries</span>
+  </div>
+  <div class="activity-log" id="cc-activity-log">
+    <div class="log-item">
+      <div class="log-dot log-dot-deploy"></div>
+      <div class="log-body">
+        <div class="log-msg"><code>StockPilot</code> built -- AI portfolio intelligence, 9 stocks w/ research, dark Robinhood-style UI</div>
+        <div class="log-time">2026-03-01 03:45 -- nightcrawler 2.0</div>
       </div>
-      <div class="cl-item done"><span class="cl-check done"></span> Fix FAQ heading mismatches</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Fix how.html heading hierarchy</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Add lazy loading to images</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Add width/height to images</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Fix nav keyboard accessibility</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Add focus-visible styles</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Fix interactive div a11y</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Add ARIA to nav controls</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Add OG image meta tags</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Deep link support</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Alt text audit</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Semantic HTML review</div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-deploy"></div>
+      <div class="log-body">
+        <div class="log-msg"><code>Uncommon Cents</code> built -- 6 financial strategies, Roth/HSA calculators, AI chat, green Anthropic style</div>
+        <div class="log-time">2026-03-01 03:15 -- nightcrawler 2.0</div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-deploy"></div>
+      <div class="log-body">
+        <div class="log-msg"><code>The Well</code> built -- 9 Greek word corrections, 15 scripture cards, swipe UX, WWJD chat, earth tone design</div>
+        <div class="log-time">2026-03-01 02:45 -- nightcrawler 2.0</div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-deploy"></div>
+      <div class="log-body">
+        <div class="log-msg"><code>DoodleForge</code> built -- Dbrand-style marketing, Stripe + Etsy, AI image gen, 8 art styles, pricing tiers</div>
+        <div class="log-time">2026-03-01 01:30 -- nightcrawler 2.0</div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-build"></div>
+      <div class="log-body">
+        <div class="log-msg">Command Center redesigned -- Anthropic design language, warm palette, Inter font, refined cards</div>
+        <div class="log-time">2026-03-01 00:30 -- nightcrawler 2.0</div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-build"></div>
+      <div class="log-body">
+        <div class="log-msg">Built <code>ICP Builder</code> on ai-tools page -- 6-question questionnaire, Claude API, tabbed results, PDF download</div>
+        <div class="log-time">2026-03-01 -- ctax-partner-site</div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="log-dot log-dot-plan"></div>
+      <div class="log-body">
+        <div class="log-msg">Nightcrawler 2.0 playbook activated -- multi-project scope, zero permissions, command center logging</div>
+        <div class="log-time">2026-03-01 00:00 -- nightcrawler 2.0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What's Next -->
+  <div class="section-header">
+    <div class="section-label">What's Next</div>
+  </div>
+  <div class="checklists">
+
+    <div class="cl-card">
+      <div class="cl-title">
+        <span class="cl-icon cl-icon-accent">D</span>
+        DoodleForge
+      </div>
+      <div class="cl-item done"><span class="cl-check done"></span> Initialize Next.js project</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Design system + layout</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Upload + drawing canvas</div>
+      <div class="cl-item done"><span class="cl-check done"></span> AI image generation API</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Stripe payment flow</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Etsy print ordering</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Gallery + downloads</div>
+      <div class="cl-item"><span class="cl-check"></span> Deploy to Vercel</div>
     </div>
 
-    <div class="checklist-card">
-      <div class="checklist-title">
-        <span class="checklist-icon icon-amber">A</span>
-        AEO Strategy
+    <div class="cl-card">
+      <div class="cl-title">
+        <span class="cl-icon cl-icon-info">W</span>
+        The Well
       </div>
-      <div class="cl-item done"><span class="cl-check done"></span> Expanded FAQ (20 questions)</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Tax resolution glossary</div>
-      <div class="cl-item done"><span class="cl-check done"></span> IRS statistics page</div>
-      <div class="cl-item done"><span class="cl-check done"></span> How-to referral guide</div>
-      <div class="cl-item"><span class="cl-check"></span> Add JSON-LD to main SPA pages</div>
-      <div class="cl-item"><span class="cl-check"></span> Organization schema on index</div>
-      <div class="cl-item"><span class="cl-check"></span> Create dedicated OG image (1200x630)</div>
-      <div class="cl-item"><span class="cl-check"></span> Sitemap for AEO pages</div>
-      <div class="cl-item"><span class="cl-check"></span> Comparison page (vs competitors)</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Research Greek translations</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Curate scripture corpus</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Design infinite swipe UX</div>
+      <div class="cl-item done"><span class="cl-check done"></span> WWJD companion chat</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Word correction system</div>
+      <div class="cl-item done"><span class="cl-check done"></span> Mobile-first build</div>
+      <div class="cl-item"><span class="cl-check"></span> Deploy to Vercel</div>
     </div>
 
-    <div class="checklist-card">
-      <div class="checklist-title">
-        <span class="checklist-icon icon-dim">M</span>
-        Mobile App
+    <div class="cl-card">
+      <div class="cl-title">
+        <span class="cl-icon cl-icon-success">S</span>
+        Site + AEO
       </div>
-      <div class="cl-item done"><span class="cl-check done"></span> Evaluate current portal UX</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Document mobile CSS/breakpoints</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Audit touch targets</div>
-      <div class="cl-item done"><span class="cl-check done"></span> Assess app-readiness</div>
-      <div class="cl-item"><span class="cl-check"></span> Choose architecture (PWA/Native/Hybrid)</div>
-      <div class="cl-item"><span class="cl-check"></span> Design mobile-first navigation</div>
-      <div class="cl-item"><span class="cl-check"></span> Build prototype</div>
-      <div class="cl-item"><span class="cl-check"></span> Offline support</div>
-      <div class="cl-item"><span class="cl-check"></span> Push notifications</div>
+      <div class="cl-item done"><span class="cl-check done"></span> All 12 site optimizations</div>
+      <div class="cl-item done"><span class="cl-check done"></span> 4 AEO pages live</div>
+      <div class="cl-item"><span class="cl-check"></span> JSON-LD on main SPA</div>
+      <div class="cl-item"><span class="cl-check"></span> Organization schema</div>
+      <div class="cl-item"><span class="cl-check"></span> Dedicated OG image</div>
+      <div class="cl-item"><span class="cl-check"></span> Sitemap for AEO</div>
+      <div class="cl-item"><span class="cl-check"></span> Competitor comparison page</div>
     </div>
 
   </div>
 
   <!-- Playbooks -->
-  <div class="section-label">Playbooks</div>
-  <div class="playbook-row">
-    <div class="playbook-card">
-      <div class="playbook-name">Nightcrawler</div>
-      <div class="playbook-desc">Full autonomy build mode. Deep-dive development with continuous execution, no stopping for confirmation. For when Josh is away and work needs to ship.</div>
-      <div class="playbook-path">~/.claude/playbooks/nightcrawler.md</div>
+  <div class="section-header">
+    <div class="section-label">Playbooks</div>
+  </div>
+  <div class="playbooks">
+    <div class="pb-card">
+      <div class="pb-name">Nightcrawler 2.0</div>
+      <div class="pb-desc">Full autonomy build mode. Multi-project, multi-repo, command center logging. Deep-dive development with zero stopping. For when Josh is away and work needs to ship.</div>
+      <div class="pb-path">~/.claude/playbooks/nightcrawler.md</div>
     </div>
-    <div class="playbook-card">
-      <div class="playbook-name">Page Speed Ninja</div>
-      <div class="playbook-desc">Systematic PageSpeed optimization. The four metrics, golden rules from real failures, optimal loading strategy, pre-flight checklist, and diagnostic protocol. Target: 90+ mobile.</div>
-      <div class="playbook-path">~/.claude/playbooks/page-speed-ninja.md</div>
+    <div class="pb-card">
+      <div class="pb-name">Page Speed Ninja</div>
+      <div class="pb-desc">Systematic PageSpeed optimization. The four metrics, golden rules, optimal loading, pre-flight checklist, diagnostic protocol. Target: 90+ mobile.</div>
+      <div class="pb-path">~/.claude/playbooks/page-speed-ninja.md</div>
+    </div>
+    <div class="pb-card">
+      <div class="pb-name">PDF Generation</div>
+      <div class="pb-desc">html2pdf.js playbook. 816px containers, 1056px covers, CSS-only pagebreaks, append-generate-remove. Proven across 3 PDF builders.</div>
+      <div class="pb-path">~/.claude/projects/.../memory/pdf-generation.md</div>
     </div>
   </div>
 
   <!-- Architecture -->
-  <div class="section-label">Architecture Quick Reference</div>
-  <div class="checklist-grid">
-    <div class="checklist-card">
-      <div class="checklist-title">
-        <span class="checklist-icon icon-fire">P</span>
+  <div class="section-header">
+    <div class="section-label">Architecture Quick Reference</div>
+  </div>
+  <div class="arch-grid">
+    <div class="cl-card">
+      <div class="cl-title">
+        <span class="cl-icon cl-icon-accent">P</span>
         Partner Site Stack
       </div>
       <div class="cl-item"><span class="cl-info">i</span> Vanilla HTML/CSS/JS SPA</div>
       <div class="cl-item"><span class="cl-info">i</span> showPage() toggles .page divs</div>
       <div class="cl-item"><span class="cl-info">i</span> http-server on port 3000</div>
-      <div class="cl-item"><span class="cl-info">i</span> 16 JS modules, 5 CSS files</div>
+      <div class="cl-item"><span class="cl-info">i</span> 24 JS modules, 6 CSS files</div>
       <div class="cl-item"><span class="cl-info">i</span> Portal sidebar + section arch</div>
     </div>
-
-    <div class="checklist-card">
-      <div class="checklist-title">
-        <span class="checklist-icon icon-amber">C</span>
+    <div class="cl-card">
+      <div class="cl-title">
+        <span class="cl-icon cl-icon-success">C</span>
         CSS Strategy
       </div>
       <div class="cl-item"><span class="cl-info">i</span> base.css + nav.css = sync</div>
@@ -922,10 +1207,9 @@
       <div class="cl-item"><span class="cl-info">i</span> CSS vars for theming</div>
       <div class="cl-item"><span class="cl-info">i</span> 768px / 480px breakpoints</div>
     </div>
-
-    <div class="checklist-card">
-      <div class="checklist-title">
-        <span class="checklist-icon icon-dim">A</span>
+    <div class="cl-card">
+      <div class="cl-title">
+        <span class="cl-icon cl-icon-muted">A</span>
         API Layer
       </div>
       <div class="cl-item"><span class="cl-info">i</span> portal-api.js service layer</div>
@@ -949,6 +1233,15 @@
 
 <script>
 (function() {
+  // Timestamp
+  var ts = document.getElementById('cc-timestamp');
+  if (ts) ts.textContent = new Date().toISOString().split('T')[0];
+
+  // Log count
+  var logItems = document.querySelectorAll('.log-item');
+  var logCount = document.getElementById('cc-log-count');
+  if (logCount) logCount.textContent = logItems.length + ' entries';
+
   // Skip lock if already unlocked this session
   var lock = document.getElementById('lock');
   var dash = document.getElementById('dash');
@@ -975,38 +1268,31 @@
     if (isNaN(num)) return;
 
     if (num === code[progress]) {
-      // Correct digit
       pieces[progress].classList.add('in');
       dots[progress].classList.add('filled');
       progress++;
 
       if (progress === 4) {
         locked = false;
-        // Merge pieces
         setTimeout(function() {
           pieces.forEach(function(p) { p.classList.add('merge'); });
           ring.classList.add('spin');
         }, 350);
-        // Glow
         setTimeout(function() {
           ring.classList.add('glow');
         }, 600);
-        // Unlock
         setTimeout(function() {
           lock.classList.add('unlocked');
         }, 1000);
-        // Show dashboard
         setTimeout(function() {
           lock.style.display = 'none';
           dash.style.display = 'block';
-          // Trigger reflow before adding class
           dash.offsetHeight;
           dash.classList.add('revealed');
           sessionStorage.setItem('hub_unlocked', '1');
         }, 1600);
       }
     } else {
-      // Wrong digit — shake and reset
       inner.classList.add('shake');
       setTimeout(function() {
         inner.classList.remove('shake');
