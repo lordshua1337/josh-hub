@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills Library | Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shared.css">
+</head>
+<body>
+
+<!-- ===== LOCK SCREEN ===== -->
+<div id="lock">
+  <div class="lock-bg"></div>
+  <div class="lock-inner">
+    <div class="lock-label">Command Center</div>
+    <div class="lock-ring">
+      <div class="piece p1"></div>
+      <div class="piece p2"></div>
+      <div class="piece p3"></div>
+      <div class="piece p4"></div>
+    </div>
+    <div class="lock-dots">
+      <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
+    </div>
+    <div class="lock-hint">Access Code</div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dash">
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">
+      <div class="nav-logo">J</div>
+      Command Center
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link active" href="skills.html">Skills</a>
+      <a class="nav-link" href="achievements.html">Achievements</a>
+      <a class="nav-link" href="activity.html">Activity</a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-meta" id="cc-timestamp"></span>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode"></button>
+    </div>
+  </div>
+</nav>
+
+<div class="header fl-reveal">
+  <h1>Skills Library</h1>
+  <p class="header-sub" id="skills-count"></p>
+</div>
+
+<div class="main">
+
+  <!-- ===== FILTER BUTTONS ===== -->
+  <div class="skills-filter fl-reveal" id="skills-filter"></div>
+
+  <!-- ===== SKILL GRID ===== -->
+  <div class="skill-grid fl-reveal" id="skill-grid"></div>
+
+</div>
+
+<div class="footer">
+  <span class="footer-text">Built with Claude Code</span>
+  <div class="footer-links">
+    <a class="footer-link" href="https://github.com/lordshua1337/josh-hub" target="_blank">GitHub</a>
+    <a class="footer-link" href="https://github.com/lordshua1337" target="_blank">Profile</a>
+  </div>
+</div>
+
+</div>
+
+<div class="copy-toast" id="copy-toast">Copied!</div>
+
+<script src="js/shared.js"></script>
+<script>
+(function() {
+  // Initialize lock screen and face-lift animations
+  initLock();
+  initFaceLift();
+
+  var ts = document.getElementById('cc-timestamp');
+  if (ts) ts.textContent = new Date().toISOString().split('T')[0];
+
+  var skills = CC_STATE.skills;
+  var categories = ['All', 'CRO', 'Marketing', 'Analytics', 'SEO', 'Growth', 'Strategy', 'Writing', 'Automation', 'Data', 'AI', 'System', 'Design', 'UI', 'Outreach', 'Ads'];
+  var activeFilter = 'All';
+
+  // Set subtitle with skill count
+  var countEl = document.getElementById('skills-count');
+  countEl.textContent = skills.length + ' skills acquired';
+
+  // Build filter buttons
+  var filterWrap = document.getElementById('skills-filter');
+  categories.forEach(function(cat) {
+    var btn = document.createElement('button');
+    btn.className = 'filter-btn' + (cat === activeFilter ? ' active' : '');
+    btn.textContent = cat;
+    btn.addEventListener('click', function() {
+      activeFilter = cat;
+      // Update active state on all buttons
+      var buttons = filterWrap.querySelectorAll('.filter-btn');
+      buttons.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderGrid();
+    });
+    filterWrap.appendChild(btn);
+  });
+
+  // Render skill cards into the grid
+  function renderGrid() {
+    var grid = document.getElementById('skill-grid');
+    grid.innerHTML = '';
+
+    var filtered = activeFilter === 'All'
+      ? skills
+      : skills.filter(function(s) { return s.cat === activeFilter; });
+
+    filtered.forEach(function(skill) {
+      var card = document.createElement('div');
+      card.className = 'skill-card';
+      card.innerHTML =
+        '<div class="skill-name">' + skill.name + '</div>' +
+        '<div class="skill-cat">' + skill.cat + '</div>';
+      grid.appendChild(card);
+    });
+
+    // Update subtitle count to reflect filter
+    if (activeFilter === 'All') {
+      countEl.textContent = skills.length + ' skills acquired';
+    } else {
+      countEl.textContent = filtered.length + ' of ' + skills.length + ' skills -- ' + activeFilter;
+    }
+  }
+
+  renderGrid();
+})();
+</script>
+</body>
+</html>

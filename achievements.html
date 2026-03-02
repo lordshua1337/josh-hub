@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Achievements | Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shared.css">
+<style>
+  /* Unlocked grid: 3-column with larger cards */
+  .ach-grid-unlocked {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .ach-grid-unlocked .ach-card {
+    padding: 16px 20px;
+  }
+  .ach-grid-unlocked .ach-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+
+  /* Locked grid: 2-column */
+  .ach-grid-locked {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .ach-grid-locked .ach-card {
+    padding: 16px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ach-grid-locked .ach-card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .ach-grid-locked .ach-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+
+  /* Progress bar for locked achievements */
+  .ach-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .ach-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--border-hover), var(--text-tertiary));
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ach-progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+  }
+
+  /* Responsive overrides */
+  @media (max-width: 900px) {
+    .ach-grid-unlocked { grid-template-columns: repeat(2, 1fr); }
+    .ach-grid-locked { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .ach-grid-unlocked { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LOCK SCREEN ===== -->
+<div id="lock">
+  <div class="lock-bg"></div>
+  <div class="lock-inner">
+    <div class="lock-label">Command Center</div>
+    <div class="lock-ring">
+      <div class="piece p1"></div>
+      <div class="piece p2"></div>
+      <div class="piece p3"></div>
+      <div class="piece p4"></div>
+    </div>
+    <div class="lock-dots">
+      <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
+    </div>
+    <div class="lock-hint">Access Code</div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dash">
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">
+      <div class="nav-logo">J</div>
+      Command Center
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="skills.html">Skills</a>
+      <a class="nav-link active" href="achievements.html">Achievements</a>
+      <a class="nav-link" href="activity.html">Activity</a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-meta" id="cc-timestamp"></span>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode"></button>
+    </div>
+  </div>
+</nav>
+
+<div class="header fl-reveal">
+  <h1>Achievements</h1>
+  <p class="header-sub">10 / 16 unlocked</p>
+</div>
+
+<div class="main">
+
+  <!-- ===== UNLOCKED ACHIEVEMENTS ===== -->
+  <div class="ach-section fl-reveal">
+    <div class="section-header">
+      <span class="section-label">Unlocked</span>
+    </div>
+    <div class="ach-grid-unlocked">
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">1</div>
+        <div class="ach-info">
+          <div class="ach-name">First Blood</div>
+          <div class="ach-desc">Made your first commit</div>
+        </div>
+        <div class="ach-date">Feb 26</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">10</div>
+        <div class="ach-info">
+          <div class="ach-name">Commit Machine</div>
+          <div class="ach-desc">Made 10+ commits</div>
+        </div>
+        <div class="ach-date">Mar 01</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">50</div>
+        <div class="ach-info">
+          <div class="ach-name">Unstoppable</div>
+          <div class="ach-desc">Made 50+ commits</div>
+        </div>
+        <div class="ach-date">Mar 02</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">10</div>
+        <div class="ach-info">
+          <div class="ach-name">Skill Collector</div>
+          <div class="ach-desc">Created 10+ skills</div>
+        </div>
+        <div class="ach-date">Mar 01</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">50</div>
+        <div class="ach-info">
+          <div class="ach-name">Arsenal Unlocked</div>
+          <div class="ach-desc">Created 50+ skills</div>
+        </div>
+        <div class="ach-date">Mar 01</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">5</div>
+        <div class="ach-info">
+          <div class="ach-name">Ship It</div>
+          <div class="ach-desc">Shipped 5+ features</div>
+        </div>
+        <div class="ach-date">Feb 28</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">20</div>
+        <div class="ach-info">
+          <div class="ach-name">Feature Factory</div>
+          <div class="ach-desc">Shipped 20+ features</div>
+        </div>
+        <div class="ach-date">Mar 01</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">&#9650;</div>
+        <div class="ach-info">
+          <div class="ach-name">Live Wire</div>
+          <div class="ach-desc">First deployment to production</div>
+        </div>
+        <div class="ach-date">Mar 01</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">5</div>
+        <div class="ach-info">
+          <div class="ach-name">Getting Serious</div>
+          <div class="ach-desc">Reached level 5</div>
+        </div>
+        <div class="ach-date">Mar 01</div>
+      </div>
+
+      <div class="ach-card ach-unlocked">
+        <div class="ach-icon">&#9998;</div>
+        <div class="ach-info">
+          <div class="ach-name">Playbook Author</div>
+          <div class="ach-desc">Created your first playbook</div>
+        </div>
+        <div class="ach-date">Mar 01</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== LOCKED ACHIEVEMENTS ===== -->
+  <div class="ach-section fl-reveal">
+    <div class="section-header">
+      <span class="section-label">Locked</span>
+    </div>
+    <div class="ach-grid-locked">
+
+      <div class="ach-card ach-locked">
+        <div class="ach-card-top">
+          <div class="ach-icon">?</div>
+          <div class="ach-info">
+            <div class="ach-name">Double Digits</div>
+            <div class="ach-desc">Reach level 10</div>
+          </div>
+          <div class="ach-progress">LVL 6/10</div>
+        </div>
+        <div class="ach-progress-row">
+          <div class="ach-progress-bar">
+            <div class="ach-progress-fill" style="width: 60%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ach-card ach-locked">
+        <div class="ach-card-top">
+          <div class="ach-icon">?</div>
+          <div class="ach-info">
+            <div class="ach-name">Inspector</div>
+            <div class="ach-desc">Complete your first audit</div>
+          </div>
+          <div class="ach-progress">0/1</div>
+        </div>
+        <div class="ach-progress-row">
+          <div class="ach-progress-bar">
+            <div class="ach-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ach-card ach-locked">
+        <div class="ach-card-top">
+          <div class="ach-icon">?</div>
+          <div class="ach-info">
+            <div class="ach-name">Consistency</div>
+            <div class="ach-desc">Earn XP 7 days in a row</div>
+          </div>
+          <div class="ach-progress">3/7 days</div>
+        </div>
+        <div class="ach-progress-row">
+          <div class="ach-progress-bar">
+            <div class="ach-progress-fill" style="width: 42.86%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ach-card ach-locked">
+        <div class="ach-card-top">
+          <div class="ach-icon">?</div>
+          <div class="ach-info">
+            <div class="ach-name">Quarter Century</div>
+            <div class="ach-desc">Reach level 25</div>
+          </div>
+          <div class="ach-progress">LVL 6/25</div>
+        </div>
+        <div class="ach-progress-row">
+          <div class="ach-progress-bar">
+            <div class="ach-progress-fill" style="width: 24%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ach-card ach-locked">
+        <div class="ach-card-top">
+          <div class="ach-icon">?</div>
+          <div class="ach-info">
+            <div class="ach-name">Halfway There</div>
+            <div class="ach-desc">Reach level 50</div>
+          </div>
+          <div class="ach-progress">LVL 6/50</div>
+        </div>
+        <div class="ach-progress-row">
+          <div class="ach-progress-bar">
+            <div class="ach-progress-fill" style="width: 12%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ach-card ach-locked">
+        <div class="ach-card-top">
+          <div class="ach-icon">?</div>
+          <div class="ach-info">
+            <div class="ach-name">Max Level</div>
+            <div class="ach-desc">Reach level 99</div>
+          </div>
+          <div class="ach-progress">LVL 6/99</div>
+        </div>
+        <div class="ach-progress-row">
+          <div class="ach-progress-bar">
+            <div class="ach-progress-fill" style="width: 6.06%;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span class="footer-text">Built with Claude Code</span>
+  <div class="footer-links">
+    <a class="footer-link" href="https://github.com/lordshua1337/josh-hub" target="_blank">GitHub</a>
+    <a class="footer-link" href="https://github.com/lordshua1337" target="_blank">Profile</a>
+  </div>
+</div>
+
+</div>
+
+<div class="copy-toast" id="copy-toast">Copied!</div>
+
+<script src="js/shared.js"></script>
+<script>
+(function() {
+  initLock();
+  initFaceLift();
+
+  var ts = document.getElementById('cc-timestamp');
+  if (ts) ts.textContent = new Date().toISOString().split('T')[0];
+})();
+</script>
+</body>
+</html>

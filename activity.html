@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity Log | Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shared.css">
+<style>
+  /* === LOG FILTERS === */
+  .log-filters {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .log-filter-btn {
+    font-size: 12px; font-weight: 500;
+    padding: 5px 14px; border-radius: 100px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary);
+    cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+  }
+  .log-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .log-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOCK SCREEN ===== -->
+<div id="lock">
+  <div class="lock-bg"></div>
+  <div class="lock-inner">
+    <div class="lock-label">Command Center</div>
+    <div class="lock-ring">
+      <div class="piece p1"></div>
+      <div class="piece p2"></div>
+      <div class="piece p3"></div>
+      <div class="piece p4"></div>
+    </div>
+    <div class="lock-dots">
+      <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
+    </div>
+    <div class="lock-hint">Access Code</div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dash">
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">
+      <div class="nav-logo">J</div>
+      Command Center
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="skills.html">Skills</a>
+      <a class="nav-link" href="achievements.html">Achievements</a>
+      <a class="nav-link active" href="activity.html">Activity</a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-meta" id="cc-timestamp"></span>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode"></button>
+    </div>
+  </div>
+</nav>
+
+<div class="header fl-reveal">
+  <h1>Activity Log</h1>
+  <p class="header-sub">Full build history, training trends, and personalized recommendations.</p>
+</div>
+
+<div class="main">
+
+  <!-- ===== SECTION 1: TRAINING TRENDS ===== -->
+  <div class="section-header fl-reveal">
+    <div class="section-label">Training Trends</div>
+    <span class="log-count" id="trends-period">All time</span>
+  </div>
+  <div class="trends-section fl-reveal" id="trends-section">
+    <div class="trends-cols">
+      <div class="trends-chart" id="trends-chart"></div>
+      <div class="trends-focus" id="trends-focus"></div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: RECOMMENDATIONS CENTER ===== -->
+  <div class="section-header fl-reveal" style="margin-top:32px">
+    <div class="section-label">Recommendations</div>
+    <button class="reco-btn" id="reco-refresh" onclick="generateRecommendations()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Generate
+    </button>
+  </div>
+  <div class="reco-grid fl-reveal" id="reco-grid">
+    <div class="reco-empty">Click <strong>Generate</strong> to get personalized recommendations based on your activity.</div>
+  </div>
+
+  <!-- ===== SECTION 3: FULL BUILD LOG ===== -->
+  <div class="section-header fl-reveal" style="margin-top:32px">
+    <div class="section-label">Full Build Log</div>
+    <span class="log-count" id="log-count">0 entries</span>
+  </div>
+
+  <div class="log-filters fl-reveal" id="log-filters"></div>
+
+  <div class="activity-log fl-reveal" id="build-log"></div>
+
+</div>
+
+<div class="footer">
+  <span class="footer-text">Built with Claude Code</span>
+  <div class="footer-links">
+    <a class="footer-link" href="https://github.com/lordshua1337/josh-hub" target="_blank">GitHub</a>
+    <a class="footer-link" href="https://github.com/lordshua1337" target="_blank">Profile</a>
+  </div>
+</div>
+
+</div>
+
+<div class="copy-toast" id="copy-toast">Copied!</div>
+
+<script src="js/shared.js"></script>
+<script>
+(function() {
+  // Initialize lock screen and face-lift animations
+  initLock();
+  initFaceLift();
+
+  var ts = document.getElementById('cc-timestamp');
+  if (ts) ts.textContent = new Date().toISOString().split('T')[0];
+
+  // =============================================
+  // SECTION 1: TRAINING TRENDS
+  // =============================================
+  var log = CC_STATE.xp_log;
+
+  // Count entries by type
+  var byType = {};
+  var byTypeXP = {};
+  log.forEach(function(e) {
+    byType[e.type] = (byType[e.type] || 0) + 1;
+    byTypeXP[e.type] = (byTypeXP[e.type] || 0) + e.xp;
+  });
+
+  // Build bar chart
+  var chart = document.getElementById('trends-chart');
+  var sorted = Object.keys(byType).sort(function(a, b) { return byType[b] - byType[a]; });
+  var maxCount = byType[sorted[0]] || 1;
+
+  var chartHTML = '<div class="trends-chart-title">Activity by Type</div>';
+  sorted.forEach(function(t) {
+    var pct = Math.round((byType[t] / maxCount) * 100);
+    var label = t.replace(/_/g, ' ');
+    chartHTML += '<div class="trend-row">';
+    chartHTML += '<div class="trend-label">' + label + '</div>';
+    chartHTML += '<div class="trend-bar-track"><div class="trend-bar-fill trend-bar-fill-' + trendClass(t) + '" style="width:' + pct + '%"></div></div>';
+    chartHTML += '<div class="trend-val">' + byType[t] + '</div>';
+    chartHTML += '</div>';
+  });
+  chart.innerHTML = chartHTML;
+
+  // Build focus insights
+  var focus = document.getElementById('trends-focus');
+  var focusHTML = '<div class="trends-focus-title">What You\'ve Been Learning</div>';
+
+  // Recent work analysis
+  var recent = log.slice(0, 15);
+  var recentProjects = {};
+  recent.forEach(function(e) {
+    var proj = detectProject(e.event);
+    recentProjects[proj] = (recentProjects[proj] || 0) + 1;
+  });
+  var topProjects = Object.keys(recentProjects).sort(function(a, b) { return recentProjects[b] - recentProjects[a]; });
+
+  // Insights
+  var featureCount = byType.feature || 0;
+  var totalEntries = log.length;
+  var featurePct = Math.round((featureCount / totalEntries) * 100);
+  var skillXP = (byTypeXP.skill_created || 0) + (byTypeXP.skills_batch || 0);
+
+  focusHTML += '<div class="focus-item"><div class="focus-rank">1</div><div class="focus-text"><strong>Feature Development</strong> dominates at ' + featurePct + '% of all activity. You\'re in builder mode -- ' + featureCount + ' features shipped across ' + topProjects.length + ' projects.</div></div>';
+  focusHTML += '<div class="focus-item"><div class="focus-rank focus-rank-2">2</div><div class="focus-text"><strong>Skill Arsenal</strong> is your second biggest investment. ' + CC_STATE.skills_created + ' skills earning ' + skillXP.toLocaleString() + ' XP. Heavy focus on CRO, marketing, and growth automation.</div></div>';
+  focusHTML += '<div class="focus-item"><div class="focus-rank focus-rank-3">3</div><div class="focus-text"><strong>Current Focus:</strong> ' + topProjects.slice(0, 3).join(', ') + '. Your last 15 entries span ' + topProjects.length + ' different projects.</div></div>';
+
+  // Gaps
+  var gaps = [];
+  if (!byType.test) gaps.push('Testing');
+  if (!byType.audit) gaps.push('Auditing');
+  if (!byType.review) gaps.push('Code Review');
+  if (gaps.length > 0) {
+    focusHTML += '<div class="focus-item"><div class="focus-rank" style="background:var(--danger-soft);color:var(--danger)">!</div><div class="focus-text"><strong>Blind Spots:</strong> ' + gaps.join(', ') + ' -- zero activity in these areas. Consider adding them to your workflow.</div></div>';
+  }
+
+  focus.innerHTML = focusHTML;
+
+  // =============================================
+  // SECTION 2: RECOMMENDATIONS ENGINE
+  // =============================================
+  // generateRecommendations is defined in global scope below
+
+  // =============================================
+  // SECTION 3: FULL BUILD LOG
+  // =============================================
+  var BUILD_LOG = [
+    { type: 'build', msg: 'HoldingInsightCard -- 4-layer deep analysis card', time: '2026-03-02', project: 'stock-pilot' },
+    { type: 'deploy', msg: 'StockPilot deployed -- insight cards, benchmark tape', time: '2026-03-02', project: 'stock-pilot' },
+    { type: 'plan', msg: 'Expansion packs -- The Well + Uncommon Cents', time: '2026-03-02', project: 'the-well, uncommon-cents' },
+    { type: 'deploy', msg: 'StockPilot deployed -- 85 stocks, benchmarks', time: '2026-03-02', project: 'stock-pilot' },
+    { type: 'build', msg: 'Subagent system -- 4 AI agents + routing', time: '2026-03-02', project: 'claude-code' },
+    { type: 'build', msg: 'UI/UX Pro Max mega-expansion -- 21 CSVs', time: '2026-03-02', project: 'ui-ux-pro-max' },
+    { type: 'build', msg: 'Skill library setup -- 6 SKILL.md files', time: '2026-03-02', project: 'tools' },
+    { type: 'build', msg: '4 super-skills -- Portal, Compliance, RAG, DB', time: '2026-03-02', project: 'skills' },
+    { type: 'build', msg: '/sync-hub skill + auto-XP system', time: '2026-03-02', project: 'josh-hub' },
+    { type: 'build', msg: 'AI Tool Pipeline super-skill', time: '2026-03-02', project: 'skills' },
+    { type: 'build', msg: 'Uncommon Cents expansion -- 67 new concepts', time: '2026-03-02', project: 'uncommon-cents' },
+    { type: 'build', msg: 'Nightcrawler Max R4-6 -- 11 feat commits', time: '2026-03-02', project: 'nightcrawler max' },
+    { type: 'build', msg: 'Command center updates -- LVL 5, achievements', time: '2026-03-02', project: 'josh-hub' },
+    { type: 'build', msg: 'ICP Builder PDF footer', time: '2026-03-01', project: 'ctax-partner-site' },
+    { type: 'fix', msg: 'ICP Builder PDF pagination rewrite', time: '2026-03-01', project: 'ctax-partner-site' },
+    { type: 'build', msg: 'ICP Builder Uiverse loader', time: '2026-03-01', project: 'ctax-partner-site' },
+    { type: 'fix', msg: 'ICP Builder fixes -- JSON, markdown, Enter key', time: '2026-03-01', project: 'ctax-partner-site' },
+    { type: 'build', msg: 'DoodleForge neumorphic polish', time: '2026-03-01', project: 'doodleforge' },
+    { type: 'build', msg: 'DoodleForge dark premium redesign', time: '2026-03-01', project: 'doodleforge' },
+    { type: 'build', msg: 'Gamified Command Center', time: '2026-03-01', project: 'command center' },
+    { type: 'deploy', msg: 'Pushed 4 repos to GitHub', time: '2026-03-01', project: 'github' },
+    { type: 'build', msg: 'Created 55 growth/marketing skills', time: '2026-03-01', project: 'skills' },
+    { type: 'build', msg: 'ICP Builder cinematic scroll', time: '2026-03-01', project: 'ctax-partner-site' },
+    { type: 'build', msg: '30-Day Challenge redesign', time: '2026-03-01', project: 'ctax-partner-site' },
+    { type: 'fix', msg: 'Lightbulb widget repositioned', time: '2026-03-01', project: 'ctax-partner-site' },
+    { type: 'deploy', msg: 'StockPilot built -- portfolio intelligence', time: '2026-03-01', project: 'nightcrawler' },
+    { type: 'deploy', msg: 'Uncommon Cents built -- 132 concepts', time: '2026-03-01', project: 'nightcrawler' },
+    { type: 'deploy', msg: 'The Well built -- Greek word corrections', time: '2026-03-01', project: 'nightcrawler' },
+    { type: 'deploy', msg: 'DoodleForge built -- AI art + Stripe', time: '2026-03-01', project: 'nightcrawler' },
+    { type: 'build', msg: 'Command Center redesigned', time: '2026-03-01', project: 'nightcrawler' },
+    { type: 'plan', msg: 'Nightcrawler 2.0 playbook activated', time: '2026-03-01', project: 'nightcrawler' }
+  ];
+
+  // Filter categories: type -> label mapping
+  var FILTER_MAP = {
+    'All': null,
+    'Features': 'build',
+    'Bugfixes': 'fix',
+    'Deploys': 'deploy',
+    'Plans': 'plan',
+    'Skills': 'skill',
+    'Config': 'config'
+  };
+
+  var activeFilter = 'All';
+
+  // Build filter buttons
+  var filterWrap = document.getElementById('log-filters');
+  var filterKeys = ['All', 'Features', 'Bugfixes', 'Deploys', 'Plans', 'Skills', 'Config'];
+  filterKeys.forEach(function(label) {
+    var btn = document.createElement('button');
+    btn.className = 'log-filter-btn' + (label === activeFilter ? ' active' : '');
+    btn.textContent = label;
+    btn.addEventListener('click', function() {
+      activeFilter = label;
+      var buttons = filterWrap.querySelectorAll('.log-filter-btn');
+      buttons.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderBuildLog();
+    });
+    filterWrap.appendChild(btn);
+  });
+
+  // Dot class from entry type
+  function dotClass(type) {
+    var map = {
+      build: 'log-dot-build',
+      deploy: 'log-dot-deploy',
+      plan: 'log-dot-plan',
+      fix: 'log-dot-fix',
+      skill: 'log-dot-build',
+      config: 'log-dot-build'
+    };
+    return map[type] || 'log-dot-build';
+  }
+
+  // Render the build log based on active filter
+  function renderBuildLog() {
+    var container = document.getElementById('build-log');
+    var countEl = document.getElementById('log-count');
+
+    var filterType = FILTER_MAP[activeFilter];
+    var filtered = filterType === null
+      ? BUILD_LOG
+      : BUILD_LOG.filter(function(entry) { return entry.type === filterType; });
+
+    countEl.textContent = filtered.length + ' entr' + (filtered.length === 1 ? 'y' : 'ies');
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="log-item"><div class="log-body"><div class="log-msg" style="color:var(--text-tertiary)">No entries match this filter.</div></div></div>';
+      return;
+    }
+
+    var html = '';
+    filtered.forEach(function(entry) {
+      html += '<div class="log-item">';
+      html += '<div class="log-dot ' + dotClass(entry.type) + '"></div>';
+      html += '<div class="log-body">';
+      html += '<div class="log-msg">' + escapeHTML(entry.msg) + '</div>';
+      html += '<div class="log-time">' + entry.time + ' -- ' + entry.project + '</div>';
+      html += '</div>';
+      html += '</div>';
+    });
+
+    container.innerHTML = html;
+  }
+
+  // Basic HTML escape to prevent XSS
+  function escapeHTML(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  // Initial render
+  renderBuildLog();
+
+})();
+
+// =============================================
+// RECOMMENDATIONS ENGINE (global scope for onclick)
+// =============================================
+function generateRecommendations() {
+  var btn = document.getElementById('reco-refresh');
+  btn.classList.add('spinning');
+  var grid = document.getElementById('reco-grid');
+
+  setTimeout(function() {
+    var log = CC_STATE.xp_log;
+    var types = {};
+    log.forEach(function(e) { types[e.type] = (types[e.type] || 0) + 1; });
+
+    var pool = [];
+
+    // Quest recommendations
+    if (!types.audit) pool.push({ type: 'quest', cls: 'reco-quest', title: 'Run Your First Audit', desc: 'You have 0 audits completed. Run /seo-audit or /trust-signal-audit on one of your live sites to unlock the Inspector achievement.', xp: '+30 XP' });
+    if (!types.test) pool.push({ type: 'quest', cls: 'reco-quest', title: 'Write Your First Tests', desc: 'Zero test commits in your history. Add unit tests to any project -- StockPilot or Uncommon Cents are good candidates.', xp: '+20 XP per test' });
+    if (CC_STATE.deploys < 10) pool.push({ type: 'quest', cls: 'reco-quest', title: 'Deploy More Frequently', desc: 'You\'ve deployed ' + CC_STATE.deploys + ' times. Ship smaller, deploy often. Each deploy earns XP and keeps your sites current.', xp: '+40 XP per deploy' });
+    if (!types.milestone) pool.push({ type: 'milestone', cls: 'reco-milestone', title: 'Complete a Project Milestone', desc: 'No milestones logged yet. Complete a full phase from any BUILD_PLAN_V2.md and mark it as a milestone for the biggest XP reward.', xp: '+100 XP' });
+    pool.push({ type: 'quest', cls: 'reco-quest', title: 'Execute a Build Plan Phase', desc: 'You have Phase 7 expansion packs planned for The Well and Uncommon Cents. Pick one and start building.', xp: '+35-100 XP' });
+
+    // Optimization recommendations
+    pool.push({ type: 'optimize', cls: 'reco-optimize', title: 'Use Subagents for Research', desc: 'Dispatch spec-researcher and pattern-scout in parallel before building. This saves context window tokens and catches patterns you might miss.', xp: 'Saves ~30% tokens' });
+    pool.push({ type: 'optimize', cls: 'reco-optimize', title: 'Batch Similar Tasks', desc: 'Instead of switching between projects, batch all features for one project, then all features for the next. Context switching wastes tokens.', xp: 'Saves ~20% tokens' });
+    pool.push({ type: 'optimize', cls: 'reco-optimize', title: 'Use Nightcrawler for Bulk Work', desc: 'When you have 5+ independent tasks, activate Nightcrawler mode. It runs autonomously and logs everything to the command center.', xp: 'Max throughput' });
+    pool.push({ type: 'optimize', cls: 'reco-optimize', title: 'Compress CLAUDE.md Periodically', desc: 'Your global instructions load every message. Review ~/.claude/CLAUDE.md and prune anything outdated to reduce per-message token overhead.', xp: 'Faster responses' });
+    pool.push({ type: 'optimize', cls: 'reco-optimize', title: 'Use Haiku for Read-Only Tasks', desc: 'Route research, pattern scanning, and code review to haiku-model subagents. They\'re 10x cheaper and just as accurate for read-only work.', xp: 'Saves ~60% cost' });
+
+    // Skill recommendations
+    pool.push({ type: 'skill', cls: 'reco-skill', title: 'Create a Testing Skill', desc: 'You have 0 test-related skills. Build a /test-runner or /coverage-report skill to standardize quality checks across all projects.', xp: '+15 XP' });
+    pool.push({ type: 'skill', cls: 'reco-skill', title: 'Build a Deployment Skill', desc: 'Create a /deploy skill that handles Vercel + GitHub push + josh-hub sync in one command. Reduce friction on shipping.', xp: '+15 XP' });
+    pool.push({ type: 'skill', cls: 'reco-skill', title: 'Add Monitoring Skills', desc: 'No error-tracking or monitoring skills installed. Build /error-monitor or /uptime-check to watch your 5 live sites.', xp: '+15 XP each' });
+    pool.push({ type: 'skill', cls: 'reco-skill', title: 'Create Project Scaffolding Skill', desc: 'Build a /new-project skill that sets up Next.js + TypeScript + Tailwind + your standard configs in one shot.', xp: '+15 XP' });
+
+    // Milestone recommendations
+    pool.push({ type: 'milestone', cls: 'reco-milestone', title: 'Reach Level 10', desc: 'You need ' + (9900 - CC_STATE.xp).toLocaleString() + ' more XP to hit Level 10 (Operator) and unlock the Double Digits achievement.', xp: 'Achievement unlock' });
+    pool.push({ type: 'milestone', cls: 'reco-milestone', title: '7-Day Streak', desc: 'Earn XP every day for 7 consecutive days to unlock the Consistency achievement. You\'re at 3 days.', xp: 'Achievement unlock' });
+    pool.push({ type: 'milestone', cls: 'reco-milestone', title: 'Ship the Headless CMS', desc: 'Your most ambitious future project. Start with research phase -- even planning earns XP.', xp: '+50 XP (project setup)' });
+
+    // Shuffle and pick 6
+    for (var i = pool.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp;
+    }
+
+    // Ensure variety: pick at most 2 per type
+    var selected = [];
+    var typeCounts = {};
+    pool.forEach(function(r) {
+      if (selected.length >= 6) return;
+      typeCounts[r.type] = (typeCounts[r.type] || 0);
+      if (typeCounts[r.type] < 2) {
+        selected.push(r);
+        typeCounts[r.type]++;
+      }
+    });
+
+    var html = '';
+    selected.forEach(function(r) {
+      html += '<div class="reco-card ' + r.cls + '">';
+      html += '<div class="reco-type">' + r.type + '</div>';
+      html += '<div class="reco-title">' + r.title + '</div>';
+      html += '<div class="reco-desc">' + r.desc + '</div>';
+      html += '<div class="reco-xp">' + r.xp + '</div>';
+      html += '</div>';
+    });
+
+    grid.innerHTML = html;
+    btn.classList.remove('spinning');
+  }, 400);
+}
+</script>
+</body>
+</html>

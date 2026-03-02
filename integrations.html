@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrations | Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shared.css">
+<style>
+  .int-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .int-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+  .int-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .int-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 24px; right: 24px;
+    height: 2px;
+    border-radius: 0 0 2px 2px;
+  }
+  .int-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .int-card-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .int-card-icon svg { width: 22px; height: 22px; }
+  .int-card-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .int-card-status {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--success);
+    display: flex; align-items: center; gap: 4px;
+    margin-top: 2px;
+  }
+  .int-card-status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: intPulse 2s ease-in-out infinite;
+  }
+  @keyframes intPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  .int-card-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .int-card-details {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .int-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    padding: 4px 0;
+  }
+  .int-detail-label { color: var(--text-tertiary); }
+  .int-detail-value { color: var(--text); font-weight: 500; font-family: var(--mono); }
+  .int-card-actions {
+    display: flex; gap: 8px; margin-top: 12px;
+  }
+  @media (max-width: 900px) { .int-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div id="lock">
+  <div class="lock-bg"></div>
+  <div class="lock-inner">
+    <div class="lock-label">Command Center</div>
+    <div class="lock-ring">
+      <div class="piece p1"></div>
+      <div class="piece p2"></div>
+      <div class="piece p3"></div>
+      <div class="piece p4"></div>
+    </div>
+    <div class="lock-dots">
+      <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
+    </div>
+    <div class="lock-hint">Access Code</div>
+  </div>
+</div>
+
+<div id="dash">
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">
+      <div class="nav-logo">J</div>
+      Command Center
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="skills.html">Skills</a>
+      <a class="nav-link" href="achievements.html">Achievements</a>
+      <a class="nav-link" href="activity.html">Activity</a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-meta" id="cc-timestamp"></span>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode"></button>
+    </div>
+  </div>
+</nav>
+
+<div class="header">
+  <h1>Integrations</h1>
+  <p class="header-sub">Everything connected to the Command Center</p>
+</div>
+
+<div class="main">
+
+  <div class="int-grid fl-reveal" id="int-grid"></div>
+
+</div>
+
+<div class="footer">
+  <span class="footer-text">Built with Claude Code</span>
+  <div class="footer-links">
+    <a class="footer-link" href="https://github.com/lordshua1337/josh-hub" target="_blank">GitHub</a>
+    <a class="footer-link" href="https://github.com/lordshua1337" target="_blank">Profile</a>
+  </div>
+</div>
+
+</div>
+
+<div class="copy-toast" id="copy-toast">Copied!</div>
+
+<script src="js/shared.js"></script>
+<script>
+initLock();
+initFaceLift();
+
+var ts = document.getElementById('cc-timestamp');
+if (ts) ts.textContent = new Date().toISOString().split('T')[0];
+
+// Integration detail data
+var INT_DETAILS = {
+  'claude-code': {
+    color: '#D97706',
+    details: [
+      ['Model', 'Claude Opus 4.6'],
+      ['Skills', CC_STATE.skills_created + ' installed'],
+      ['Agents', '4 subagents (haiku + sonnet)'],
+      ['Playbooks', 'Nightcrawler, Nightcrawler Max']
+    ],
+    links: [{ label: 'View Skills', href: 'skills.html' }]
+  },
+  'github': {
+    color: '#1A1612',
+    details: [
+      ['Username', 'lordshua1337'],
+      ['Repos', CC_STATE.repos.length + ' repositories'],
+      ['Commits', CC_STATE.commits_made + ' total'],
+      ['Pages', '2 sites hosted']
+    ],
+    links: [{ label: 'Profile', href: 'https://github.com/lordshua1337', ext: true }]
+  },
+  'vercel': {
+    color: '#000000',
+    details: [
+      ['Apps', '4 deployed'],
+      ['DoodleForge', 'doodleforge.vercel.app'],
+      ['The Well', 'the-well-eight.vercel.app'],
+      ['Uncommon Cents', 'uncommon-cents.vercel.app'],
+      ['StockPilot', 'stock-pilot-puce.vercel.app']
+    ],
+    links: []
+  },
+  'github-pages': {
+    color: '#2563EB',
+    details: [
+      ['CTAX Site', 'lordshua1337.github.io/ctax-partner-site'],
+      ['josh-hub', 'lordshua1337.github.io/josh-hub'],
+      ['AEO Pages', '4 SEO-optimized pages']
+    ],
+    links: [{ label: 'CTAX Live', href: 'https://lordshua1337.github.io/ctax-partner-site/', ext: true }]
+  },
+  'anthropic': {
+    color: '#CC785C',
+    details: [
+      ['API', 'Claude Messages API'],
+      ['Used By', 'The Well, Uncommon Cents, StockPilot'],
+      ['Features', 'AI chat advisors, content generation'],
+      ['Model', 'Claude 3.5 Sonnet (in-app)']
+    ],
+    links: []
+  },
+  'stripe': {
+    color: '#635BFF',
+    details: [
+      ['Used By', 'DoodleForge'],
+      ['Features', 'Payment processing, subscription'],
+      ['Mode', 'Test + Live keys configured']
+    ],
+    links: [{ label: 'DoodleForge', href: 'https://doodleforge.vercel.app', ext: true }]
+  },
+  'mcp-servers': {
+    color: '#9333EA',
+    details: [
+      ['Context7', 'Library documentation lookup'],
+      ['imagegen', 'AI image generation'],
+      ['Canva', 'Design automation'],
+      ['Total', '3 active MCP servers']
+    ],
+    links: []
+  },
+  'nightcrawler': {
+    color: '#1E293B',
+    details: [
+      ['Mode', 'Autonomous build loop'],
+      ['Max Rounds', 'Infinite (until token limit)'],
+      ['Output', '11+ feat commits per session'],
+      ['Projects', 'Multi-project scope']
+    ],
+    links: [{ label: 'View Activity', href: 'activity.html' }]
+  }
+};
+
+(function() {
+  var grid = document.getElementById('int-grid');
+  if (!grid) return;
+  var html = '';
+
+  CC_STATE.integrations.forEach(function(int) {
+    var detail = INT_DETAILS[int.id] || { color: int.color, details: [], links: [] };
+    html += '<div class="int-card" id="' + int.id + '">';
+    html += '<div class="int-card-header">';
+    html += '<div class="int-card-icon" style="background:' + detail.color + '">' + getIcon(int.icon) + '</div>';
+    html += '<div>';
+    html += '<div class="int-card-name">' + int.name + '</div>';
+    html += '<div class="int-card-status"><span class="int-card-status-dot"></span>Connected</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="int-card-desc">' + int.desc + '</div>';
+
+    if (detail.details.length > 0) {
+      html += '<div class="int-card-details">';
+      detail.details.forEach(function(d) {
+        html += '<div class="int-detail-row"><span class="int-detail-label">' + d[0] + '</span><span class="int-detail-value">' + d[1] + '</span></div>';
+      });
+      html += '</div>';
+    }
+
+    if (detail.links.length > 0) {
+      html += '<div class="int-card-actions">';
+      detail.links.forEach(function(l) {
+        html += '<a class="act-btn" href="' + l.href + '"' + (l.ext ? ' target="_blank"' : '') + '>' + l.label + '</a>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+  });
+
+  grid.innerHTML = html;
+
+  // Scroll to hash if present
+  if (window.location.hash) {
+    var target = document.querySelector(window.location.hash);
+    if (target) {
+      setTimeout(function() {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.style.borderColor = 'var(--accent)';
+        target.style.boxShadow = '0 0 20px rgba(217,119,6,0.15)';
+      }, 2000);
+    }
+  }
+})();
+</script>
+</body>
+</html>
