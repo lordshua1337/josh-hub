@@ -176,21 +176,21 @@
           <span class="xp-level">LVL 6</span>
           <span class="xp-title-badge">Apprentice</span>
         </div>
-        <div class="xp-subtitle">810 XP to Level 7</div>
+        <div class="xp-subtitle">775 XP to Level 7</div>
 
         <div class="xp-bar-wrap">
           <div class="xp-bar-header">
-            <span class="xp-bar-label">3,990 / 4,800 XP</span>
-            <span class="xp-bar-pct">38%</span>
+            <span class="xp-bar-label">4,025 / 4,800 XP</span>
+            <span class="xp-bar-pct">40%</span>
           </div>
           <div class="xp-bar-track">
-            <div class="xp-bar-fill" style="width: 38%;"></div>
+            <div class="xp-bar-fill" style="width: 40%;"></div>
           </div>
         </div>
 
         <div class="xp-counters">
-          <a class="xp-counter" href="activity.html" style="text-decoration:none"><strong>91</strong> Tasks</a>
-          <a class="xp-counter" href="activity.html" style="text-decoration:none"><strong>63</strong> Commits</a>
+          <a class="xp-counter" href="activity.html" style="text-decoration:none"><strong>92</strong> Tasks</a>
+          <a class="xp-counter" href="activity.html" style="text-decoration:none"><strong>64</strong> Commits</a>
           <a class="xp-counter" href="skills.html" style="text-decoration:none"><strong>64</strong> Skills</a>
           <a class="xp-counter" href="activity.html" style="text-decoration:none"><strong>10</strong> Deploys</a>
           <span class="xp-counter"><strong>6</strong> Repos</span>
@@ -219,7 +219,7 @@
     <div class="stat-card">
       <a class="stat-link" href="activity.html">
         <div class="stat-label">Total XP</div>
-        <div class="stat-num">3,990</div>
+        <div class="stat-num">4,025</div>
         <div class="stat-delta">Level 6 Apprentice</div>
         <div class="stat-go">View breakdown ></div>
       </a>
@@ -367,10 +367,10 @@
         <div class="card-title">StockPilot</div>
         <span class="badge badge-active">Built</span>
       </div>
-      <div class="card-desc">AI stock research + portfolio builder. 9 stocks with AI scores, thesis, catalysts, risks. Dark Robinhood-style UI.</div>
+      <div class="card-desc">AI stock research + institutional portfolio builder. 85 stocks, AI signal engine, 5-tab portfolio (simulate, insights, scenarios, report), Financial DNA assessment, advisor sharing.</div>
       <div class="card-meta">
         <span class="meta-item"><span class="meta-dot dot-active"></span> Next.js + TS</span>
-        <span class="meta-item"><span class="meta-dot dot-active"></span> Portfolio builder</span>
+        <span class="meta-item"><span class="meta-dot dot-active"></span> 85 stocks + AI signals</span>
       </div>
       <div class="card-actions">
         <a class="act-btn act-btn-primary" href="https://stock-pilot-puce.vercel.app" target="_blank">Live Site</a>
@@ -401,12 +401,26 @@
 
   </div>
 
+  <!-- Future Projects -->
+  <div class="section-header fl-reveal">
+    <div class="section-label">Future Projects</div>
+    <span style="font-size:12px;color:var(--text-tertiary)">Spec ready, not yet built</span>
+  </div>
+  <div class="projects fl-reveal" id="future-projects"></div>
+
   <!-- Recent Activity (compact -- last 8 entries) -->
   <div class="section-header fl-reveal">
     <div class="section-label">Recent Activity</div>
     <a class="nav-link" href="activity.html" style="font-size:12px">View all ></a>
   </div>
   <div class="activity-log fl-reveal recent-log">
+    <div class="log-item">
+      <div class="log-dot log-dot-build"></div>
+      <div class="log-body">
+        <div class="log-msg">Portfolio upgrade -- 5-tab institutional experience (Build, Simulate, Insights, Scenarios, Report), AI signals, SVG charts, advisor sharing</div>
+        <div class="log-time">2026-03-02 -- stock-pilot</div>
+      </div>
+    </div>
     <div class="log-item">
       <div class="log-dot log-dot-build"></div>
       <div class="log-body">
@@ -520,6 +534,32 @@ if (spriteEl) spriteEl.innerHTML = renderSprite(CC_STATE.level);
     html += '</a>';
   });
   row.innerHTML = html;
+})();
+
+// Build future projects cards
+(function() {
+  var container = document.getElementById('future-projects');
+  if (!container || !CC_STATE.future_projects) return;
+  var html = '';
+  CC_STATE.future_projects.forEach(function(proj) {
+    html += '<div class="card">';
+    html += '<div class="card-accent" style="background: ' + proj.gradient + ';"></div>';
+    html += '<div class="card-header">';
+    html += '<div class="card-title">' + proj.title + '</div>';
+    html += '<span class="badge badge-planning">Planned</span>';
+    html += '</div>';
+    html += '<div class="card-desc">' + proj.desc + '</div>';
+    html += '<div class="card-meta">';
+    proj.stack.forEach(function(tech) {
+      html += '<span class="meta-item"><span class="meta-dot dot-muted"></span> ' + tech + '</span>';
+    });
+    html += '</div>';
+    html += '<div class="card-meta" style="margin-top:4px">';
+    html += '<span class="meta-item"><span class="meta-dot dot-warning"></span> ' + proj.phases + ' build phases</span>';
+    html += '</div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
 })();
 
 // Build achievement preview pills
