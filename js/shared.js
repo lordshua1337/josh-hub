@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 4735, level: 6, title: 'Apprentice',
-  total_tasks_completed: 107, skills_created: 68, commits_made: 82,
+  xp: 4845, level: 7, title: 'Apprentice',
+  total_tasks_completed: 109, skills_created: 68, commits_made: 84,
   plans_executed: 6, deploys: 11,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
