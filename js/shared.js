@@ -2,9 +2,9 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 3820, level: 6, title: 'Apprentice',
-  total_tasks_completed: 86, skills_created: 64, commits_made: 61,
-  plans_executed: 6, deploys: 8,
+  xp: 4560, level: 6, title: 'Apprentice',
+  total_tasks_completed: 102, skills_created: 68, commits_made: 77,
+  plans_executed: 6, deploys: 11,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -45,6 +45,39 @@ var CC_STATE = {
     { name: 'uncommon-cents', url: 'https://github.com/lordshua1337/uncommon-cents', live: 'https://uncommon-cents.vercel.app' },
     { name: 'stock-pilot', url: 'https://github.com/lordshua1337/stock-pilot', live: 'https://stock-pilot-puce.vercel.app' },
     { name: 'josh-hub', url: 'https://github.com/lordshua1337/josh-hub', live: 'https://lordshua1337.github.io/josh-hub/' }
+  ],
+  // Future projects (planned, not yet built)
+  future_projects: [
+    {
+      name: 'marcom-engine',
+      title: 'Marcom Engine',
+      desc: 'Internal marketing automation platform -- mission control dashboard, email engine, social engine, AI creative engine. Resend, Ayrshare, Apollo, Flux, Inngest.',
+      stack: ['Next.js', 'Supabase', 'Resend', 'Ayrshare', 'Inngest', 'Flux'],
+      phases: 5,
+      status: 'planned',
+      gradient: 'linear-gradient(90deg, #6366f1, #a78bfa)',
+      icon: 'terminal'
+    },
+    {
+      name: 'partner-portal-templates',
+      title: 'Partner Portal Templates',
+      desc: '6 landing page templates for the partner portal block builder -- lead gen, SaaS, B2B, event/launch, e-commerce, and custom builder. Full design system with typography, spacing, and color specs.',
+      stack: ['Next.js', 'CSS', 'Google Fonts', 'Block Builder'],
+      phases: 6,
+      status: 'planned',
+      gradient: 'linear-gradient(90deg, #2d5016, #4a7c2f)',
+      icon: 'globe'
+    },
+    {
+      name: 'headless-cms',
+      title: 'Headless CMS',
+      desc: 'Custom headless content management system -- API-first, multi-tenant, structured content types, media pipeline, webhook-driven publishing.',
+      stack: ['Next.js', 'Supabase', 'TypeScript'],
+      phases: 0,
+      status: 'planned',
+      gradient: 'linear-gradient(90deg, #0ea5e9, #38bdf8)',
+      icon: 'database'
+    }
   ],
   // Connected integrations
   integrations: [
