@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 6310, level: 7, title: 'Apprentice',
-  total_tasks_completed: 144, skills_created: 68, commits_made: 110,
+  xp: 6430, level: 7, title: 'Apprentice',
+  total_tasks_completed: 145, skills_created: 68, commits_made: 111,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -52,16 +52,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'event-bus',
-      title: 'Webhook Event Bus',
-      desc: 'Lightweight pub/sub event router between all apps. Publish events, subscribe consumers, retry logic, dead-letter handling. Zero coupling between producers and consumers.',
-      stack: ['Next.js', 'Supabase', 'Inngest', 'TypeScript'],
-      phases: 0,
-      status: 'planned',
-      gradient: 'linear-gradient(90deg, #06b6d4, #0ea5e9)',
-      icon: 'plug'
-    },
     {
       name: 'cashcow-trendsniper-merge',
       title: 'Cash Cow + Trend Sniper Merge',
@@ -217,6 +207,16 @@ var CC_STATE = {
       gradient: 'linear-gradient(90deg, #635BFF, #0A2540)',
       icon: 'credit-card',
       consumers: ['cash-cow', 'occulus', 'doodleforge', 'ctax-v3', 'pipeline-simulator']
+    },
+    {
+      name: 'event-bus',
+      title: 'Webhook Event Bus',
+      desc: 'Central pub/sub router for inter-app communication. Fan-out delivery, 3x retries, dead letter queue, typed SDK, monitoring dashboard.',
+      stack: ['Next.js', 'Supabase', 'Inngest', 'TypeScript'],
+      status: 'built',
+      gradient: 'linear-gradient(90deg, #06b6d4, #0ea5e9)',
+      icon: 'plug',
+      consumers: ['cash-cow', 'ad-intelligence', 'pipeline-simulator', 'image-forge', 'occulus']
     }
   ],
   // Connected integrations
@@ -231,6 +231,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Event Bus -- pub/sub router, Inngest delivery, dashboard, typed SDK', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Event Bus -- infrastructure package #2', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Auth + Billing Kit -- Supabase Auth, Stripe subs, tier gating, usage tracking, billing UI', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: Auth + Billing Kit -- infrastructure package #1', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Deployed Image Forge to GitHub Pages (Pick & Shovel #5)', xp: 40, type: 'deployment' },
