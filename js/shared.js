@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 7630, level: 8, title: 'Apprentice',
-  total_tasks_completed: 155, skills_created: 68, commits_made: 121,
+  xp: 7750, level: 8, title: 'Apprentice',
+  total_tasks_completed: 156, skills_created: 68, commits_made: 122,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -54,16 +54,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'partner-portal-templates',
-      title: 'Partner Portal Templates',
-      desc: '6 landing page templates for the partner portal block builder -- lead gen, SaaS, B2B, event/launch, e-commerce, and custom builder. Full design system with typography, spacing, and color specs.',
-      stack: ['Next.js', 'CSS', 'Google Fonts', 'Block Builder'],
-      phases: 6,
-      status: 'planned',
-      gradient: 'linear-gradient(90deg, #2d5016, #4a7c2f)',
-      icon: 'globe'
-    },
     {
       name: 'ctax-ai-tools-upgrade',
       title: 'CTAX AI Tools Upgrade',
@@ -133,6 +123,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Partner Portal Templates -- 6 landing page templates, template catalog, design specs, Supabase auth', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Partner Portal Templates -- build #12', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Marcom Engine V3 -- mission control, connection health, 7 integrations, engine locking, Inngest, approval queue', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: Marcom Engine V3 -- marketing OS build #11', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Image Forge V3 -- Supabase auth, design sync, brand kits, asset library, analytics', xp: 85, type: 'feature' },
