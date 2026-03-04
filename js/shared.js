@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 7390, level: 8, title: 'Apprentice',
-  total_tasks_completed: 153, skills_created: 68, commits_made: 119,
+  xp: 7510, level: 8, title: 'Apprentice',
+  total_tasks_completed: 154, skills_created: 68, commits_made: 120,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -54,16 +54,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'imageforge-v3',
-      title: 'Image Forge V3',
-      desc: 'Supabase rewrite -- Replicate AI generation, brand kits, asset library, print-on-demand, template system, multi-platform resize. Rolls into Marcom Engine.',
-      stack: ['Next.js', 'Supabase', 'Replicate', 'Canvas API', 'TypeScript'],
-      phases: 0,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #f59e0b, #d97706)',
-      icon: 'globe'
-    },
     {
       name: 'marcom-engine',
       title: 'Marcom Engine',
@@ -153,6 +143,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Image Forge V3 -- Supabase auth, design sync, brand kits, asset library, analytics', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Image Forge V3 -- backend build #10', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Ad Intelligence V3 -- Supabase auth, competitor sync, briefs, alerts, analytics', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: Ad Intelligence V3 -- backend build #9', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Pipeline Simulator V3 -- Supabase auth, cloud sync, simulation persistence, analytics', xp: 85, type: 'feature' },
