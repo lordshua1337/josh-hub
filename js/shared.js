@@ -45,8 +45,7 @@ var CC_STATE = {
     { name: 'uncommon-cents', url: 'https://github.com/lordshua1337/uncommon-cents', live: 'https://uncommon-cents.vercel.app' },
     { name: 'stock-pilot', url: 'https://github.com/lordshua1337/stock-pilot', live: 'https://stock-pilot-puce.vercel.app' },
     { name: 'josh-hub', url: 'https://github.com/lordshua1337/josh-hub', live: 'https://lordshua1337.github.io/josh-hub/' },
-    { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: 'https://lordshua1337.github.io/trend-sniper/' },
-    { name: 'ad-intelligence', url: 'https://github.com/lordshua1337/ad-intelligence', live: 'https://lordshua1337.github.io/ad-intelligence/' },
+{ name: 'ad-intelligence', url: 'https://github.com/lordshua1337/ad-intelligence', live: 'https://lordshua1337.github.io/ad-intelligence/' },
     { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://lordshua1337.github.io/cash-cow/' },
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' }
