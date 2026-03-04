@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 8080, level: 9, title: 'Apprentice',
-  total_tasks_completed: 161, skills_created: 68, commits_made: 127,
+  xp: 8115, level: 9, title: 'Apprentice',
+  total_tasks_completed: 162, skills_created: 68, commits_made: 128,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -471,7 +471,7 @@ function initFaceLift() {
   });
 
   // Scroll-aware navbar
-  var nav = document.querySelector('.nav');
+  var nav = document.querySelector('.topbar') || document.querySelector('.nav');
   if (nav) {
     var scrolled = false;
     function check() {
