@@ -93,6 +93,16 @@ var CC_STATE = {
       icon: 'eye'
     },
     {
+      name: 'stockpilot-v3',
+      title: 'StockPilot V3',
+      desc: 'Full Supabase rewrite -- user accounts, cloud persistence, live market data integration, AI thesis generation, personalized Flight Plan recommendations. Companion to Occulus.',
+      stack: ['Next.js', 'Supabase', 'Claude API', 'Financial APIs', 'TypeScript'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #00C853, #69F0AE)',
+      icon: 'globe'
+    },
+    {
       name: 'doodleforge-redesign',
       title: 'DoodleForge Total Redesign',
       desc: 'Rebrand to "Doodie" -- kindergarten art class aesthetic. Hand-drawn borders, crayon textures, construction paper backgrounds, daily "Guess What This Crap Is" hook, 30 AI-generated kid drawings, fridge magnet nav, sticker badges.',
@@ -101,6 +111,36 @@ var CC_STATE = {
       status: 'spec-ready',
       gradient: 'linear-gradient(90deg, #E63946, #FFD166)',
       icon: 'globe'
+    },
+    {
+      name: 'thewell-v3',
+      title: 'The Well V3',
+      desc: 'Supabase rewrite -- user accounts (magic link + OAuth), cloud sync, community reflection sharing, engagement analytics dashboard, cross-device progress persistence.',
+      stack: ['Next.js', 'Supabase', 'Claude API', 'TypeScript'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #2D6A4F, #40916C)',
+      icon: 'globe'
+    },
+    {
+      name: 'uncommoncents-v3',
+      title: 'Uncommon Cents V3',
+      desc: 'Supabase rewrite -- user profiles, financial situation profiling, 19 calculators (10 new), full-text search, situation-aware AI coach, saved calculations, PDF export.',
+      stack: ['Next.js', 'Supabase', 'Claude API', 'TypeScript'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #16A34A, #22C55E)',
+      icon: 'globe'
+    },
+    {
+      name: 'marcom-engine',
+      title: 'Marcom Engine',
+      desc: 'Unified marketing OS -- mission control dashboard, email engine (Resend), social engine (Ayrshare), AI creative engine (Flux). Absorbs Pipeline Simulator, Ad Intelligence, and Image Forge into one platform.',
+      stack: ['Next.js', 'Supabase', 'Resend', 'Ayrshare', 'Inngest', 'Flux'],
+      phases: 5,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #6366f1, #a78bfa)',
+      icon: 'terminal'
     },
     {
       name: 'partner-portal-templates',
@@ -135,16 +175,6 @@ var CC_STATE = {
   ],
   // Future projects (ideas, not yet specced)
   future_projects: [
-    {
-      name: 'marcom-engine',
-      title: 'Marcom Engine',
-      desc: 'Internal marketing automation platform -- mission control dashboard, email engine, social engine, AI creative engine. Resend, Ayrshare, Apollo, Flux, Inngest.',
-      stack: ['Next.js', 'Supabase', 'Resend', 'Ayrshare', 'Inngest', 'Flux'],
-      phases: 5,
-      status: 'future',
-      gradient: 'linear-gradient(90deg, #6366f1, #a78bfa)',
-      icon: 'terminal'
-    },
     {
       name: 'headless-cms',
       title: 'Headless CMS',
