@@ -2,9 +2,9 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 8970, level: 9, title: 'Apprentice',
-  total_tasks_completed: 189, skills_created: 68, commits_made: 155,
-  plans_executed: 6, deploys: 18,
+  xp: 9235, level: 9, title: 'Apprentice',
+  total_tasks_completed: 194, skills_created: 68, commits_made: 158,
+  plans_executed: 6, deploys: 23,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -108,6 +108,13 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-04', event: 'deploy: Partner Portal Templates to GitHub Pages (dark gallery)', xp: 40, type: 'deployment' },
+    { date: '2026-03-04', event: 'feat: Partner Portal Templates dark theme + 6 template gallery', xp: 35, type: 'feature' },
+    { date: '2026-03-04', event: 'deploy: Marcom Engine to GitHub Pages (Bloomberg Terminal)', xp: 40, type: 'deployment' },
+    { date: '2026-03-04', event: 'feat: Marcom Engine Bloomberg Terminal dark theme + mission control', xp: 35, type: 'feature' },
+    { date: '2026-03-04', event: 'deploy: Cash Cow V3 to GitHub Pages (black/white/green)', xp: 40, type: 'deployment' },
+    { date: '2026-03-04', event: 'feat: Cash Cow V3 black/white/green redesign + Trend Sniper pipeline', xp: 35, type: 'feature' },
+    { date: '2026-03-04', event: 'fix: V3 CSS 404 rebuild + CalfCard TypeScript fix', xp: 40, type: 'bugfix' },
     { date: '2026-03-04', event: 'fix: CTAX dashboard visual overhaul + quick actions + ob-wizard disable + cookie banner', xp: 80, type: 'bugfix' },
     { date: '2026-03-03', event: 'CTAX Cycle 3 Modules 4-5 -- Social Feed, Duels, Rewards, Forecast, Goal Tracker, Quarterly Review', xp: 210, type: 'feature' },
     { date: '2026-03-03', event: 'CTAX Cycle 3 Modules 1-3 -- 9 feature builds (AI Page Gen, SEO Editor, Form Builder, Campaign Builder, Repurposer, AI Writer, ICP Tracker, Smart Guide, Competitive Intel)', xp: 315, type: 'feature' },
