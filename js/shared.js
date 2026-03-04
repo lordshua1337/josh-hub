@@ -103,6 +103,16 @@ var CC_STATE = {
       icon: 'eye'
     },
     {
+      name: 'cashcow-trendsniper-merge',
+      title: 'Cash Cow + Trend Sniper Merge',
+      desc: 'Merge Trend Sniper into Cash Cow as a single product discovery pipeline. Trend research becomes Cash Cow\'s first layer -- find trends, spy ads, generate ideas, score, output build specs. One app, not two.',
+      stack: ['Next.js', 'TypeScript', 'Supabase', 'Claude API', 'SerpAPI'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #22C55E, #e11d48)',
+      icon: 'dollar-sign'
+    },
+    {
       name: 'ctax-v3-replatform',
       title: 'CTAX Partner Portal V3',
       desc: 'Complete replatform of the partner site from vanilla JS to Next.js + Supabase. Real referral pipeline, Stripe Connect earnings, admin dashboard, auth. 15,000-18,000 LOC.',
