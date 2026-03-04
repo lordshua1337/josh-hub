@@ -93,6 +93,16 @@ var CC_STATE = {
       icon: 'dollar-sign'
     },
     {
+      name: 'doodleforge-redesign',
+      title: 'DoodleForge Total Redesign',
+      desc: 'Rebrand to "Doodie" -- kindergarten art class aesthetic. Hand-drawn borders, crayon textures, construction paper backgrounds, daily "Guess What This Crap Is" hook, 30 AI-generated kid drawings, fridge magnet nav, sticker badges.',
+      stack: ['Next.js', 'TypeScript', 'Flux.1-dev', 'Replicate', 'Stripe'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #E63946, #FFD166)',
+      icon: 'globe'
+    },
+    {
       name: 'ctax-v3-replatform',
       title: 'CTAX Partner Portal V3',
       desc: 'Complete replatform of the partner site from vanilla JS to Next.js + Supabase. Real referral pipeline, Stripe Connect earnings, admin dashboard, auth. 15,000-18,000 LOC.',
