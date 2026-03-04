@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 6430, level: 7, title: 'Apprentice',
-  total_tasks_completed: 145, skills_created: 68, commits_made: 111,
+  xp: 6550, level: 7, title: 'Apprentice',
+  total_tasks_completed: 146, skills_created: 68, commits_made: 112,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -48,20 +48,11 @@ var CC_STATE = {
 { name: 'ad-intelligence', url: 'https://github.com/lordshua1337/ad-intelligence', live: 'https://lordshua1337.github.io/ad-intelligence/' },
     { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://lordshua1337.github.io/cash-cow/' },
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
-    { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' }
+    { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' },
+    { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: null }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'cashcow-trendsniper-merge',
-      title: 'Cash Cow + Trend Sniper Merge',
-      desc: 'Merge Trend Sniper into Cash Cow as a single product discovery pipeline. Trend research becomes Cash Cow\'s first layer -- find trends, spy ads, generate ideas, score, output build specs. One app, not two.',
-      stack: ['Next.js', 'TypeScript', 'Supabase', 'Claude API', 'SerpAPI'],
-      phases: 0,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #22C55E, #e11d48)',
-      icon: 'dollar-sign'
-    },
     {
       name: 'occulus',
       title: 'Occulus',
@@ -231,6 +222,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Cash Cow V3 -- AI product discovery, Supabase auth, Claude research/ideation/briefs, cow branding', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Cash Cow V3 -- greenfield SaaS build #1', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Event Bus -- pub/sub router, Inngest delivery, dashboard, typed SDK', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: Event Bus -- infrastructure package #2', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Auth + Billing Kit -- Supabase Auth, Stripe subs, tier gating, usage tracking, billing UI', xp: 85, type: 'feature' },
