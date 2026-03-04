@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 7510, level: 8, title: 'Apprentice',
-  total_tasks_completed: 154, skills_created: 68, commits_made: 120,
+  xp: 7630, level: 8, title: 'Apprentice',
+  total_tasks_completed: 155, skills_created: 68, commits_made: 121,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -54,16 +54,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'marcom-engine',
-      title: 'Marcom Engine',
-      desc: 'Unified marketing OS -- mission control dashboard, email engine (Resend), social engine (Ayrshare), AI creative engine (Flux). Consolidates Pipeline Simulator, Ad Intelligence, and Image Forge into one platform.',
-      stack: ['Next.js', 'Supabase', 'Resend', 'Ayrshare', 'Inngest', 'Flux'],
-      phases: 5,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #6366f1, #a78bfa)',
-      icon: 'terminal'
-    },
     {
       name: 'partner-portal-templates',
       title: 'Partner Portal Templates',
@@ -143,6 +133,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Marcom Engine V3 -- mission control, connection health, 7 integrations, engine locking, Inngest, approval queue', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Marcom Engine V3 -- marketing OS build #11', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Image Forge V3 -- Supabase auth, design sync, brand kits, asset library, analytics', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: Image Forge V3 -- backend build #10', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Ad Intelligence V3 -- Supabase auth, competitor sync, briefs, alerts, analytics', xp: 85, type: 'feature' },
