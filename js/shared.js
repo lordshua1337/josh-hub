@@ -50,13 +50,13 @@ var CC_STATE = {
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' },
     { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: 'https://lordshua1337.github.io/trend-sniper/' },
-    { name: 'oculus', url: 'https://github.com/lordshua1337/oculus', live: null },
-    { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: null },
-    { name: 'ctax-v3', url: 'https://github.com/joshhohenstein/ctax-v3', live: null },
+    { name: 'oculus', url: 'https://github.com/lordshua1337/oculus', live: 'https://lordshua1337.github.io/oculus/' },
+    { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: 'https://lordshua1337.github.io/cashcow-v3/' },
+    { name: 'ctax-v3', url: 'https://github.com/lordshua1337/ctax-v3', live: 'https://lordshua1337.github.io/ctax-v3/' },
     { name: 'auth-billing-kit', url: 'https://github.com/lordshua1337/auth-billing-kit', live: null },
     { name: 'event-bus', url: 'https://github.com/lordshua1337/event-bus', live: null },
-    { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: null },
-    { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: null }
+    { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: 'https://lordshua1337.github.io/marcom-engine/' },
+    { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://lordshua1337.github.io/partner-portal-templates/' }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [],
