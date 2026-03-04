@@ -45,7 +45,6 @@ var CC_STATE = {
     { name: 'uncommon-cents', url: 'https://github.com/lordshua1337/uncommon-cents', live: 'https://uncommon-cents.vercel.app' },
     { name: 'stock-pilot', url: 'https://github.com/lordshua1337/stock-pilot', live: 'https://stock-pilot-puce.vercel.app' },
     { name: 'josh-hub', url: 'https://github.com/lordshua1337/josh-hub', live: 'https://lordshua1337.github.io/josh-hub/' },
-    { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: 'https://lordshua1337.github.io/trend-sniper/' },
     { name: 'ad-intelligence', url: 'https://github.com/lordshua1337/ad-intelligence', live: 'https://lordshua1337.github.io/ad-intelligence/' },
     { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://lordshua1337.github.io/cash-cow/' },
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
@@ -99,65 +98,25 @@ var CC_STATE = {
       desc: 'Financial advisor command center -- multi-client portfolio monitoring, CRM pipeline, scenario lab, stress testing heat maps, and AI-powered compliance reporting. Companion to StockPilot.',
       stack: ['Next.js', 'Supabase', 'Claude API', 'dnd-kit', 'Stripe'],
       phases: 7,
-      status: 'planned',
+      status: 'spec-ready',
       gradient: 'linear-gradient(90deg, #22d3ee, #06b6d4)',
       icon: 'eye'
     },
     {
-      name: 'trend-sniper',
-      title: 'Trend Sniper',
-      desc: 'Bloomberg-style trend dashboard. 45 trends, heatmap/timeline/comparison/goldmine views, watchlists, alerts. Pick & Shovel Suite #1.',
-      stack: ['Next.js', 'TypeScript', 'Tailwind', 'Static Export'],
+      name: 'ctax-v3-replatform',
+      title: 'CTAX Partner Portal V3',
+      desc: 'Complete replatform of the partner site from vanilla JS to Next.js + Supabase. Real referral pipeline, Stripe Connect earnings, admin dashboard, auth. 15,000-18,000 LOC.',
+      stack: ['Next.js', 'Supabase', 'Stripe Connect', 'TypeScript'],
       phases: 7,
-      status: 'built',
-      gradient: 'linear-gradient(90deg, #fb7185, #e11d48)',
-      icon: 'crosshair'
-    },
-    {
-      name: 'ad-intelligence',
-      title: 'Ad Intelligence',
-      desc: 'Competitive ad spy tool. Real Meta/Google/SEMrush links, company search, competitor tracking, weekly briefs. Pick & Shovel Suite #2.',
-      stack: ['Next.js', 'TypeScript', 'Tailwind', 'Static Export'],
-      phases: 6,
-      status: 'built',
-      gradient: 'linear-gradient(90deg, #fb923c, #ea580c)',
-      icon: 'monitor'
-    },
-    {
-      name: 'cash-cow',
-      title: 'Cash Cow',
-      desc: 'AI product idea generator. 15 niches, revenue estimates, validation scoring, build spec generator. Cow-themed. Pick & Shovel Suite #3.',
-      stack: ['Next.js', 'TypeScript', 'Tailwind', 'Static Export'],
-      phases: 6,
-      status: 'built',
-      gradient: 'linear-gradient(90deg, #a3e635, #65a30d)',
-      icon: 'dollar-sign'
-    },
-    {
-      name: 'pipeline-simulator',
-      title: 'Pipeline Simulator',
-      desc: 'Kanban pipeline with Monte Carlo revenue simulation. Drag-and-drop stages, probability modeling, revenue projections. Pick & Shovel Suite #4.',
-      stack: ['Next.js', 'TypeScript', 'dnd-kit', 'Monte Carlo'],
-      phases: 6,
-      status: 'built',
-      gradient: 'linear-gradient(90deg, #d946ef, #a21caf)',
-      icon: 'layout'
-    },
-    {
-      name: 'image-forge',
-      title: 'Image Forge',
-      desc: 'Canvas-based image editor. 13 templates, brand kit, layer system, platform resize to 12 formats, PNG/JPG/WebP export. Pick & Shovel Suite #5.',
-      stack: ['Next.js', 'TypeScript', 'Canvas API', 'Static Export'],
-      phases: 5,
-      status: 'built',
-      gradient: 'linear-gradient(90deg, #f59e0b, #d97706)',
-      icon: 'image'
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #D97706, #92400E)',
+      icon: 'globe'
     }
   ],
   // Connected integrations
   integrations: [
     { id: 'claude-code', name: 'Claude Code', icon: 'terminal', desc: 'AI coding assistant powering all builds', color: '#D97706' },
-    { id: 'github', name: 'GitHub', icon: 'github', desc: '6 repos, auto-push on deploy', color: '#1A1612' },
+    { id: 'github', name: 'GitHub', icon: 'github', desc: '11 repos, auto-push on deploy', color: '#1A1612' },
     { id: 'vercel', name: 'Vercel', icon: 'cloud', desc: '4 apps deployed (DoodleForge, The Well, Uncommon Cents, StockPilot)', color: '#000' },
     { id: 'github-pages', name: 'GitHub Pages', icon: 'globe', desc: 'CTAX Partner Site + josh-hub + Pick & Shovel Suite (5 apps)', color: '#2563EB' },
     { id: 'anthropic', name: 'Anthropic API', icon: 'brain', desc: 'Claude AI powers The Well, Uncommon Cents, StockPilot chat', color: '#CC785C' },
@@ -536,9 +495,8 @@ function detectProject(event) {
   if (e.indexOf('ui/ux') > -1 || e.indexOf('pro max') > -1) return 'UI/UX Pro Max';
   if (e.indexOf('skill') > -1 || e.indexOf('command') > -1 || e.indexOf('sync-hub') > -1) return 'Skills/Tooling';
   if (e.indexOf('nightcrawler') > -1) return 'Nightcrawler';
-  if (e.indexOf('trend sniper') > -1 || e.indexOf('trend-sniper') > -1) return 'Trend Sniper';
+  if (e.indexOf('trend sniper') > -1 || e.indexOf('trend-sniper') > -1 || e.indexOf('cash cow') > -1 || e.indexOf('cash-cow') > -1) return 'Cash Cow';
   if (e.indexOf('ad intelligence') > -1 || e.indexOf('ad-intelligence') > -1) return 'Ad Intelligence';
-  if (e.indexOf('cash cow') > -1 || e.indexOf('cash-cow') > -1) return 'Cash Cow';
   if (e.indexOf('pipeline simulator') > -1 || e.indexOf('pipeline-simulator') > -1) return 'Pipeline Simulator';
   if (e.indexOf('image forge') > -1 || e.indexOf('image-forge') > -1) return 'Image Forge';
   if (e.indexOf('pick & shovel') > -1 || e.indexOf('pick and shovel') > -1) return 'Pick & Shovel Suite';
