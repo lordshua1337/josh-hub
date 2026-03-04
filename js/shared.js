@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 6670, level: 7, title: 'Apprentice',
-  total_tasks_completed: 147, skills_created: 68, commits_made: 113,
+  xp: 6790, level: 7, title: 'Apprentice',
+  total_tasks_completed: 148, skills_created: 68, commits_made: 114,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -54,16 +54,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'stockpilot-v3',
-      title: 'StockPilot V3',
-      desc: 'Full Supabase rewrite -- user accounts, cloud persistence, live market data integration, AI thesis generation, personalized Flight Plan recommendations. Companion to Occulus.',
-      stack: ['Next.js', 'Supabase', 'Claude API', 'Financial APIs', 'TypeScript'],
-      phases: 0,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #00C853, #69F0AE)',
-      icon: 'globe'
-    },
     {
       name: 'doodleforge-redesign',
       title: 'DoodleForge Total Redesign',
@@ -213,6 +203,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'StockPilot V3 -- Supabase auth, Alpha Vantage market data, Claude AI thesis, Flight Plan, portfolio intelligence', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: StockPilot V3 -- greenfield backend build #4', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Occulus V3 -- CRM pipeline, scenario lab, stress test, rebalancer, AI reports, compliance logs', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: Occulus V3 -- greenfield SaaS build #3', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Cash Cow V3 -- AI product discovery, Supabase auth, Claude research/ideation/briefs, cow branding', xp: 85, type: 'feature' },
