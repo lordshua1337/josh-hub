@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 7750, level: 8, title: 'Apprentice',
-  total_tasks_completed: 156, skills_created: 68, commits_made: 122,
+  xp: 7870, level: 8, title: 'Apprentice',
+  total_tasks_completed: 157, skills_created: 68, commits_made: 123,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -54,16 +54,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'ctax-ai-tools-upgrade',
-      title: 'CTAX AI Tools Upgrade',
-      desc: 'ICP-driven overhaul of all portal AI tools -- Script Builder, Ad Maker, Client Qualifier, Knowledge Base, Page Builder. ICP bridge from main site, shared context object, external API integrations (Unsplash, Pexels, free-tier AI image gen).',
-      stack: ['Vanilla JS', 'Claude API', 'localStorage', 'Unsplash/Pexels'],
-      phases: 6,
-      status: 'planned',
-      gradient: 'linear-gradient(90deg, #D97706, #F59E0B)',
-      icon: 'brain'
-    },
     {
       name: 'ctax-v3-replatform',
       title: 'CTAX Partner Portal V3',
@@ -123,6 +113,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'CTAX AI Tools Upgrade -- ICP context bridge, Save to Portal, Script Builder/Client Qualifier/Knowledge Base ICP injection, badge system', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: CTAX AI Tools Upgrade -- ICP-driven tool overhaul build #13', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Partner Portal Templates -- 6 landing page templates, template catalog, design specs, Supabase auth', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: Partner Portal Templates -- build #12', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Marcom Engine V3 -- mission control, connection health, 7 integrations, engine locking, Inngest, approval queue', xp: 85, type: 'feature' },
