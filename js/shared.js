@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 7870, level: 8, title: 'Apprentice',
-  total_tasks_completed: 157, skills_created: 68, commits_made: 123,
+  xp: 7990, level: 8, title: 'Apprentice',
+  total_tasks_completed: 158, skills_created: 68, commits_made: 124,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -50,21 +50,11 @@ var CC_STATE = {
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' },
     { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: null },
-    { name: 'occulus', url: 'https://github.com/lordshua1337/occulus', live: null }
+    { name: 'occulus', url: 'https://github.com/lordshua1337/occulus', live: null },
+    { name: 'ctax-v3', url: 'https://github.com/lordshua1337/ctax-v3', live: null }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
-  planned_projects: [
-    {
-      name: 'ctax-v3-replatform',
-      title: 'CTAX Partner Portal V3',
-      desc: 'Complete replatform of the partner site from vanilla JS to Next.js + Supabase. Real referral pipeline, Stripe Connect earnings, admin dashboard, auth. 15,000-18,000 LOC.',
-      stack: ['Next.js', 'Supabase', 'Stripe Connect', 'TypeScript'],
-      phases: 7,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #D97706, #92400E)',
-      icon: 'globe'
-    }
-  ],
+  planned_projects: [],
   // Future projects (ideas, not yet specced)
   future_projects: [
     {
