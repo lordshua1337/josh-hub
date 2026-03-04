@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 8870, level: 9, title: 'Apprentice',
-  total_tasks_completed: 184, skills_created: 68, commits_made: 150,
+  xp: 8950, level: 9, title: 'Apprentice',
+  total_tasks_completed: 188, skills_created: 68, commits_made: 154,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -49,9 +49,14 @@ var CC_STATE = {
     { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://lordshua1337.github.io/cash-cow/' },
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' },
+    { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: 'https://lordshua1337.github.io/trend-sniper/' },
+    { name: 'oculus', url: 'https://github.com/lordshua1337/oculus', live: null },
     { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: null },
-    { name: 'occulus', url: 'https://github.com/lordshua1337/occulus', live: null },
-    { name: 'ctax-v3', url: 'https://github.com/lordshua1337/ctax-v3', live: null }
+    { name: 'ctax-v3', url: 'https://github.com/joshhohenstein/ctax-v3', live: null },
+    { name: 'auth-billing-kit', url: 'https://github.com/lordshua1337/auth-billing-kit', live: null },
+    { name: 'event-bus', url: 'https://github.com/lordshua1337/event-bus', live: null },
+    { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: null },
+    { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: null }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [],
@@ -94,15 +99,16 @@ var CC_STATE = {
   // Connected integrations
   integrations: [
     { id: 'claude-code', name: 'Claude Code', icon: 'terminal', desc: 'AI coding assistant powering all builds', color: '#D97706' },
-    { id: 'github', name: 'GitHub', icon: 'github', desc: '11 repos, auto-push on deploy', color: '#1A1612' },
+    { id: 'github', name: 'GitHub', icon: 'github', desc: '19 repos, auto-push on deploy', color: '#1A1612' },
     { id: 'vercel', name: 'Vercel', icon: 'cloud', desc: '4 apps deployed (DoodleForge, The Well, Uncommon Cents, StockPilot)', color: '#000' },
-    { id: 'github-pages', name: 'GitHub Pages', icon: 'globe', desc: 'CTAX Partner Site + josh-hub + Pick & Shovel Suite (5 apps)', color: '#2563EB' },
+    { id: 'github-pages', name: 'GitHub Pages', icon: 'globe', desc: 'CTAX Partner Site + josh-hub + Pick & Shovel Suite (6 apps)', color: '#2563EB' },
     { id: 'anthropic', name: 'Anthropic API', icon: 'brain', desc: 'Claude AI powers The Well, Uncommon Cents, StockPilot chat', color: '#CC785C' },
     { id: 'stripe', name: 'Stripe', icon: 'credit-card', desc: 'DoodleForge payment processing', color: '#635BFF' },
     { id: 'mcp-servers', name: 'MCP Servers', icon: 'plug', desc: 'Context7 docs, image generation, Canva', color: '#9333EA' },
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-04', event: 'fix: CTAX dashboard visual overhaul + quick actions + ob-wizard disable + cookie banner', xp: 80, type: 'bugfix' },
     { date: '2026-03-03', event: 'CTAX Cycle 3 Modules 4-5 -- Social Feed, Duels, Rewards, Forecast, Goal Tracker, Quarterly Review', xp: 210, type: 'feature' },
     { date: '2026-03-03', event: 'CTAX Cycle 3 Modules 1-3 -- 9 feature builds (AI Page Gen, SEO Editor, Form Builder, Campaign Builder, Repurposer, AI Writer, ICP Tracker, Smart Guide, Competitive Intel)', xp: 315, type: 'feature' },
     { date: '2026-03-03', event: 'Omni Focus sweep -- 12-repo Code Foundation + Security audit', xp: 30, type: 'audit' },
