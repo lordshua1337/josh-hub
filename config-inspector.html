@@ -414,28 +414,35 @@
   .gd-label .gd-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent); }
 
   /* ---- Hero Section (matches Command Center xp-hero layout) ---- */
-  .hero-section { display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: center; padding: 32px; position: relative; overflow: hidden; }
-  .hero-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #a855f7, #8b5cf6, #6d28d9); }
-  .hero-char-area { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .hero-char-glow { position: absolute; inset: -20px; border-radius: 50%; background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%); animation: confygCharGlow 3s ease-in-out infinite alternate; }
-  @keyframes confygCharGlow { 0% { opacity: 0.4; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
-  .hero-char-area svg { position: relative; z-index: 1; width: 100px; height: 100px; filter: drop-shadow(0 2px 8px rgba(139,92,246,0.4)); }
+  /* ---- XP Hero (matches CMD exactly, purple-themed) ---- */
+  .xp-hero { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin-bottom: 32px; position: relative; overflow: hidden; }
+  .xp-hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #C4B5FD, #8B5CF6, #6D28D9); }
+  .xp-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(139,92,246,0.03) 0%, transparent 50%); pointer-events: none; }
+  .xp-hero > * { position: relative; z-index: 1; }
+  .xp-hero-inner { display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: center; }
+  .xp-char { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+  .xp-char-glow { position: absolute; inset: -20px; border-radius: 50%; background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%); animation: charGlow 3s ease-in-out infinite alternate; }
+  @keyframes charGlow { 0% { opacity: 0.4; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
+  #xp-sprite { position: relative; z-index: 1; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+  #xp-sprite svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 8px rgba(139,92,246,0.3)); }
 
-  .hero-right { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
-  .hero-top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-  .hero-identity h2 { font-size: 22px; font-weight: 900; margin-bottom: 4px; letter-spacing: -0.5px; }
-  .hero-class-badge { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; padding: 3px 12px; border-radius: 12px; font-weight: 700; display: inline-block; margin-bottom: 6px; }
-  .hero-flavor { font-size: 10px; color: var(--text3); font-style: italic; }
-  .hero-xp { max-width: 100%; }
-  .hero-xp-track { height: 10px; background: var(--surface3); border-radius: 5px; overflow: hidden; }
-  .hero-xp-fill { height: 100%; border-radius: 5px; position: relative; transition: width 0.8s ease; }
-  .hero-xp-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%); animation: xpShimmer 2s ease-in-out infinite; }
-  .hero-xp-label { display: flex; justify-content: space-between; font-size: 9px; color: var(--text3); margin-top: 4px; }
+  .xp-info { min-width: 0; }
+  .xp-title-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .xp-level { font-size: 32px; font-weight: 700; font-family: monospace; color: var(--text); letter-spacing: -1px; }
+  .xp-title-badge { font-size: 13px; font-weight: 600; color: #8b5cf6; background: rgba(139,92,246,0.1); padding: 3px 12px; border-radius: 100px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .xp-subtitle { font-size: 13px; color: var(--text3); margin-bottom: 16px; }
+  .xp-bar-wrap { margin-bottom: 16px; }
+  .xp-bar-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .xp-bar-label { font-size: 12px; font-weight: 600; color: var(--text2); font-family: monospace; }
+  .xp-bar-pct { font-size: 12px; font-weight: 600; color: #8b5cf6; font-family: monospace; }
+  .xp-bar-track { height: 12px; background: var(--border); border-radius: 6px; overflow: hidden; position: relative; }
+  .xp-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #C4B5FD, #8B5CF6, #6D28D9); transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+  .xp-bar-fill::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 40px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3)); border-radius: 0 6px 6px 0; animation: xpShine 2s ease-in-out infinite; }
+  @keyframes xpShine { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .hero-quick-stats { display: flex; gap: 20px; }
-  .hero-qstat { text-align: center; }
-  .hero-qstat-val { font-size: 20px; font-weight: 900; line-height: 1; }
-  .hero-qstat-lbl { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-top: 3px; }
+  .xp-counters { display: flex; gap: 24px; flex-wrap: wrap; }
+  .xp-counter { font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 6px; }
+  .xp-counter strong { color: var(--text); font-weight: 700; }
 
   /* ---- Viz Grid ---- */
   .dash-viz { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
@@ -3742,40 +3749,37 @@ function renderGameDashboard() {
 
   var html = '';
 
-  // ======== HERO SECTION ========
-  html += '<div class="gd-panel hero-section">';
-  // Character with glow (matches Command Center xp-char structure)
-  html += '<div class="hero-char-area">';
-  html += '<div class="hero-char-glow"></div>';
-  html += buildCharacterSVG(current.level, current.color);
+  // ======== HERO SECTION (CMD structure exact) ========
+  html += '<div class="xp-hero">';
+  html += '<div class="xp-hero-inner">';
+
+  html += '<div class="xp-char">';
+  html += '<div class="xp-char-glow"></div>';
+  html += '<div id="xp-sprite">' + buildCharacterSVG(current.level) + '</div>';
   html += '</div>';
-  // Right side: identity + XP + quick stats (matches Command Center xp-info)
-  html += '<div class="hero-right">';
-  html += '<div class="hero-top-row">';
-  html += '<div class="hero-identity">';
-  html += '<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">';
-  html += '<span style="font-size:32px;font-weight:700;font-family:monospace;color:var(--text);letter-spacing:-1px">LVL ' + current.level + '</span>';
-  html += '<span class="hero-class-badge" style="background:' + current.color + '18;color:' + current.color + '">' + current.name + '</span>';
+
+  html += '<div class="xp-info">';
+  html += '<div class="xp-title-row">';
+  html += '<span class="xp-level">LVL ' + current.level + '</span>';
+  html += '<span class="xp-title-badge">' + current.name + '</span>';
   html += '</div>';
-  html += '<div class="hero-flavor">' + (nextLvl ? xpToGo + ' XP to Level ' + (current.level + 1) : 'MAX LEVEL') + '</div>';
+  html += '<div class="xp-subtitle">' + (nextLvl ? xpToGo + ' XP to Level ' + (current.level + 1) : 'MAX LEVEL') + '</div>';
+
+  html += '<div class="xp-bar-wrap">';
+  html += '<div class="xp-bar-header">';
+  html += '<span class="xp-bar-label">' + state.totalXP.toLocaleString() + ' / ' + (nextLvl ? nextLvl.xp.toLocaleString() : state.totalXP.toLocaleString()) + ' XP</span>';
+  html += '<span class="xp-bar-pct">' + xpPct + '%</span>';
   html += '</div>';
-  html += '<div class="hero-quick-stats">';
-  html += '<div class="hero-qstat"><div class="hero-qstat-val" style="color:#3b82f6">' + files.length + '</div><div class="hero-qstat-lbl">Files</div></div>';
-  html += '<div class="hero-qstat"><div class="hero-qstat-val" style="color:' + (healthAvg >= 80 ? '#22c55e' : healthAvg >= 60 ? '#eab308' : '#ef4444') + '">' + healthAvg + '</div><div class="hero-qstat-lbl">Health</div></div>';
-  html += '<div class="hero-qstat"><div class="hero-qstat-val" style="color:#8b5cf6">' + (totalTokens / 1000).toFixed(1) + 'K</div><div class="hero-qstat-lbl">Tokens</div></div>';
-  html += '</div></div>';
-  // XP bar (matches Command Center xp-bar-wrap)
-  html += '<div class="hero-xp">';
-  html += '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px"><span>' + state.totalXP.toLocaleString() + ' / ' + (nextLvl ? nextLvl.xp.toLocaleString() : state.totalXP.toLocaleString()) + ' XP</span><span>' + xpPct + '%</span></div>';
-  html += '<div class="hero-xp-track"><div class="hero-xp-fill" style="width:' + xpPct + '%;background:linear-gradient(90deg,' + current.color + ',' + current.color + '88)"></div></div>';
+  html += '<div class="xp-bar-track"><div class="xp-bar-fill" style="width:' + xpPct + '%"></div></div>';
   html += '</div>';
-  // Quick counters row (matches Command Center xp-counters)
-  html += '<div style="display:flex;gap:16px;font-size:12px;color:var(--text2)">';
-  html += '<span><strong style="color:var(--text)">' + files.length + '</strong> Files</span>';
-  html += '<span><strong style="color:var(--text)">' + issues.length + '</strong> Issues</span>';
-  html += '<span><strong style="color:var(--text)">' + totalTokens.toLocaleString() + '</strong> Tokens</span>';
+
+  html += '<div class="xp-counters">';
+  html += '<span class="xp-counter"><strong>' + files.length + '</strong> Files</span>';
+  html += '<span class="xp-counter"><strong>' + issues.length + '</strong> Issues</span>';
+  html += '<span class="xp-counter"><strong>' + totalTokens.toLocaleString() + '</strong> Tokens</span>';
   html += '</div>';
-  html += '</div></div>';
+
+  html += '</div></div></div>';
 
   // ======== VIZ ROW: Donut + Gauges + File Breakdown ========
   html += '<div class="dash-viz">';
