@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 6190, level: 7, title: 'Apprentice',
-  total_tasks_completed: 143, skills_created: 68, commits_made: 109,
+  xp: 6310, level: 7, title: 'Apprentice',
+  total_tasks_completed: 144, skills_created: 68, commits_made: 110,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -52,16 +52,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'auth-billing-kit',
-      title: 'Auth + Billing Starter Kit',
-      desc: 'Standalone Next.js package -- Clerk auth, Stripe subscriptions, tier-gating middleware, usage tracking. Build once, drop into every SaaS.',
-      stack: ['Next.js', 'Clerk', 'Stripe', 'Supabase', 'TypeScript'],
-      phases: 0,
-      status: 'planned',
-      gradient: 'linear-gradient(90deg, #635BFF, #9333EA)',
-      icon: 'credit-card'
-    },
     {
       name: 'event-bus',
       title: 'Webhook Event Bus',
@@ -217,7 +207,18 @@ var CC_STATE = {
     }
   ],
   // Infrastructure (standalone packages/functions -- populated when built)
-  infrastructure: [],
+  infrastructure: [
+    {
+      name: 'auth-billing-kit',
+      title: 'Auth + Billing Kit',
+      desc: 'Supabase Auth + Stripe subscriptions + tier gating + usage tracking. Drop into any Next.js SaaS in 30 minutes.',
+      stack: ['Next.js', 'Supabase Auth', 'Stripe', 'TypeScript'],
+      status: 'built',
+      gradient: 'linear-gradient(90deg, #635BFF, #0A2540)',
+      icon: 'credit-card',
+      consumers: ['cash-cow', 'occulus', 'doodleforge', 'ctax-v3', 'pipeline-simulator']
+    }
+  ],
   // Connected integrations
   integrations: [
     { id: 'claude-code', name: 'Claude Code', icon: 'terminal', desc: 'AI coding assistant powering all builds', color: '#D97706' },
@@ -230,6 +231,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Auth + Billing Kit -- Supabase Auth, Stripe subs, tier gating, usage tracking, billing UI', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Auth + Billing Kit -- infrastructure package #1', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Deployed Image Forge to GitHub Pages (Pick & Shovel #5)', xp: 40, type: 'deployment' },
     { date: '2026-03-03', event: 'Image Forge v1 -- canvas editor, 13 templates, brand kit, platform resize', xp: 35, type: 'feature' },
     { date: '2026-03-03', event: 'project: Image Forge -- Pick & Shovel Suite #5', xp: 50, type: 'project' },
