@@ -50,8 +50,58 @@ var CC_STATE = {
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' }
   ],
-  // Planned projects (spec ready or in planning, next to build)
+  // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
+    {
+      name: 'auth-billing-kit',
+      title: 'Auth + Billing Starter Kit',
+      desc: 'Standalone Next.js package -- Clerk auth, Stripe subscriptions, tier-gating middleware, usage tracking. Build once, drop into every SaaS.',
+      stack: ['Next.js', 'Clerk', 'Stripe', 'Supabase', 'TypeScript'],
+      phases: 0,
+      status: 'planned',
+      gradient: 'linear-gradient(90deg, #635BFF, #9333EA)',
+      icon: 'credit-card'
+    },
+    {
+      name: 'event-bus',
+      title: 'Webhook Event Bus',
+      desc: 'Lightweight pub/sub event router between all apps. Publish events, subscribe consumers, retry logic, dead-letter handling. Zero coupling between producers and consumers.',
+      stack: ['Next.js', 'Supabase', 'Inngest', 'TypeScript'],
+      phases: 0,
+      status: 'planned',
+      gradient: 'linear-gradient(90deg, #06b6d4, #0ea5e9)',
+      icon: 'plug'
+    },
+    {
+      name: 'cashcow-trendsniper-merge',
+      title: 'Cash Cow + Trend Sniper Merge',
+      desc: 'Merge Trend Sniper into Cash Cow as a single product discovery pipeline. Trend research becomes Cash Cow\'s first layer -- find trends, spy ads, generate ideas, score, output build specs. One app, not two.',
+      stack: ['Next.js', 'TypeScript', 'Supabase', 'Claude API', 'SerpAPI'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #22C55E, #e11d48)',
+      icon: 'dollar-sign'
+    },
+    {
+      name: 'occulus',
+      title: 'Occulus',
+      desc: 'Financial advisor command center -- multi-client portfolio monitoring, CRM pipeline, scenario lab, stress testing heat maps, and AI-powered compliance reporting. Companion to StockPilot.',
+      stack: ['Next.js', 'Supabase', 'Claude API', 'dnd-kit', 'Stripe'],
+      phases: 7,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #22d3ee, #06b6d4)',
+      icon: 'eye'
+    },
+    {
+      name: 'doodleforge-redesign',
+      title: 'DoodleForge Total Redesign',
+      desc: 'Rebrand to "Doodie" -- kindergarten art class aesthetic. Hand-drawn borders, crayon textures, construction paper backgrounds, daily "Guess What This Crap Is" hook, 30 AI-generated kid drawings, fridge magnet nav, sticker badges.',
+      stack: ['Next.js', 'TypeScript', 'Flux.1-dev', 'Replicate', 'Stripe'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #E63946, #FFD166)',
+      icon: 'globe'
+    },
     {
       name: 'partner-portal-templates',
       title: 'Partner Portal Templates',
@@ -73,36 +123,6 @@ var CC_STATE = {
       icon: 'brain'
     },
     {
-      name: 'occulus',
-      title: 'Occulus',
-      desc: 'Financial advisor command center -- multi-client portfolio monitoring, CRM pipeline, scenario lab, stress testing heat maps, and AI-powered compliance reporting. Companion to StockPilot.',
-      stack: ['Next.js', 'Supabase', 'Claude API', 'dnd-kit', 'Stripe'],
-      phases: 7,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #22d3ee, #06b6d4)',
-      icon: 'eye'
-    },
-    {
-      name: 'cashcow-trendsniper-merge',
-      title: 'Cash Cow + Trend Sniper Merge',
-      desc: 'Merge Trend Sniper into Cash Cow as a single product discovery pipeline. Trend research becomes Cash Cow\'s first layer -- find trends, spy ads, generate ideas, score, output build specs. One app, not two.',
-      stack: ['Next.js', 'TypeScript', 'Supabase', 'Claude API', 'SerpAPI'],
-      phases: 0,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #22C55E, #e11d48)',
-      icon: 'dollar-sign'
-    },
-    {
-      name: 'doodleforge-redesign',
-      title: 'DoodleForge Total Redesign',
-      desc: 'Rebrand to "Doodie" -- kindergarten art class aesthetic. Hand-drawn borders, crayon textures, construction paper backgrounds, daily "Guess What This Crap Is" hook, 30 AI-generated kid drawings, fridge magnet nav, sticker badges.',
-      stack: ['Next.js', 'TypeScript', 'Flux.1-dev', 'Replicate', 'Stripe'],
-      phases: 0,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #E63946, #FFD166)',
-      icon: 'globe'
-    },
-    {
       name: 'ctax-v3-replatform',
       title: 'CTAX Partner Portal V3',
       desc: 'Complete replatform of the partner site from vanilla JS to Next.js + Supabase. Real referral pipeline, Stripe Connect earnings, admin dashboard, auth. 15,000-18,000 LOC.',
@@ -111,24 +131,6 @@ var CC_STATE = {
       status: 'spec-ready',
       gradient: 'linear-gradient(90deg, #D97706, #92400E)',
       icon: 'globe'
-    }
-    {
-      name: 'auth-billing-kit',
-      title: 'Auth + Billing Starter Kit',
-      desc: 'Standalone Next.js package -- Clerk auth, Stripe subscriptions, tier-gating middleware, usage tracking. Build once, drop into every SaaS.',
-      stack: ['Next.js', 'Clerk', 'Stripe', 'Supabase', 'TypeScript'],
-      status: 'planned',
-      gradient: 'linear-gradient(90deg, #635BFF, #9333EA)',
-      icon: 'credit-card'
-    },
-    {
-      name: 'event-bus',
-      title: 'Webhook Event Bus',
-      desc: 'Lightweight pub/sub event router between all apps. Publish events, subscribe consumers, retry logic, dead-letter handling. Zero coupling between producers and consumers.',
-      stack: ['Next.js', 'Supabase', 'Inngest', 'TypeScript'],
-      status: 'planned',
-      gradient: 'linear-gradient(90deg, #06b6d4, #0ea5e9)',
-      icon: 'plug'
     }
   ],
   // Future projects (ideas, not yet specced)
