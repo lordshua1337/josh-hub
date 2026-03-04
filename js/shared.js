@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 6550, level: 7, title: 'Apprentice',
-  total_tasks_completed: 146, skills_created: 68, commits_made: 112,
+  xp: 6670, level: 7, title: 'Apprentice',
+  total_tasks_completed: 147, skills_created: 68, commits_made: 113,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -49,20 +49,11 @@ var CC_STATE = {
     { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://lordshua1337.github.io/cash-cow/' },
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' },
-    { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: null }
+    { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: null },
+    { name: 'occulus', url: 'https://github.com/lordshua1337/occulus', live: null }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'occulus',
-      title: 'Occulus',
-      desc: 'Financial advisor command center -- multi-client portfolio monitoring, CRM pipeline, scenario lab, stress testing heat maps, and AI-powered compliance reporting. Companion to StockPilot.',
-      stack: ['Next.js', 'Supabase', 'Claude API', 'dnd-kit', 'Stripe'],
-      phases: 7,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #22d3ee, #06b6d4)',
-      icon: 'eye'
-    },
     {
       name: 'stockpilot-v3',
       title: 'StockPilot V3',
@@ -222,6 +213,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Occulus V3 -- CRM pipeline, scenario lab, stress test, rebalancer, AI reports, compliance logs', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Occulus V3 -- greenfield SaaS build #3', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Cash Cow V3 -- AI product discovery, Supabase auth, Claude research/ideation/briefs, cow branding', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: Cash Cow V3 -- greenfield SaaS build #1', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Event Bus -- pub/sub router, Inngest delivery, dashboard, typed SDK', xp: 85, type: 'feature' },
