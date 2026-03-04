@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 7030, level: 8, title: 'Apprentice',
-  total_tasks_completed: 150, skills_created: 68, commits_made: 116,
+  xp: 7150, level: 8, title: 'Apprentice',
+  total_tasks_completed: 151, skills_created: 68, commits_made: 117,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -54,16 +54,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'uncommoncents-v3',
-      title: 'Uncommon Cents V3',
-      desc: 'Supabase rewrite -- user profiles, financial situation profiling, 19 calculators (10 new), full-text search, situation-aware AI coach, saved calculations, PDF export.',
-      stack: ['Next.js', 'Supabase', 'Claude API', 'TypeScript'],
-      phases: 0,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #16A34A, #22C55E)',
-      icon: 'globe'
-    },
     {
       name: 'pipelinesimulator-v3',
       title: 'Pipeline Simulator V3',
@@ -183,6 +173,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Uncommon Cents V3 -- Supabase auth, sync, saved calculations, analytics, dashboard', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Uncommon Cents V3 -- backend build #7', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'The Well V3 -- Supabase auth, cloud sync, community reflections, analytics, dashboard', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: The Well V3 -- backend build #6', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'DoodleForge V3 -- Supabase auth, credit system, Daily Guess game, share galleries, Doodie redesign', xp: 85, type: 'feature' },
