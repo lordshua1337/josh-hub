@@ -133,9 +133,39 @@ var CC_STATE = {
       icon: 'globe'
     },
     {
+      name: 'pipelinesimulator-v3',
+      title: 'Pipeline Simulator V3',
+      desc: 'Supabase rewrite -- configurable pipeline stages, Monte Carlo simulation engine, sensitivity analysis, Kanban/Funnel/Sankey visualizations, analytics, PDF export. Rolls into Marcom Engine.',
+      stack: ['Next.js', 'Supabase', 'dnd-kit', 'Recharts', 'TypeScript'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #d946ef, #a21caf)',
+      icon: 'globe'
+    },
+    {
+      name: 'adintelligence-v3',
+      title: 'Ad Intelligence V3',
+      desc: 'Supabase rewrite -- auto-discovery of competitors, real-time ad monitoring, spend estimation, Claude-powered analysis, enrichment engine. Rolls into Marcom Engine.',
+      stack: ['Next.js', 'Supabase', 'Claude API', 'SerpAPI', 'TypeScript'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #fb923c, #ea580c)',
+      icon: 'globe'
+    },
+    {
+      name: 'imageforge-v3',
+      title: 'Image Forge V3',
+      desc: 'Supabase rewrite -- Replicate AI generation, brand kits, asset library, print-on-demand, template system, multi-platform resize. Rolls into Marcom Engine.',
+      stack: ['Next.js', 'Supabase', 'Replicate', 'Canvas API', 'TypeScript'],
+      phases: 0,
+      status: 'spec-ready',
+      gradient: 'linear-gradient(90deg, #f59e0b, #d97706)',
+      icon: 'globe'
+    },
+    {
       name: 'marcom-engine',
       title: 'Marcom Engine',
-      desc: 'Unified marketing OS -- mission control dashboard, email engine (Resend), social engine (Ayrshare), AI creative engine (Flux). Absorbs Pipeline Simulator, Ad Intelligence, and Image Forge into one platform.',
+      desc: 'Unified marketing OS -- mission control dashboard, email engine (Resend), social engine (Ayrshare), AI creative engine (Flux). Consolidates Pipeline Simulator, Ad Intelligence, and Image Forge into one platform.',
       stack: ['Next.js', 'Supabase', 'Resend', 'Ayrshare', 'Inngest', 'Flux'],
       phases: 5,
       status: 'spec-ready',
