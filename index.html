@@ -477,10 +477,17 @@
 
   </div>
 
+  <!-- Planned Projects -->
+  <div class="section-header fl-reveal">
+    <div class="section-label">Planned Projects</div>
+    <span style="font-size:12px;color:var(--text-tertiary)">Spec ready, not yet built</span>
+  </div>
+  <div class="projects fl-reveal" id="planned-projects"></div>
+
   <!-- Future Projects -->
   <div class="section-header fl-reveal">
     <div class="section-label">Future Projects</div>
-    <span style="font-size:12px;color:var(--text-tertiary)">Spec ready, not yet built</span>
+    <span style="font-size:12px;color:var(--text-tertiary)">Ideas on deck</span>
   </div>
   <div class="projects fl-reveal" id="future-projects"></div>
 
@@ -696,17 +703,17 @@ if (spriteEl) spriteEl.innerHTML = renderSprite(CC_STATE.level);
   row.innerHTML = html;
 })();
 
-// Build future projects cards
-(function() {
-  var container = document.getElementById('future-projects');
-  if (!container || !CC_STATE.future_projects) return;
+// Shared card renderer for project arrays
+function renderProjectCards(projects, containerId) {
+  var container = document.getElementById(containerId);
+  if (!container || !projects) return;
   var html = '';
-  CC_STATE.future_projects.forEach(function(proj) {
+  projects.forEach(function(proj) {
     html += '<div class="card">';
     html += '<div class="card-accent" style="background: ' + proj.gradient + ';"></div>';
     html += '<div class="card-header">';
     html += '<div class="card-title">' + proj.title + '</div>';
-    var badgeLabel = proj.status === 'spec-ready' ? 'Spec Ready' : 'Planned';
+    var badgeLabel = proj.status === 'spec-ready' ? 'Spec Ready' : (proj.status === 'future' ? 'Idea' : 'Planned');
     html += '<span class="badge badge-planning">' + badgeLabel + '</span>';
     html += '</div>';
     html += '<div class="card-desc">' + proj.desc + '</div>';
@@ -715,13 +722,17 @@ if (spriteEl) spriteEl.innerHTML = renderSprite(CC_STATE.level);
       html += '<span class="meta-item"><span class="meta-dot dot-muted"></span> ' + tech + '</span>';
     });
     html += '</div>';
-    html += '<div class="card-meta" style="margin-top:4px">';
-    html += '<span class="meta-item"><span class="meta-dot dot-warning"></span> ' + proj.phases + ' build phases</span>';
-    html += '</div>';
+    if (proj.phases > 0) {
+      html += '<div class="card-meta" style="margin-top:4px">';
+      html += '<span class="meta-item"><span class="meta-dot dot-warning"></span> ' + proj.phases + ' build phases</span>';
+      html += '</div>';
+    }
     html += '</div>';
   });
   container.innerHTML = html;
-})();
+}
+renderProjectCards(CC_STATE.planned_projects, 'planned-projects');
+renderProjectCards(CC_STATE.future_projects, 'future-projects');
 
 // Build achievement preview pills
 (function() {

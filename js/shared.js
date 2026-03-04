@@ -50,18 +50,8 @@ var CC_STATE = {
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' }
   ],
-  // Future projects (planned, not yet built)
-  future_projects: [
-    {
-      name: 'marcom-engine',
-      title: 'Marcom Engine',
-      desc: 'Internal marketing automation platform -- mission control dashboard, email engine, social engine, AI creative engine. Resend, Ayrshare, Apollo, Flux, Inngest.',
-      stack: ['Next.js', 'Supabase', 'Resend', 'Ayrshare', 'Inngest', 'Flux'],
-      phases: 5,
-      status: 'planned',
-      gradient: 'linear-gradient(90deg, #6366f1, #a78bfa)',
-      icon: 'terminal'
-    },
+  // Planned projects (spec ready or in planning, next to build)
+  planned_projects: [
     {
       name: 'partner-portal-templates',
       title: 'Partner Portal Templates',
@@ -71,16 +61,6 @@ var CC_STATE = {
       status: 'planned',
       gradient: 'linear-gradient(90deg, #2d5016, #4a7c2f)',
       icon: 'globe'
-    },
-    {
-      name: 'headless-cms',
-      title: 'Headless CMS',
-      desc: 'Custom headless content management system -- API-first, multi-tenant, structured content types, media pipeline, webhook-driven publishing.',
-      stack: ['Next.js', 'Supabase', 'TypeScript'],
-      phases: 0,
-      status: 'planned',
-      gradient: 'linear-gradient(90deg, #0ea5e9, #38bdf8)',
-      icon: 'database'
     },
     {
       name: 'ctax-ai-tools-upgrade',
@@ -121,6 +101,29 @@ var CC_STATE = {
       status: 'spec-ready',
       gradient: 'linear-gradient(90deg, #D97706, #92400E)',
       icon: 'globe'
+    }
+  ],
+  // Future projects (ideas, not yet specced)
+  future_projects: [
+    {
+      name: 'marcom-engine',
+      title: 'Marcom Engine',
+      desc: 'Internal marketing automation platform -- mission control dashboard, email engine, social engine, AI creative engine. Resend, Ayrshare, Apollo, Flux, Inngest.',
+      stack: ['Next.js', 'Supabase', 'Resend', 'Ayrshare', 'Inngest', 'Flux'],
+      phases: 5,
+      status: 'future',
+      gradient: 'linear-gradient(90deg, #6366f1, #a78bfa)',
+      icon: 'terminal'
+    },
+    {
+      name: 'headless-cms',
+      title: 'Headless CMS',
+      desc: 'Custom headless content management system -- API-first, multi-tenant, structured content types, media pipeline, webhook-driven publishing.',
+      stack: ['Next.js', 'Supabase', 'TypeScript'],
+      phases: 0,
+      status: 'future',
+      gradient: 'linear-gradient(90deg, #0ea5e9, #38bdf8)',
+      icon: 'database'
     }
   ],
   // Connected integrations
