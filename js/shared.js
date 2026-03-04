@@ -2,9 +2,9 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 4950, level: 7, title: 'Apprentice',
-  total_tasks_completed: 112, skills_created: 68, commits_made: 87,
-  plans_executed: 6, deploys: 12,
+  xp: 6190, level: 7, title: 'Apprentice',
+  total_tasks_completed: 143, skills_created: 68, commits_made: 109,
+  plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -44,7 +44,12 @@ var CC_STATE = {
     { name: 'the-well', url: 'https://github.com/lordshua1337/the-well', live: 'https://the-well-eight.vercel.app' },
     { name: 'uncommon-cents', url: 'https://github.com/lordshua1337/uncommon-cents', live: 'https://uncommon-cents.vercel.app' },
     { name: 'stock-pilot', url: 'https://github.com/lordshua1337/stock-pilot', live: 'https://stock-pilot-puce.vercel.app' },
-    { name: 'josh-hub', url: 'https://github.com/lordshua1337/josh-hub', live: 'https://lordshua1337.github.io/josh-hub/' }
+    { name: 'josh-hub', url: 'https://github.com/lordshua1337/josh-hub', live: 'https://lordshua1337.github.io/josh-hub/' },
+    { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: 'https://lordshua1337.github.io/trend-sniper/' },
+    { name: 'ad-intelligence', url: 'https://github.com/lordshua1337/ad-intelligence', live: 'https://lordshua1337.github.io/ad-intelligence/' },
+    { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://lordshua1337.github.io/cash-cow/' },
+    { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
+    { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' }
   ],
   // Future projects (planned, not yet built)
   future_projects: [
@@ -77,6 +82,76 @@ var CC_STATE = {
       status: 'planned',
       gradient: 'linear-gradient(90deg, #0ea5e9, #38bdf8)',
       icon: 'database'
+    },
+    {
+      name: 'ctax-ai-tools-upgrade',
+      title: 'CTAX AI Tools Upgrade',
+      desc: 'ICP-driven overhaul of all portal AI tools -- Script Builder, Ad Maker, Client Qualifier, Knowledge Base, Page Builder. ICP bridge from main site, shared context object, external API integrations (Unsplash, Pexels, free-tier AI image gen).',
+      stack: ['Vanilla JS', 'Claude API', 'localStorage', 'Unsplash/Pexels'],
+      phases: 6,
+      status: 'planned',
+      gradient: 'linear-gradient(90deg, #D97706, #F59E0B)',
+      icon: 'brain'
+    },
+    {
+      name: 'occulus',
+      title: 'Occulus',
+      desc: 'Financial advisor command center -- multi-client portfolio monitoring, CRM pipeline, scenario lab, stress testing heat maps, and AI-powered compliance reporting. Companion to StockPilot.',
+      stack: ['Next.js', 'Supabase', 'Claude API', 'dnd-kit', 'Stripe'],
+      phases: 7,
+      status: 'planned',
+      gradient: 'linear-gradient(90deg, #22d3ee, #06b6d4)',
+      icon: 'eye'
+    },
+    {
+      name: 'trend-sniper',
+      title: 'Trend Sniper',
+      desc: 'Bloomberg-style trend dashboard. 45 trends, heatmap/timeline/comparison/goldmine views, watchlists, alerts. Pick & Shovel Suite #1.',
+      stack: ['Next.js', 'TypeScript', 'Tailwind', 'Static Export'],
+      phases: 7,
+      status: 'built',
+      gradient: 'linear-gradient(90deg, #fb7185, #e11d48)',
+      icon: 'crosshair'
+    },
+    {
+      name: 'ad-intelligence',
+      title: 'Ad Intelligence',
+      desc: 'Competitive ad spy tool. Real Meta/Google/SEMrush links, company search, competitor tracking, weekly briefs. Pick & Shovel Suite #2.',
+      stack: ['Next.js', 'TypeScript', 'Tailwind', 'Static Export'],
+      phases: 6,
+      status: 'built',
+      gradient: 'linear-gradient(90deg, #fb923c, #ea580c)',
+      icon: 'monitor'
+    },
+    {
+      name: 'cash-cow',
+      title: 'Cash Cow',
+      desc: 'AI product idea generator. 15 niches, revenue estimates, validation scoring, build spec generator. Cow-themed. Pick & Shovel Suite #3.',
+      stack: ['Next.js', 'TypeScript', 'Tailwind', 'Static Export'],
+      phases: 6,
+      status: 'built',
+      gradient: 'linear-gradient(90deg, #a3e635, #65a30d)',
+      icon: 'dollar-sign'
+    },
+    {
+      name: 'pipeline-simulator',
+      title: 'Pipeline Simulator',
+      desc: 'Kanban pipeline with Monte Carlo revenue simulation. Drag-and-drop stages, probability modeling, revenue projections. Pick & Shovel Suite #4.',
+      stack: ['Next.js', 'TypeScript', 'dnd-kit', 'Monte Carlo'],
+      phases: 6,
+      status: 'built',
+      gradient: 'linear-gradient(90deg, #d946ef, #a21caf)',
+      icon: 'layout'
+    },
+    {
+      name: 'image-forge',
+      title: 'Image Forge',
+      desc: 'Canvas-based image editor. 13 templates, brand kit, layer system, platform resize to 12 formats, PNG/JPG/WebP export. Pick & Shovel Suite #5.',
+      stack: ['Next.js', 'TypeScript', 'Canvas API', 'Static Export'],
+      phases: 5,
+      status: 'built',
+      gradient: 'linear-gradient(90deg, #f59e0b, #d97706)',
+      icon: 'image'
     }
   ],
   // Connected integrations
@@ -84,13 +159,23 @@ var CC_STATE = {
     { id: 'claude-code', name: 'Claude Code', icon: 'terminal', desc: 'AI coding assistant powering all builds', color: '#D97706' },
     { id: 'github', name: 'GitHub', icon: 'github', desc: '6 repos, auto-push on deploy', color: '#1A1612' },
     { id: 'vercel', name: 'Vercel', icon: 'cloud', desc: '4 apps deployed (DoodleForge, The Well, Uncommon Cents, StockPilot)', color: '#000' },
-    { id: 'github-pages', name: 'GitHub Pages', icon: 'globe', desc: 'CTAX Partner Site + josh-hub hosting', color: '#2563EB' },
+    { id: 'github-pages', name: 'GitHub Pages', icon: 'globe', desc: 'CTAX Partner Site + josh-hub + Pick & Shovel Suite (5 apps)', color: '#2563EB' },
     { id: 'anthropic', name: 'Anthropic API', icon: 'brain', desc: 'Claude AI powers The Well, Uncommon Cents, StockPilot chat', color: '#CC785C' },
     { id: 'stripe', name: 'Stripe', icon: 'credit-card', desc: 'DoodleForge payment processing', color: '#635BFF' },
     { id: 'mcp-servers', name: 'MCP Servers', icon: 'plug', desc: 'Context7 docs, image generation, Canva', color: '#9333EA' },
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Deployed Image Forge to GitHub Pages (Pick & Shovel #5)', xp: 40, type: 'deployment' },
+    { date: '2026-03-03', event: 'Image Forge v1 -- canvas editor, 13 templates, brand kit, platform resize', xp: 35, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Image Forge -- Pick & Shovel Suite #5', xp: 50, type: 'project' },
+    { date: '2026-03-03', event: 'Deployed Pipeline Simulator to GitHub Pages (Pick & Shovel #4)', xp: 40, type: 'deployment' },
+    { date: '2026-03-03', event: 'Pipeline Simulator v1 -- Kanban + Monte Carlo revenue simulation', xp: 35, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Pipeline Simulator -- Pick & Shovel Suite #4', xp: 50, type: 'project' },
+    { date: '2026-03-03', event: 'Deployed Cash Cow to GitHub Pages (Pick & Shovel #3)', xp: 40, type: 'deployment' },
+    { date: '2026-03-03', event: 'Cash Cow v1 -- AI product idea generator, 15 niches, validation scoring', xp: 35, type: 'feature' },
+    { date: '2026-03-03', event: 'project: Cash Cow -- Pick & Shovel Suite #3', xp: 50, type: 'project' },
+    { date: '2026-03-03', event: 'Plan: CTAX AI Tools Upgrade -- 6-phase ICP-driven overhaul, full audit + spec', xp: 15, type: 'plan' },
     { date: '2026-03-02', event: 'HoldingInsightCard 4-layer component + benchmark tape', xp: 35, type: 'feature' },
     { date: '2026-03-02', event: 'Populated S&P/CFRA, StarMine, Congressional, Options blocks', xp: 35, type: 'feature' },
     { date: '2026-03-02', event: 'Spacing fix below insight card', xp: 20, type: 'bugfix' },
@@ -451,6 +536,12 @@ function detectProject(event) {
   if (e.indexOf('ui/ux') > -1 || e.indexOf('pro max') > -1) return 'UI/UX Pro Max';
   if (e.indexOf('skill') > -1 || e.indexOf('command') > -1 || e.indexOf('sync-hub') > -1) return 'Skills/Tooling';
   if (e.indexOf('nightcrawler') > -1) return 'Nightcrawler';
+  if (e.indexOf('trend sniper') > -1 || e.indexOf('trend-sniper') > -1) return 'Trend Sniper';
+  if (e.indexOf('ad intelligence') > -1 || e.indexOf('ad-intelligence') > -1) return 'Ad Intelligence';
+  if (e.indexOf('cash cow') > -1 || e.indexOf('cash-cow') > -1) return 'Cash Cow';
+  if (e.indexOf('pipeline simulator') > -1 || e.indexOf('pipeline-simulator') > -1) return 'Pipeline Simulator';
+  if (e.indexOf('image forge') > -1 || e.indexOf('image-forge') > -1) return 'Image Forge';
+  if (e.indexOf('pick & shovel') > -1 || e.indexOf('pick and shovel') > -1) return 'Pick & Shovel Suite';
   if (e.indexOf('hero') > -1 || e.indexOf('boho') > -1 || e.indexOf('imagegen') > -1) return 'Image Gen';
   if (e.indexOf('subagent') > -1 || e.indexOf('claude') > -1 || e.indexOf('context') > -1) return 'Claude Config';
   return 'Other';
