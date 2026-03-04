@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 7990, level: 8, title: 'Apprentice',
-  total_tasks_completed: 158, skills_created: 68, commits_made: 124,
+  xp: 8080, level: 9, title: 'Apprentice',
+  total_tasks_completed: 161, skills_created: 68, commits_made: 127,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -103,6 +103,10 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'Omni Focus sweep -- 12-repo Code Foundation + Security audit', xp: 30, type: 'audit' },
+    { date: '2026-03-03', event: 'fix: stock-pilot ticker validation on /api/market', xp: 20, type: 'bugfix' },
+    { date: '2026-03-03', event: 'fix: doodleforge /api/generate MIME + size validation', xp: 20, type: 'bugfix' },
+    { date: '2026-03-03', event: 'fix: ctax-partner-site copyAllScripts + avatar XSS + ad-maker MIME', xp: 20, type: 'bugfix' },
     { date: '2026-03-03', event: 'CTAX AI Tools Upgrade -- ICP context bridge, Save to Portal, Script Builder/Client Qualifier/Knowledge Base ICP injection, badge system', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: CTAX AI Tools Upgrade -- ICP-driven tool overhaul build #13', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'Partner Portal Templates -- 6 landing page templates, template catalog, design specs, Supabase auth', xp: 85, type: 'feature' },
