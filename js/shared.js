@@ -487,33 +487,44 @@ function initFaceLift() {
 }
 
 // === HELPERS ===
-function tagClass(type) {
-  var map = { feature: 'feat', bugfix: 'fix', deployment: 'deploy', skill_created: 'skill', skills_batch: 'skill', plan: 'plan', config: 'config', refactor: 'refactor', project: 'project' };
-  return map[type] || 'feat';
-}
+var EVENT_TYPE_CLASS = {
+  feature: 'feat', bugfix: 'fix', deployment: 'deploy',
+  skill_created: 'skill', skills_batch: 'skill', plan: 'plan',
+  config: 'config', refactor: 'refactor', project: 'project',
+  docs: 'docs', playbook_created: 'playbook'
+};
 
-function trendClass(type) {
-  var map = { feature: 'feat', bugfix: 'fix', deployment: 'deploy', skill_created: 'skill', skills_batch: 'skill', plan: 'plan', config: 'config', refactor: 'refactor', project: 'project', docs: 'docs', playbook_created: 'playbook' };
-  return map[type] || 'feat';
-}
+function tagClass(type) { return EVENT_TYPE_CLASS[type] || 'feat'; }
+function trendClass(type) { return EVENT_TYPE_CLASS[type] || 'feat'; }
+
+// Project detection rules: array of [keywords, projectName]
+// Order matters -- first match wins
+var PROJECT_RULES = [
+  [['stockpilot', 'stock-pilot', 'stock pilot'], 'StockPilot'],
+  [['uncommon cents', 'uncommon-cents'], 'Uncommon Cents'],
+  [['the well', 'the-well', 'well v2', 'scripture', 'word correction'], 'The Well'],
+  [['doodleforge', 'doodle'], 'DoodleForge'],
+  [['ctax', 'partner', 'icp', '30-day'], 'CTAX Partner Site'],
+  [['ui/ux', 'pro max'], 'UI/UX Pro Max'],
+  [['skill', 'command', 'sync-hub'], 'Skills/Tooling'],
+  [['nightcrawler'], 'Nightcrawler'],
+  [['trend sniper', 'trend-sniper', 'cash cow', 'cash-cow'], 'Cash Cow'],
+  [['ad intelligence', 'ad-intelligence'], 'Ad Intelligence'],
+  [['pipeline simulator', 'pipeline-simulator'], 'Pipeline Simulator'],
+  [['image forge', 'image-forge'], 'Image Forge'],
+  [['pick & shovel', 'pick and shovel'], 'Pick & Shovel Suite'],
+  [['hero', 'boho', 'imagegen'], 'Image Gen'],
+  [['subagent', 'claude', 'context'], 'Claude Config']
+];
 
 function detectProject(event) {
   var e = event.toLowerCase();
-  if (e.indexOf('stockpilot') > -1 || e.indexOf('stock-pilot') > -1 || e.indexOf('stock pilot') > -1) return 'StockPilot';
-  if (e.indexOf('uncommon cents') > -1 || e.indexOf('uncommon-cents') > -1) return 'Uncommon Cents';
-  if (e.indexOf('the well') > -1 || e.indexOf('the-well') > -1 || e.indexOf('well v2') > -1 || e.indexOf('scripture') > -1 || e.indexOf('word correction') > -1) return 'The Well';
-  if (e.indexOf('doodleforge') > -1 || e.indexOf('doodle') > -1) return 'DoodleForge';
-  if (e.indexOf('ctax') > -1 || e.indexOf('partner') > -1 || e.indexOf('icp') > -1 || e.indexOf('30-day') > -1) return 'CTAX Partner Site';
-  if (e.indexOf('ui/ux') > -1 || e.indexOf('pro max') > -1) return 'UI/UX Pro Max';
-  if (e.indexOf('skill') > -1 || e.indexOf('command') > -1 || e.indexOf('sync-hub') > -1) return 'Skills/Tooling';
-  if (e.indexOf('nightcrawler') > -1) return 'Nightcrawler';
-  if (e.indexOf('trend sniper') > -1 || e.indexOf('trend-sniper') > -1 || e.indexOf('cash cow') > -1 || e.indexOf('cash-cow') > -1) return 'Cash Cow';
-  if (e.indexOf('ad intelligence') > -1 || e.indexOf('ad-intelligence') > -1) return 'Ad Intelligence';
-  if (e.indexOf('pipeline simulator') > -1 || e.indexOf('pipeline-simulator') > -1) return 'Pipeline Simulator';
-  if (e.indexOf('image forge') > -1 || e.indexOf('image-forge') > -1) return 'Image Forge';
-  if (e.indexOf('pick & shovel') > -1 || e.indexOf('pick and shovel') > -1) return 'Pick & Shovel Suite';
-  if (e.indexOf('hero') > -1 || e.indexOf('boho') > -1 || e.indexOf('imagegen') > -1) return 'Image Gen';
-  if (e.indexOf('subagent') > -1 || e.indexOf('claude') > -1 || e.indexOf('context') > -1) return 'Claude Config';
+  for (var i = 0; i < PROJECT_RULES.length; i++) {
+    var keywords = PROJECT_RULES[i][0];
+    for (var k = 0; k < keywords.length; k++) {
+      if (e.indexOf(keywords[k]) > -1) return PROJECT_RULES[i][1];
+    }
+  }
   return 'Other';
 }
 
