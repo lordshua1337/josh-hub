@@ -3,483 +3,900 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Josh H. | Projects</title>
+<title>Projects | Josh H.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shared.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0a0a0f;
-    --surface: #14141c;
-    --surface-hover: #1a1a26;
-    --border: rgba(255,255,255,0.06);
-    --border-hover: rgba(255,255,255,0.12);
-    --text: #f0f0f5;
-    --text-secondary: #9b97a8;
-    --text-tertiary: #6b6778;
-    --accent: #6366f1;
-    --accent-soft: rgba(99,102,241,0.1);
-    --radius: 16px;
-    --radius-sm: 10px;
-    --shadow: 0 2px 8px rgba(0,0,0,0.3);
-    --shadow-hover: 0 8px 24px rgba(0,0,0,0.4);
-  }
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ===== LAYOUT ===== */
-  .portfolio {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 60px 24px 80px;
-  }
-
-  /* ===== HEADER ===== */
-  .portfolio-header {
+  /* === Projects Page Styles === */
+  .projects-hero {
     text-align: center;
-    margin-bottom: 48px;
+    padding: 48px 0 40px;
   }
-  .portfolio-avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #a78bfa, #6366f1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
+  .projects-hero h2 {
     font-size: 28px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
-  }
-  .portfolio-name {
-    font-size: 24px;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 8px;
     letter-spacing: -0.02em;
+    margin-bottom: 8px;
   }
-  .portfolio-bio {
+  .projects-hero p {
     font-size: 15px;
     color: var(--text-secondary);
-    max-width: 420px;
+    max-width: 480px;
     margin: 0 auto;
-    line-height: 1.6;
   }
 
-  /* ===== PROJECT CARDS ===== */
-  .project-list {
+  /* Filter tabs */
+  .deploy-tabs {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .project-card {
+    gap: 4px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-    position: relative;
-    overflow: hidden;
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 32px;
+    width: fit-content;
   }
-  .project-card:hover {
-    border-color: var(--border-hover);
-    background: var(--surface-hover);
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-2px);
-  }
-
-  /* Color strip at top of card */
-  .project-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--card-accent, var(--accent));
-    opacity: 0;
-    transition: opacity 0.25s;
-  }
-  .project-card:hover::before {
-    opacity: 1;
-  }
-
-  .project-card-top {
+  .deploy-tab {
     display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 14px;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 20px;
+    border: none;
+    border-radius: 7px;
+    background: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .deploy-tab:hover { color: var(--text); background: var(--surface-hover); }
+  .deploy-tab.active { background: var(--accent); color: #fff; }
+  .deploy-tab svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .deploy-tab .tab-count {
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.2);
+    padding: 1px 7px;
+    border-radius: 100px;
+    font-family: var(--mono);
+  }
+  .deploy-tab:not(.active) .tab-count {
+    background: var(--border);
+    color: var(--text-tertiary);
   }
 
-  .project-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-sm);
+  /* Section headings */
+  .deploy-section {
+    margin-bottom: 40px;
+  }
+  .deploy-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .deploy-section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-size: 20px;
   }
-
-  .project-info {
-    flex: 1;
-    min-width: 0;
-  }
-  .project-name {
-    font-size: 17px;
+  .deploy-section-icon svg { width: 16px; height: 16px; }
+  .deploy-section-icon.vercel-icon { background: var(--text); color: var(--bg); }
+  [data-theme="dark"] .deploy-section-icon.vercel-icon { background: #fff; color: #000; }
+  .deploy-section-icon.gh-icon { background: var(--info-soft); color: var(--info); }
+  .deploy-section-title {
+    font-size: 16px;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 4px;
     letter-spacing: -0.01em;
   }
-  .project-desc {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.55;
-  }
-
-  .project-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-  .project-tag {
-    font-size: 11px;
+  .deploy-section-count {
+    font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.04em;
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.04);
     color: var(--text-tertiary);
-    border: 1px solid rgba(255,255,255,0.06);
+    background: var(--surface-hover);
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-family: var(--mono);
   }
 
-  .project-launch {
+  /* Project grid */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* Project card */
+  .pcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.15s;
+  }
+  .pcard:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .pcard::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--pcard-accent, var(--accent));
+  }
+  .pcard-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .pcard-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px 20px;
-    border: none;
-    border-radius: var(--radius-sm);
-    background: var(--card-accent, var(--accent));
-    color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
+    flex-shrink: 0;
+    background: var(--pcard-icon-bg, var(--accent-soft));
+    color: var(--pcard-accent, var(--accent));
+  }
+  .pcard-icon svg { width: 20px; height: 20px; }
+  .pcard-info { flex: 1; min-width: 0; }
+  .pcard-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .pcard-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .pcard-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .pcard-tag {
+    font-size: 10px;
     font-weight: 600;
-    cursor: pointer;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 100px;
+    background: var(--surface-hover);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border);
+  }
+  .pcard-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .pcard-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
     text-decoration: none;
     transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    cursor: pointer;
   }
-  .project-launch:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
+  .pcard-btn svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .pcard-btn:hover svg { transform: translateX(2px); }
+  .pcard-btn-primary {
+    background: var(--pcard-accent, var(--accent));
+    color: #fff;
+    flex: 1;
+    justify-content: center;
   }
-  .project-launch svg {
-    transition: transform 0.2s;
-  }
-  .project-launch:hover svg {
-    transform: translateX(3px);
-  }
-
-  /* ===== CARD ACCENT COLORS ===== */
-  .card-coral { --card-accent: #f87171; }
-  .card-coral .project-icon { background: rgba(248,113,113,0.12); color: #f87171; }
-
-  .card-violet { --card-accent: #8b5cf6; }
-  .card-violet .project-icon { background: rgba(139,92,246,0.12); color: #8b5cf6; }
-
-  .card-emerald { --card-accent: #10b981; }
-  .card-emerald .project-icon { background: rgba(16,185,129,0.12); color: #10b981; }
-
-  .card-sky { --card-accent: #38bdf8; }
-  .card-sky .project-icon { background: rgba(56,189,248,0.12); color: #38bdf8; }
-
-  .card-amber { --card-accent: #f59e0b; }
-  .card-amber .project-icon { background: rgba(245,158,11,0.12); color: #f59e0b; }
-
-  .card-indigo { --card-accent: #6366f1; }
-  .card-indigo .project-icon { background: rgba(99,102,241,0.12); color: #6366f1; }
-
-  .card-rose { --card-accent: #fb7185; }
-  .card-rose .project-icon { background: rgba(251,113,133,0.12); color: #fb7185; }
-
-  .card-orange { --card-accent: #fb923c; }
-  .card-orange .project-icon { background: rgba(251,146,60,0.12); color: #fb923c; }
-
-  .card-lime { --card-accent: #a3e635; }
-  .card-lime .project-icon { background: rgba(163,230,53,0.12); color: #a3e635; }
-
-  .card-fuchsia { --card-accent: #d946ef; }
-  .card-fuchsia .project-icon { background: rgba(217,70,239,0.12); color: #d946ef; }
-
-  /* ===== FOOTER ===== */
-  .portfolio-footer {
-    text-align: center;
-    margin-top: 48px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-  }
-  .portfolio-footer-text {
-    font-size: 13px;
-    color: var(--text-tertiary);
-  }
-  .portfolio-footer-text a {
+  .pcard-btn-primary:hover { filter: brightness(1.1); }
+  .pcard-btn-secondary {
+    background: var(--surface-hover);
     color: var(--text-secondary);
-    text-decoration: none;
+    border: 1px solid var(--border);
   }
-  .portfolio-footer-text a:hover {
+  .pcard-btn-secondary:hover {
+    border-color: var(--text-tertiary);
     color: var(--text);
   }
 
-  /* ===== RESPONSIVE ===== */
+  /* Card accent colors */
+  .pcard-coral { --pcard-accent: #f87171; --pcard-icon-bg: rgba(248,113,113,0.12); }
+  .pcard-violet { --pcard-accent: #8b5cf6; --pcard-icon-bg: rgba(139,92,246,0.12); }
+  .pcard-emerald { --pcard-accent: #10b981; --pcard-icon-bg: rgba(16,185,129,0.12); }
+  .pcard-sky { --pcard-accent: #38bdf8; --pcard-icon-bg: rgba(56,189,248,0.12); }
+  .pcard-amber { --pcard-accent: #f59e0b; --pcard-icon-bg: rgba(245,158,11,0.12); }
+  .pcard-indigo { --pcard-accent: #6366f1; --pcard-icon-bg: rgba(99,102,241,0.12); }
+  .pcard-rose { --pcard-accent: #fb7185; --pcard-icon-bg: rgba(251,113,133,0.12); }
+  .pcard-orange { --pcard-accent: #fb923c; --pcard-icon-bg: rgba(251,146,60,0.12); }
+  .pcard-lime { --pcard-accent: #a3e635; --pcard-icon-bg: rgba(163,230,53,0.12); }
+  .pcard-fuchsia { --pcard-accent: #d946ef; --pcard-icon-bg: rgba(217,70,239,0.12); }
+  .pcard-teal { --pcard-accent: #14b8a6; --pcard-icon-bg: rgba(20,184,166,0.12); }
+  .pcard-cyan { --pcard-accent: #22d3ee; --pcard-icon-bg: rgba(34,211,238,0.12); }
+
+  /* Status badge */
+  .pcard-status {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .pcard-status-live { background: var(--success-soft); color: var(--success); }
+  .pcard-status-static { background: var(--info-soft); color: var(--info); }
+
+  /* Hidden sections for tab filtering */
+  .deploy-section.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .project-grid { grid-template-columns: 1fr; }
+    .deploy-tabs { width: 100%; }
+    .deploy-tab { flex: 1; justify-content: center; padding: 9px 12px; font-size: 12px; }
+  }
   @media (max-width: 480px) {
-    .portfolio { padding: 40px 16px 60px; }
-    .portfolio-name { font-size: 20px; }
-    .project-card { padding: 20px; }
-    .project-card-top { gap: 12px; }
-    .project-icon { width: 40px; height: 40px; font-size: 18px; }
-    .project-name { font-size: 15px; }
-    .project-desc { font-size: 13px; }
+    .pcard { padding: 20px; }
+    .pcard-actions { flex-direction: column; }
+    .pcard-btn-secondary { justify-content: center; }
   }
 </style>
 </head>
 <body>
 
-<div class="portfolio">
+<!-- ===== TOPBAR ===== -->
+<nav class="topbar" role="navigation" aria-label="Main navigation">
+  <div class="topbar-left">
+    <div class="logo-wrap">
+      <div class="logo"><span>//</span> CMD</div>
+      <div class="logo-dropdown">
+        <a href="config-inspector.html"><span>//</span> CONFYG</a>
+      </div>
+    </div>
+  </div>
+  <div class="topbar-tabs">
+    <a class="tab-btn" href="index.html">Dashboard</a>
+    <a class="tab-btn" href="skills.html">Skills</a>
+    <a class="tab-btn" href="achievements.html">Achievements</a>
+    <a class="tab-btn" href="activity.html">Activity</a>
+    <a class="tab-btn active" href="projects.html" aria-current="page">Projects</a>
+    <a class="tab-btn" href="integrations.html">Integrations</a>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode"></button>
+  </div>
+</nav>
 
-  <!-- Header -->
-  <div class="portfolio-header">
-    <div class="portfolio-avatar">JH</div>
-    <h1 class="portfolio-name">Josh H.</h1>
-    <p class="portfolio-bio">Full-stack projects built with AI. Click any card to launch the live app.</p>
+<div class="header">
+  <h1>Projects</h1>
+  <p class="header-sub">Live deployments across Vercel and GitHub Pages.</p>
+</div>
+
+<div class="main">
+
+  <!-- Filter Tabs -->
+  <div class="deploy-tabs" role="tablist">
+    <button class="deploy-tab active" role="tab" onclick="filterProjects('all')" data-filter="all">
+      All
+      <span class="tab-count">22</span>
+    </button>
+    <button class="deploy-tab" role="tab" onclick="filterProjects('vercel')" data-filter="vercel">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L24 22H0L12 1Z"/></svg>
+      Vercel
+      <span class="tab-count">11</span>
+    </button>
+    <button class="deploy-tab" role="tab" onclick="filterProjects('github')" data-filter="github">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub Pages
+      <span class="tab-count">11</span>
+    </button>
   </div>
 
-  <!-- Project Cards -->
-  <div class="project-list">
-
-    <!-- CTAX Partner Site -->
-    <div class="project-card card-indigo">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-        </div>
-        <div class="project-info">
-          <div class="project-name">CTAX Partner Site</div>
-          <div class="project-desc">Enterprise partner program portal with AI-powered tools, immersive scroll experience, referral dashboard, and marketing kit.</div>
-        </div>
+  <!-- ===== VERCEL DEPLOYMENTS ===== -->
+  <div class="deploy-section" data-section="vercel">
+    <div class="deploy-section-header">
+      <div class="deploy-section-icon vercel-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L24 22H0L12 1Z"/></svg>
       </div>
-      <div class="project-tags">
-        <span class="project-tag">Vanilla JS</span>
-        <span class="project-tag">SPA</span>
-        <span class="project-tag">AI Tools</span>
-        <span class="project-tag">Portal</span>
-      </div>
-      <a class="project-launch" href="https://lordshua1337.github.io/ctax-partner-site/" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
+      <span class="deploy-section-title">Vercel -- Live Apps</span>
+      <span class="deploy-section-count">11 apps</span>
     </div>
 
-    <!-- DoodleForge -->
-    <div class="project-card card-coral">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-        </div>
-        <div class="project-info">
-          <div class="project-name">DoodleForge</div>
-          <div class="project-desc">AI-powered app that transforms kids' drawings into professional art. Upload, pick a style, and get a masterpiece back.</div>
-        </div>
-      </div>
-      <div class="project-tags">
-        <span class="project-tag">Next.js</span>
-        <span class="project-tag">TypeScript</span>
-        <span class="project-tag">AI Art</span>
-        <span class="project-tag">Stripe</span>
-      </div>
-      <a class="project-launch" href="https://doodleforge.vercel.app" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
+    <div class="project-grid">
 
-    <!-- The Well -->
-    <div class="project-card card-violet">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <!-- CTAX V3 -->
+      <div class="pcard pcard-indigo fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">CTAX V3</div>
+            <div class="pcard-desc">Full-stack partner portal with Supabase Auth, referral pipeline, admin dashboard, and AI-powered tools.</div>
+          </div>
         </div>
-        <div class="project-info">
-          <div class="project-name">The Well</div>
-          <div class="project-desc">Spiritual teaching app with original Greek translations, WWJD companion chat, infinite-swipe scripture cards, and Gnostic Gospels.</div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Supabase</span>
+          <span class="pcard-tag">TypeScript</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://ctax-v3.vercel.app" target="_blank" rel="noopener">
+            Visit
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/ctax-v3" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          </a>
         </div>
       </div>
-      <div class="project-tags">
-        <span class="project-tag">Next.js</span>
-        <span class="project-tag">Claude API</span>
-        <span class="project-tag">Scripture</span>
-      </div>
-      <a class="project-launch" href="https://the-well-eight.vercel.app" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
 
-    <!-- Uncommon Cents -->
-    <div class="project-card card-emerald">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <!-- DoodleForge -->
+      <div class="pcard pcard-coral fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">DoodleForge</div>
+            <div class="pcard-desc">AI-powered art transformation. Upload a kid's drawing, pick a style, get a masterpiece back.</div>
+          </div>
         </div>
-        <div class="project-info">
-          <div class="project-name">Uncommon Cents</div>
-          <div class="project-desc">Financial education app with 6 wealth-building strategies, interactive calculators, and an AI chat advisor for personal finance.</div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Replicate</span>
+          <span class="pcard-tag">Stripe</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://doodleforge.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/doodleforge" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
         </div>
       </div>
-      <div class="project-tags">
-        <span class="project-tag">Next.js</span>
-        <span class="project-tag">Claude API</span>
-        <span class="project-tag">Finance</span>
-        <span class="project-tag">Calculators</span>
-      </div>
-      <a class="project-launch" href="https://uncommon-cents.vercel.app" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
 
-    <!-- StockPilot -->
-    <div class="project-card card-sky">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <!-- StockPilot -->
+      <div class="pcard pcard-sky fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">StockPilot</div>
+            <div class="pcard-desc">Investor Identity assessment, AI stock research, market simulator, and personalized portfolio builder.</div>
+          </div>
         </div>
-        <div class="project-info">
-          <div class="project-name">StockPilot</div>
-          <div class="project-desc">AI stock research and portfolio builder. AI-scored picks with thesis, catalysts, and risk analysis in a Robinhood-style interface.</div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Claude API</span>
+          <span class="pcard-tag">Alpha Vantage</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://stock-pilot-puce.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/stock-pilot" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
         </div>
       </div>
-      <div class="project-tags">
-        <span class="project-tag">Next.js</span>
-        <span class="project-tag">AI Research</span>
-        <span class="project-tag">Stocks</span>
-      </div>
-      <a class="project-launch" href="https://stock-pilot-puce.vercel.app" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
 
-    <!-- Ad Intelligence -->
-    <div class="project-card card-orange">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <!-- The Well -->
+      <div class="pcard pcard-violet fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">The Well</div>
+            <div class="pcard-desc">Biblical scholarship app with original Greek translations, 60+ concepts, AI chat, and guided practices.</div>
+          </div>
         </div>
-        <div class="project-info">
-          <div class="project-name">Ad Intelligence</div>
-          <div class="project-desc">Competitive ad spy tool. Look up any company for real Meta Ad Library, Google Ads Transparency, SEMrush, and SimilarWeb links.</div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Claude API</span>
+          <span class="pcard-tag">Supabase</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://the-well-eight.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/the-well" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
         </div>
       </div>
-      <div class="project-tags">
-        <span class="project-tag">Next.js</span>
-        <span class="project-tag">TypeScript</span>
-        <span class="project-tag">P&S #2</span>
-      </div>
-      <a class="project-launch" href="https://lordshua1337.github.io/ad-intelligence/" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
 
-    <!-- Cash Cow -->
-    <div class="project-card card-lime">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <!-- Uncommon Cents -->
+      <div class="pcard pcard-emerald fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Uncommon Cents</div>
+            <div class="pcard-desc">Financial education with 134 concepts, 10+ calculators, money script quiz, and AI coach.</div>
+          </div>
         </div>
-        <div class="project-info">
-          <div class="project-name">Cash Cow</div>
-          <div class="project-desc">AI product idea generator. Pick a niche, get revenue estimates, validation scores, competitive analysis, and a full build spec.</div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Claude API</span>
+          <span class="pcard-tag">Supabase</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://uncommon-cents.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/uncommon-cents" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
         </div>
       </div>
-      <div class="project-tags">
-        <span class="project-tag">Next.js</span>
-        <span class="project-tag">TypeScript</span>
-        <span class="project-tag">P&S #3</span>
-      </div>
-      <a class="project-launch" href="https://lordshua1337.github.io/cash-cow/" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
 
-    <!-- Pipeline Simulator -->
-    <div class="project-card card-fuchsia">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <!-- Oculus -->
+      <div class="pcard pcard-teal fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Oculus</div>
+            <div class="pcard-desc">Advisor command center with CRM Kanban, Monte Carlo scenarios, portfolio stress testing, and AI reports.</div>
+          </div>
         </div>
-        <div class="project-info">
-          <div class="project-name">Pipeline Simulator</div>
-          <div class="project-desc">Kanban product pipeline with Monte Carlo revenue simulation. Drag ideas through stages, model outcomes with real probability math.</div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">dnd-kit</span>
+          <span class="pcard-tag">Supabase</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://occulus.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/oculus" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
         </div>
       </div>
-      <div class="project-tags">
-        <span class="project-tag">Next.js</span>
-        <span class="project-tag">dnd-kit</span>
-        <span class="project-tag">P&S #4</span>
-      </div>
-      <a class="project-launch" href="https://lordshua1337.github.io/pipeline-simulator/" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
 
-    <!-- Image Forge -->
-    <div class="project-card card-amber">
-      <div class="project-card-top">
-        <div class="project-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <!-- Cash Cow V3 -->
+      <div class="pcard pcard-lime fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Cash Cow V3</div>
+            <div class="pcard-desc">AI product discovery engine with SerpAPI research, Claude idea generation, and 10-section build briefs.</div>
+          </div>
         </div>
-        <div class="project-info">
-          <div class="project-name">Image Forge</div>
-          <div class="project-desc">Canvas-based image editor with 13 social media templates, brand kit system, layer editor, and export to 12 platform formats.</div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">SerpAPI</span>
+          <span class="pcard-tag">Claude API</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://cashcow-v3.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/cashcow-v3" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
         </div>
       </div>
-      <div class="project-tags">
-        <span class="project-tag">Next.js</span>
-        <span class="project-tag">Canvas API</span>
-        <span class="project-tag">P&S #5</span>
-      </div>
-      <a class="project-launch" href="https://lordshua1337.github.io/image-forge/" target="_blank" rel="noopener">
-        Launch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
 
+      <!-- Ad Intelligence -->
+      <div class="pcard pcard-orange fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Ad Intelligence</div>
+            <div class="pcard-desc">Competitive ad spy with SerpAPI keyword research, Claude-powered briefs, and real-time alert generation.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">SerpAPI</span>
+          <span class="pcard-tag">Claude API</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://ad-intelligence-one.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/ad-intelligence" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Partner Portal Templates -->
+      <div class="pcard pcard-rose fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Partner Portal Templates</div>
+            <div class="pcard-desc">6 conversion-optimized landing page templates with live preview, custom fonts, and color palettes.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Templates</span>
+          <span class="pcard-tag">Supabase</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/partner-portal-templates" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Pipeline Simulator -->
+      <div class="pcard pcard-fuchsia fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Pipeline Simulator</div>
+            <div class="pcard-desc">Drag-and-drop Kanban with Monte Carlo revenue simulation, sensitivity analysis, and bottleneck detection.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">dnd-kit</span>
+          <span class="pcard-tag">Recharts</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://pipeline-simulator-woad.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/pipeline-simulator" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Image Forge -->
+      <div class="pcard pcard-amber fl-reveal">
+        <span class="pcard-status pcard-status-live">Live</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Image Forge</div>
+            <div class="pcard-desc">Canvas-based image editor with 13 templates, brand kit, layer system, and export to 12 platform formats.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Canvas API</span>
+          <span class="pcard-tag">Supabase</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://image-forge-mauve.vercel.app" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/image-forge" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Footer -->
-  <div class="portfolio-footer">
-    <p class="portfolio-footer-text">Built with AI -- <a href="https://github.com/lordshua1337">GitHub</a></p>
+  <!-- ===== GITHUB PAGES DEPLOYMENTS ===== -->
+  <div class="deploy-section" data-section="github">
+    <div class="deploy-section-header">
+      <div class="deploy-section-icon gh-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      </div>
+      <span class="deploy-section-title">GitHub Pages -- Static Exports</span>
+      <span class="deploy-section-count">11 sites</span>
+    </div>
+
+    <div class="project-grid">
+
+      <!-- CTAX Partner Site -->
+      <div class="pcard pcard-indigo fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">CTAX Partner Site</div>
+            <div class="pcard-desc">Enterprise partner program with AI tools, immersive scroll, referral dashboard, page builder, and 30-day challenge.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Vanilla JS</span>
+          <span class="pcard-tag">SPA</span>
+          <span class="pcard-tag">AI Tools</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/ctax-partner-site/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/ctax-partner-site" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- josh-hub -->
+      <div class="pcard pcard-amber fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">josh-hub (Command Center)</div>
+            <div class="pcard-desc">Gamified developer dashboard with XP system, achievements, activity log, and project showcase.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Vanilla JS</span>
+          <span class="pcard-tag">CSS</span>
+          <span class="pcard-tag">Dashboard</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/josh-hub/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/josh-hub" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Trend Sniper -->
+      <div class="pcard pcard-cyan fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Trend Sniper</div>
+            <div class="pcard-desc">Trend heatmap, timeline, comparison views, and goldmine finder. Now absorbed into Cash Cow V3.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">TypeScript</span>
+          <span class="pcard-tag">P&S #1</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/trend-sniper/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/trend-sniper" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Ad Intelligence (GH Pages) -->
+      <div class="pcard pcard-orange fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Ad Intelligence (V2)</div>
+            <div class="pcard-desc">Static export with mock competitor data, keyword finder, alerts, and weekly briefs.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Static</span>
+          <span class="pcard-tag">P&S #2</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/ad-intelligence/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/ad-intelligence" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Cash Cow (GH Pages) -->
+      <div class="pcard pcard-lime fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Cash Cow (V2)</div>
+            <div class="pcard-desc">Static product idea generator with 15 mock niches, revenue estimates, and validation scoring.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Static</span>
+          <span class="pcard-tag">P&S #3</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/cash-cow/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/cash-cow" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Pipeline Simulator (GH Pages) -->
+      <div class="pcard pcard-fuchsia fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Pipeline Simulator (V2)</div>
+            <div class="pcard-desc">Static export of Kanban pipeline with Monte Carlo simulation.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Static</span>
+          <span class="pcard-tag">P&S #4</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/pipeline-simulator/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/pipeline-simulator" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Image Forge (GH Pages) -->
+      <div class="pcard pcard-amber fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Image Forge (V2)</div>
+            <div class="pcard-desc">Static export of canvas editor with templates and brand kit.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Static</span>
+          <span class="pcard-tag">P&S #5</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/image-forge/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/image-forge" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Oculus (GH Pages) -->
+      <div class="pcard pcard-teal fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Oculus (V2)</div>
+            <div class="pcard-desc">Static export of advisor dashboard with CRM and scenario tools.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Static</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/oculus/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/oculus" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- CTAX V3 (GH Pages) -->
+      <div class="pcard pcard-indigo fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">CTAX V3 (V2 Export)</div>
+            <div class="pcard-desc">Static export of the V3 partner portal before Vercel migration.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Static</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/ctax-v3/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/ctax-v3" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Marcom Engine -->
+      <div class="pcard pcard-violet fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Marcom Engine</div>
+            <div class="pcard-desc">Marketing operations dashboard with Bloomberg Terminal theme, 7 integrations, and approval queue.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Static</span>
+          <span class="pcard-tag">Inngest</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/marcom-engine/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/marcom-engine" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Partner Portal Templates (GH Pages) -->
+      <div class="pcard pcard-rose fl-reveal">
+        <span class="pcard-status pcard-status-static">Static</span>
+        <div class="pcard-top">
+          <div class="pcard-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <div class="pcard-info">
+            <div class="pcard-name">Partner Portal Templates (V2)</div>
+            <div class="pcard-desc">Static export of 6 template gallery with preview cards.</div>
+          </div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">Next.js 16</span>
+          <span class="pcard-tag">Static</span>
+        </div>
+        <div class="pcard-actions">
+          <a class="pcard-btn pcard-btn-primary" href="https://lordshua1337.github.io/partner-portal-templates/" target="_blank" rel="noopener">Visit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="pcard-btn pcard-btn-secondary" href="https://github.com/lordshua1337/partner-portal-templates" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </div>
+
+    </div>
   </div>
 
 </div>
 
+<!-- Footer -->
+<div class="footer">
+  <span class="footer-text">Built with Claude Code</span>
+  <div class="footer-links">
+    <a class="footer-link" href="https://github.com/lordshua1337" target="_blank" rel="noopener">GitHub</a>
+    <a class="footer-link" href="index.html">Dashboard</a>
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+<script>
+// Tab filter
+function filterProjects(filter) {
+  document.querySelectorAll('.deploy-tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.filter === filter);
+  });
+  document.querySelectorAll('.deploy-section').forEach(function(s) {
+    if (filter === 'all') {
+      s.classList.remove('hidden');
+    } else {
+      s.classList.toggle('hidden', s.dataset.section !== filter);
+    }
+  });
+}
+
+// Scroll reveal
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      e.target.classList.add('fl-visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fl-reveal').forEach(function(el) { observer.observe(el); });
+
+// Scroll-aware topbar
+window.addEventListener('scroll', function() {
+  document.querySelector('.topbar').classList.toggle('fl-scrolled', window.scrollY > 10);
+});
+</script>
 </body>
 </html>
