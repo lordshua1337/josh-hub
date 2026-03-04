@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 6910, level: 7, title: 'Apprentice',
-  total_tasks_completed: 149, skills_created: 68, commits_made: 115,
+  xp: 7030, level: 8, title: 'Apprentice',
+  total_tasks_completed: 150, skills_created: 68, commits_made: 116,
   plans_executed: 6, deploys: 18,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -54,16 +54,6 @@ var CC_STATE = {
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
-    {
-      name: 'thewell-v3',
-      title: 'The Well V3',
-      desc: 'Supabase rewrite -- user accounts (magic link + OAuth), cloud sync, community reflection sharing, engagement analytics dashboard, cross-device progress persistence.',
-      stack: ['Next.js', 'Supabase', 'Claude API', 'TypeScript'],
-      phases: 0,
-      status: 'spec-ready',
-      gradient: 'linear-gradient(90deg, #2D6A4F, #40916C)',
-      icon: 'globe'
-    },
     {
       name: 'uncommoncents-v3',
       title: 'Uncommon Cents V3',
@@ -193,6 +183,8 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-03', event: 'The Well V3 -- Supabase auth, cloud sync, community reflections, analytics, dashboard', xp: 85, type: 'feature' },
+    { date: '2026-03-03', event: 'project: The Well V3 -- backend build #6', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'DoodleForge V3 -- Supabase auth, credit system, Daily Guess game, share galleries, Doodie redesign', xp: 85, type: 'feature' },
     { date: '2026-03-03', event: 'project: DoodleForge V3 -- Doodie redesign build #5', xp: 35, type: 'project' },
     { date: '2026-03-03', event: 'StockPilot V3 -- Supabase auth, Alpha Vantage market data, Claude AI thesis, Flight Plan, portfolio intelligence', xp: 85, type: 'feature' },
