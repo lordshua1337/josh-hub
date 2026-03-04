@@ -136,6 +136,27 @@ var CC_STATE = {
       icon: 'database'
     }
   ],
+  // Infrastructure (standalone packages/functions, not user-facing apps)
+  infrastructure: [
+    {
+      name: 'auth-billing-kit',
+      title: 'Auth + Billing Starter Kit',
+      desc: 'Standalone Next.js package -- Clerk auth, Stripe subscriptions, tier-gating middleware, usage tracking. Build once, drop into every SaaS.',
+      stack: ['Next.js', 'Clerk', 'Stripe', 'Supabase', 'TypeScript'],
+      status: 'future',
+      gradient: 'linear-gradient(90deg, #635BFF, #9333EA)',
+      icon: 'credit-card'
+    },
+    {
+      name: 'event-bus',
+      title: 'Webhook Event Bus',
+      desc: 'Lightweight pub/sub event router between all apps. Publish events, subscribe consumers, retry logic, dead-letter handling. Zero coupling between producers and consumers.',
+      stack: ['Next.js', 'Supabase', 'Inngest', 'TypeScript'],
+      status: 'future',
+      gradient: 'linear-gradient(90deg, #06b6d4, #0ea5e9)',
+      icon: 'plug'
+    }
+  ],
   // Connected integrations
   integrations: [
     { id: 'claude-code', name: 'Claude Code', icon: 'terminal', desc: 'AI coding assistant powering all builds', color: '#D97706' },
