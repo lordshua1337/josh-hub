@@ -2,9 +2,9 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 9235, level: 9, title: 'Apprentice',
-  total_tasks_completed: 194, skills_created: 68, commits_made: 158,
-  plans_executed: 6, deploys: 23,
+  xp: 9795, level: 9, title: 'Apprentice',
+  total_tasks_completed: 202, skills_created: 68, commits_made: 162,
+  plans_executed: 7, deploys: 31,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -45,18 +45,18 @@ var CC_STATE = {
     { name: 'uncommon-cents', url: 'https://github.com/lordshua1337/uncommon-cents', live: 'https://uncommon-cents.vercel.app' },
     { name: 'stock-pilot', url: 'https://github.com/lordshua1337/stock-pilot', live: 'https://stock-pilot-puce.vercel.app' },
     { name: 'josh-hub', url: 'https://github.com/lordshua1337/josh-hub', live: 'https://lordshua1337.github.io/josh-hub/' },
-{ name: 'ad-intelligence', url: 'https://github.com/lordshua1337/ad-intelligence', live: 'https://lordshua1337.github.io/ad-intelligence/' },
+{ name: 'ad-intelligence', url: 'https://github.com/lordshua1337/ad-intelligence', live: 'https://ad-intelligence-one.vercel.app' },
     { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://lordshua1337.github.io/cash-cow/' },
-    { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://lordshua1337.github.io/pipeline-simulator/' },
-    { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://lordshua1337.github.io/image-forge/' },
+    { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://pipeline-simulator-woad.vercel.app' },
+    { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://image-forge-mauve.vercel.app' },
     { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: 'https://lordshua1337.github.io/trend-sniper/' },
-    { name: 'oculus', url: 'https://github.com/lordshua1337/oculus', live: 'https://lordshua1337.github.io/oculus/' },
-    { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: 'https://lordshua1337.github.io/cashcow-v3/' },
-    { name: 'ctax-v3', url: 'https://github.com/lordshua1337/ctax-v3', live: 'https://lordshua1337.github.io/ctax-v3/' },
+    { name: 'oculus', url: 'https://github.com/lordshua1337/oculus', live: 'https://occulus.vercel.app' },
+    { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: 'https://cashcow-v3.vercel.app' },
+    { name: 'ctax-v3', url: 'https://github.com/lordshua1337/ctax-v3', live: 'https://ctax-v3.vercel.app' },
     { name: 'auth-billing-kit', url: 'https://github.com/lordshua1337/auth-billing-kit', live: null },
     { name: 'event-bus', url: 'https://github.com/lordshua1337/event-bus', live: null },
     { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: 'https://lordshua1337.github.io/marcom-engine/' },
-    { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://lordshua1337.github.io/partner-portal-templates/' }
+    { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app' }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [],
@@ -100,14 +100,18 @@ var CC_STATE = {
   integrations: [
     { id: 'claude-code', name: 'Claude Code', icon: 'terminal', desc: 'AI coding assistant powering all builds', color: '#D97706' },
     { id: 'github', name: 'GitHub', icon: 'github', desc: '19 repos, auto-push on deploy', color: '#1A1612' },
-    { id: 'vercel', name: 'Vercel', icon: 'cloud', desc: '4 apps deployed (DoodleForge, The Well, Uncommon Cents, StockPilot)', color: '#000' },
-    { id: 'github-pages', name: 'GitHub Pages', icon: 'globe', desc: 'CTAX Partner Site + josh-hub + Pick & Shovel Suite (6 apps)', color: '#2563EB' },
+    { id: 'vercel', name: 'Vercel', icon: 'cloud', desc: '11 apps deployed -- all V3 projects on serverless', color: '#000' },
+    { id: 'github-pages', name: 'GitHub Pages', icon: 'globe', desc: 'CTAX Partner Site + josh-hub + V2 archives', color: '#2563EB' },
     { id: 'anthropic', name: 'Anthropic API', icon: 'brain', desc: 'Claude AI powers The Well, Uncommon Cents, StockPilot chat', color: '#CC785C' },
     { id: 'stripe', name: 'Stripe', icon: 'credit-card', desc: 'DoodleForge payment processing', color: '#635BFF' },
     { id: 'mcp-servers', name: 'MCP Servers', icon: 'plug', desc: 'Context7 docs, image generation, Canva', color: '#9333EA' },
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-04', event: 'feat: rebuild projects page with Vercel + GitHub Pages tabs', xp: 35, type: 'feature' },
+    { date: '2026-03-04', event: 'milestone: V3 Full Build Execution Plan complete -- 11 projects migrated to Vercel', xp: 100, type: 'milestone' },
+    { date: '2026-03-04', event: 'deploy: 8 Vercel production deploys (ad-intel, ctax-v3, stock-pilot, ppt, pipeline-sim, image-forge, the-well, uncommon-cents)', xp: 320, type: 'deployment' },
+    { date: '2026-03-04', event: 'feat: Ad Intelligence real APIs + CTAX V3 real APIs + StockPilot real APIs + Partner Portal template previews', xp: 140, type: 'feature' },
     { date: '2026-03-04', event: 'deploy: Partner Portal Templates to GitHub Pages (dark gallery)', xp: 40, type: 'deployment' },
     { date: '2026-03-04', event: 'feat: Partner Portal Templates dark theme + 6 template gallery', xp: 35, type: 'feature' },
     { date: '2026-03-04', event: 'deploy: Marcom Engine to GitHub Pages (Bloomberg Terminal)', xp: 40, type: 'deployment' },
