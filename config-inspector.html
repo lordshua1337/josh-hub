@@ -3737,8 +3737,8 @@ function renderGameDashboard() {
   var lvlIdx = -1;
   for (var li = 0; li < LEVELS.length; li++) { if (LEVELS[li].level === current.level) { lvlIdx = li; break; } }
   var nextLvl = lvlIdx >= 0 && lvlIdx < LEVELS.length - 1 ? LEVELS[lvlIdx + 1] : null;
-  var xpPct = nextLvl ? Math.round((state.totalXP - current.minXP) / (nextLvl.minXP - current.minXP) * 100) : 100;
-  var xpToGo = nextLvl ? (nextLvl.minXP - state.totalXP) : 0;
+  var xpPct = nextLvl ? Math.round((state.totalXP - current.xp) / (nextLvl.xp - current.xp) * 100) : 100;
+  var xpToGo = nextLvl ? (nextLvl.xp - state.totalXP) : 0;
 
   var html = '';
 
@@ -3766,7 +3766,7 @@ function renderGameDashboard() {
   html += '</div></div>';
   // XP bar (matches Command Center xp-bar-wrap)
   html += '<div class="hero-xp">';
-  html += '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px"><span>' + state.totalXP.toLocaleString() + ' / ' + (nextLvl ? nextLvl.minXP.toLocaleString() : state.totalXP.toLocaleString()) + ' XP</span><span>' + xpPct + '%</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px"><span>' + state.totalXP.toLocaleString() + ' / ' + (nextLvl ? nextLvl.xp.toLocaleString() : state.totalXP.toLocaleString()) + ' XP</span><span>' + xpPct + '%</span></div>';
   html += '<div class="hero-xp-track"><div class="hero-xp-fill" style="width:' + xpPct + '%;background:linear-gradient(90deg,' + current.color + ',' + current.color + '88)"></div></div>';
   html += '</div>';
   // Quick counters row (matches Command Center xp-counters)
@@ -3893,6 +3893,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ===== INIT =====
+try {
 renderOverview();
 renderCostPanel();
 buildIssues();
@@ -3902,6 +3903,7 @@ renderScanTime();
 addBatchControls();
 makeFilesClickable();
 renderGameDashboard();
+} catch (e) { console.error('CONFYG init error:', e); }
 
 // ===== LOCK SCREEN =====
 (function() {
