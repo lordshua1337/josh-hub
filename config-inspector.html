@@ -2199,7 +2199,8 @@ function exportSnapshot() {
 // ===== FEATURE: KEYBOARD SHORTCUTS =====
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT') return;
-  if (document.getElementById('confyg-lock') && document.getElementById('confyg-lock').style.display !== 'none') return;
+  var lockEl = document.getElementById('confyg-lock');
+  if (lockEl && getComputedStyle(lockEl).display !== 'none') return;
 
   if (e.key === '1') showPage('dashboard');
   else if (e.key === '2') showPage('overview');
