@@ -59,7 +59,38 @@ var CC_STATE = {
     { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app' }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
-  planned_projects: [],
+  planned_projects: [
+    {
+      name: 'project-switcher',
+      title: 'Project Switcher',
+      desc: 'Universal hover dropdown on top-left logo -- shows all live projects for quick switching. Single drop-in script, temporary dev tool.',
+      type: 'build',
+      spec: '~/projects/project-switcher-spec.md',
+      notes: 'Spec is a building block. Quick utility -- single self-contained JS file hosted on josh-hub, loaded via script tag on every project. Remove once projects are in full deployment.',
+      stack: ['Vanilla JS'],
+      priority: 0
+    },
+    {
+      name: 'balanceboss',
+      title: 'BalanceBoss',
+      desc: 'AI bookkeeping cleanup -- upload messy financial records, get back clean categorized books ready for CPA or QuickBooks/Xero sync. Replaces $500-$2k bookkeeper fees.',
+      type: 'build',
+      spec: '~/projects/balanceboss-spec.md',
+      notes: 'Spec is a building block, not a final blueprint. Use it as a foundation to build something better. Every component (file ingestion, AI classification, ledger output, accounting API sync) must be modular and reusable.',
+      stack: ['Next.js', 'Supabase', 'Stripe', 'Inngest', 'Anthropic API', 'Upstash Redis', 'Cloudflare R2', 'Resend'],
+      priority: 1
+    },
+    {
+      name: 'lifeforge',
+      title: 'LifeForge',
+      desc: 'Life skills RPG -- personality-driven AI companion teaches real-world skills by life stage (13-80+). Skill trees, XP, quests, proactive outreach. Lifelong mentor that adapts to who you are.',
+      type: 'build',
+      spec: '~/projects/lifeforge-spec.md',
+      notes: 'Spec is a building block. Personality engine, life-stage framework, skill tree architecture, and AI companion system must all be modular and reusable as standalone infrastructure.',
+      stack: ['Next.js', 'Supabase', 'Stripe', 'Inngest', 'Anthropic API', 'Replicate', 'Upstash Redis', 'Cloudflare R2', 'Resend'],
+      priority: 2
+    }
+  ],
   // Future projects (ideas, not yet specced)
   future_projects: [
     {
