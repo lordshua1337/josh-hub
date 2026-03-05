@@ -4,7 +4,7 @@
 var CC_STATE = {
   xp: 11600, level: 10, title: 'Operator',
   total_tasks_completed: 237, skills_created: 78, commits_made: 191,
-  plans_executed: 21, deploys: 40,
+  plans_executed: 21, deploys: 42,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -69,8 +69,8 @@ var CC_STATE = {
     { name: 'event-bus', url: 'https://github.com/lordshua1337/event-bus', live: null },
     { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: 'https://lordshua1337.github.io/marcom-engine/' },
     { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app' },
-    { name: 'lifeforge', url: 'https://github.com/lordshua1337/lifeforge', live: null },
-    { name: 'balanceboss', url: 'https://github.com/lordshua1337/balanceboss', live: null }
+    { name: 'lifeforge', url: 'https://github.com/lordshua1337/lifeforge', live: 'https://lifeforge-two.vercel.app' },
+    { name: 'balanceboss', url: 'https://github.com/lordshua1337/balanceboss', live: 'https://balanceboss.vercel.app' }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
