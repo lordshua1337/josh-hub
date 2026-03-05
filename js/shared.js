@@ -2,9 +2,9 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 10475, level: 10, title: 'Operator',
-  total_tasks_completed: 217, skills_created: 68, commits_made: 171,
-  plans_executed: 8, deploys: 33,
+  xp: 10650, level: 10, title: 'Operator',
+  total_tasks_completed: 222, skills_created: 78, commits_made: 178,
+  plans_executed: 9, deploys: 34,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -36,7 +36,20 @@ var CC_STATE = {
     { name: 'social-content', cat: 'Marketing' }, { name: 'sync-hub', cat: 'System' },
     { name: 'trust-signal-audit', cat: 'CRO' }, { name: 'viral-loop-design', cat: 'Growth' },
     { name: 'webhook-integrations', cat: 'Data' }, { name: 'xp', cat: 'System' },
-    { name: 'zapier-make-architect', cat: 'Automation' }
+    { name: 'zapier-make-architect', cat: 'Automation' },
+    { name: 'nightcrawler-plan', cat: 'System' },
+    { name: 'nightcrawler-build', cat: 'System' },
+    { name: 'nightcrawler-focus', cat: 'System' },
+    { name: 'nightcrawler-omni', cat: 'System' },
+    { name: 'afterburner', cat: 'System' },
+    { name: 'project-improver', cat: 'System' },
+    { name: 'cleanup', cat: 'System' },
+    { name: 'audit', cat: 'System' },
+    { name: 'health-check', cat: 'System' },
+    { name: 'debug', cat: 'System' },
+    { name: 'back-log', cat: 'System' },
+    { name: 'config-inspect', cat: 'System' },
+    { name: 'simplify', cat: 'System' }
   ],
   repos: [
     { name: 'ctax-partner-site', url: 'https://github.com/lordshua1337/ctax-partner-site', live: 'https://lordshua1337.github.io/ctax-partner-site/' },
@@ -51,8 +64,7 @@ var CC_STATE = {
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://image-forge-mauve.vercel.app' },
     { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: 'https://lordshua1337.github.io/trend-sniper/' },
     { name: 'oculus', url: 'https://github.com/lordshua1337/oculus', live: 'https://occulus.vercel.app' },
-    { name: 'cashcow-v3', url: 'https://github.com/lordshua1337/cashcow-v3', live: 'https://cashcow-v3.vercel.app' },
-    { name: 'ctax-v3', url: 'https://github.com/lordshua1337/ctax-v3', live: 'https://ctax-v3.vercel.app' },
+    { name: 'ctax-api-proxy', url: 'https://github.com/lordshua1337/ctax-api-proxy', live: null },
     { name: 'auth-billing-kit', url: 'https://github.com/lordshua1337/auth-billing-kit', live: null },
     { name: 'event-bus', url: 'https://github.com/lordshua1337/event-bus', live: null },
     { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: 'https://lordshua1337.github.io/marcom-engine/' },
@@ -114,7 +126,7 @@ var CC_STATE = {
       status: 'built',
       gradient: 'linear-gradient(90deg, #635BFF, #0A2540)',
       icon: 'credit-card',
-      consumers: ['cash-cow', 'occulus', 'doodleforge', 'ctax-v3', 'pipeline-simulator']
+      consumers: ['cash-cow', 'occulus', 'doodleforge', 'pipeline-simulator']
     },
     {
       name: 'event-bus',
