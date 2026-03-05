@@ -3,7 +3,7 @@
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
   xp: 11600, level: 10, title: 'Operator',
-  total_tasks_completed: 237, skills_created: 78, commits_made: 190,
+  total_tasks_completed: 237, skills_created: 78, commits_made: 191,
   plans_executed: 21, deploys: 40,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -68,7 +68,9 @@ var CC_STATE = {
     { name: 'auth-billing-kit', url: 'https://github.com/lordshua1337/auth-billing-kit', live: null },
     { name: 'event-bus', url: 'https://github.com/lordshua1337/event-bus', live: null },
     { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: 'https://lordshua1337.github.io/marcom-engine/' },
-    { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app' }
+    { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app' },
+    { name: 'lifeforge', url: 'https://github.com/lordshua1337/lifeforge', live: null },
+    { name: 'balanceboss', url: 'https://github.com/lordshua1337/balanceboss', live: null }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
@@ -86,9 +88,9 @@ var CC_STATE = {
       name: 'balanceboss',
       title: 'BalanceBoss',
       desc: 'AI bookkeeping cleanup -- upload messy financial records, get back clean categorized books ready for CPA or QuickBooks/Xero sync. Replaces $500-$2k bookkeeper fees.',
-      type: 'build',
+      type: 'active',
       spec: '~/projects/balanceboss-spec.md',
-      notes: 'Spec is a building block, not a final blueprint. Use it as a foundation to build something better. Every component (file ingestion, AI classification, ledger output, accounting API sync) must be modular and reusable.',
+      notes: 'Phase 1 scaffold complete: auth, dashboard, IRS categories, 9-table Supabase schema. Needs Supabase project + Vercel deploy.',
       stack: ['Next.js', 'Supabase', 'Stripe', 'Inngest', 'Anthropic API', 'Upstash Redis', 'Cloudflare R2', 'Resend'],
       priority: 1
     },
@@ -96,9 +98,9 @@ var CC_STATE = {
       name: 'lifeforge',
       title: 'LifeForge',
       desc: 'Life skills RPG -- personality-driven AI companion teaches real-world skills by life stage (13-80+). Skill trees, XP, quests, proactive outreach. Lifelong mentor that adapts to who you are.',
-      type: 'build',
+      type: 'active',
       spec: '~/projects/lifeforge-spec.md',
-      notes: 'Spec is a building block. Personality engine, life-stage framework, skill tree architecture, and AI companion system must all be modular and reusable as standalone infrastructure.',
+      notes: 'Phase 1 scaffold complete: auth, onboarding, skill tree visualization, 3 domains/31 nodes, 7-table Supabase schema. Needs Supabase project + Vercel deploy.',
       stack: ['Next.js', 'Supabase', 'Stripe', 'Inngest', 'Anthropic API', 'Replicate', 'Upstash Redis', 'Cloudflare R2', 'Resend'],
       priority: 2
     }
