@@ -2,9 +2,9 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 11765, level: 10, title: 'Operator',
-  total_tasks_completed: 240, skills_created: 78, commits_made: 194,
-  plans_executed: 21, deploys: 43,
+  xp: 11910, level: 10, title: 'Operator',
+  total_tasks_completed: 244, skills_created: 78, commits_made: 200,
+  plans_executed: 21, deploys: 45,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -70,7 +70,8 @@ var CC_STATE = {
     { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: 'https://marcom-engine.vercel.app' },
     { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app' },
     { name: 'lifeforge', url: 'https://github.com/lordshua1337/lifeforge', live: 'https://lifeforge-two.vercel.app' },
-    { name: 'balanceboss', url: 'https://github.com/lordshua1337/balanceboss', live: 'https://balanceboss.vercel.app' }
+    { name: 'balanceboss', url: 'https://github.com/lordshua1337/balanceboss', live: 'https://balanceboss.vercel.app' },
+    { name: 'bashbox', url: 'https://github.com/lordshua1337/Bashbox', live: 'https://bashbox.vercel.app' }
   ],
   // BITL (Bring It To Life) status per project
   bitl: [
@@ -89,7 +90,8 @@ var CC_STATE = {
     { name: 'pipeline-simulator', soul: 'See where things get stuck before they get stuck.', tier: 3, status: 'alive', missing: null },
     { name: 'ad-intelligence', soul: "Know what your competitors are spending before they know you're watching.", tier: 3, status: 'alive', missing: null },
     { name: 'marcom-engine', soul: "You're one person running marketing. You need mission control.", tier: 3, status: 'alive', missing: null },
-    { name: 'ctax-api-proxy', soul: 'One proxy to protect them all.', tier: 0, status: 'alive', missing: 'Usage Dashboard' }
+    { name: 'ctax-api-proxy', soul: 'One proxy to protect them all.', tier: 0, status: 'alive', missing: 'Usage Dashboard' },
+    { name: 'bashbox', soul: 'Your dev agency deserves a landing page that actually converts.', tier: 2, status: 'alive', missing: null }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
@@ -172,6 +174,10 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-06', event: 'feat: Partner Portal Templates -- expanded tax resolution from 3 to 10 educational topics', xp: 35, type: 'feature' },
+    { date: '2026-03-06', event: 'feat: BashBox -- brand SVG logos on hover for 72 periodic table integrations', xp: 35, type: 'feature' },
+    { date: '2026-03-06', event: 'feat: BashBox -- working contact/subscribe APIs, SEO meta tags, smooth scroll', xp: 35, type: 'feature' },
+    { date: '2026-03-06', event: 'deploy: BashBox deployed to Vercel production (bashbox.vercel.app)', xp: 40, type: 'deployment' },
     { date: '2026-03-05', event: 'feat: CTAX marketing kit revamp -- inline ad builder, flyer/deck/thank-you builders, smart email downloads, polished SVG cards', xp: 35, type: 'feature' },
     { date: '2026-03-05', event: 'feat: CTAX portal AI tools -- replaced fake demo system with real Claude API calls for all 4 embedded tools', xp: 35, type: 'feature' },
     { date: '2026-03-05', event: 'fix+feat: CTAX AI quality upgrade -- expert prompts, real AI for flyer/thank-you, ICP integration, CSS bug fix, deck UX improvement', xp: 55, type: 'feature' },
