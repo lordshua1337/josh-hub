@@ -67,7 +67,7 @@ var CC_STATE = {
     { name: 'ctax-api-proxy', url: 'https://github.com/lordshua1337/ctax-api-proxy', live: null },
     { name: 'auth-billing-kit', url: 'https://github.com/lordshua1337/auth-billing-kit', live: null },
     { name: 'event-bus', url: 'https://github.com/lordshua1337/event-bus', live: null },
-    { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: 'https://lordshua1337.github.io/marcom-engine/' },
+    { name: 'marcom-engine', url: 'https://github.com/lordshua1337/marcom-engine', live: 'https://marcom-engine.vercel.app' },
     { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app' },
     { name: 'lifeforge', url: 'https://github.com/lordshua1337/lifeforge', live: 'https://lifeforge-two.vercel.app' },
     { name: 'balanceboss', url: 'https://github.com/lordshua1337/balanceboss', live: 'https://balanceboss.vercel.app' }
@@ -81,14 +81,14 @@ var CC_STATE = {
     { name: 'ctax-partner-site', soul: 'Keep your client. Solve the problem. Earn the fee.', tier: 1, status: 'alive', missing: 'Real Referral Dashboard' },
     { name: 'cash-cow', soul: 'Stop building products nobody wants. Research first, build second.', tier: 1, status: 'alive', missing: 'Trends Dashboard' },
     { name: 'josh-hub', soul: 'Everything I build, tracked in one place.', tier: 2, status: 'alive', missing: 'Live Project Hub' },
-    { name: 'oculus', soul: 'You know your clients by name. Your software should too.', tier: 2, status: 'scaffold', missing: 'Demo Seed Data + Client Notes' },
-    { name: 'image-forge', soul: 'You need a social media image. Not a Canva subscription.', tier: 2, status: 'scaffold', missing: 'AI Image Generation' },
-    { name: 'partner-portal-templates', soul: 'Stop building landing pages from scratch.', tier: 2, status: 'scaffold', missing: 'CRO Architecture Explainers' },
-    { name: 'lifeforge', soul: 'Nobody taught you how to be an adult.', tier: 3, status: 'scaffold', missing: 'AI Companion' },
-    { name: 'balanceboss', soul: 'Your books are a mess. We fix that.', tier: 3, status: 'scaffold', missing: 'Upload + Classify Pipeline' },
-    { name: 'pipeline-simulator', soul: 'See where things get stuck before they get stuck.', tier: 3, status: 'scaffold', missing: 'Interactive Pipeline Builder' },
-    { name: 'ad-intelligence', soul: "Know what your competitors are spending before they know you're watching.", tier: 3, status: 'scaffold', missing: 'Real Company Lookup' },
-    { name: 'marcom-engine', soul: "You're one person running marketing. You need mission control.", tier: 3, status: 'scaffold', missing: 'Command Center + Email MVP' },
+    { name: 'oculus', soul: 'You know your clients by name. Your software should too.', tier: 2, status: 'alive', missing: null },
+    { name: 'image-forge', soul: 'You need a social media image. Not a Canva subscription.', tier: 2, status: 'alive', missing: null },
+    { name: 'partner-portal-templates', soul: 'Stop building landing pages from scratch.', tier: 2, status: 'alive', missing: null },
+    { name: 'lifeforge', soul: 'Nobody taught you how to be an adult.', tier: 3, status: 'alive', missing: null },
+    { name: 'balanceboss', soul: 'Your books are a mess. We fix that.', tier: 3, status: 'alive', missing: null },
+    { name: 'pipeline-simulator', soul: 'See where things get stuck before they get stuck.', tier: 3, status: 'alive', missing: null },
+    { name: 'ad-intelligence', soul: "Know what your competitors are spending before they know you're watching.", tier: 3, status: 'alive', missing: null },
+    { name: 'marcom-engine', soul: "You're one person running marketing. You need mission control.", tier: 3, status: 'alive', missing: null },
     { name: 'ctax-api-proxy', soul: 'One proxy to protect them all.', tier: 0, status: 'alive', missing: 'Usage Dashboard' }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
@@ -172,6 +172,14 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-05', event: 'feat: CTAX marketing kit revamp -- inline ad builder, flyer/deck/thank-you builders, smart email downloads, polished SVG cards', xp: 35, type: 'feature' },
+    { date: '2026-03-05', event: 'feat: CTAX portal AI tools -- replaced fake demo system with real Claude API calls for all 4 embedded tools', xp: 35, type: 'feature' },
+    { date: '2026-03-05', event: 'fix+feat: CTAX AI quality upgrade -- expert prompts, real AI for flyer/thank-you, ICP integration, CSS bug fix, deck UX improvement', xp: 55, type: 'feature' },
+    { date: '2026-03-05', event: 'deploy: CTAX partner site pushed to Vercel (3 commits, marketing kit + AI tools)', xp: 40, type: 'deployment' },
+    { date: '2026-03-04', event: 'plan: 5 V4 plans -- Ad Intelligence, Pipeline Simulator, Image Forge, Marcom Engine, Partner Portal Templates', xp: 75, type: 'plan' },
+    { date: '2026-03-04', event: 'plan: Oculus V4 -- 5-phase plan (CRM, portfolios, scenario lab, AI reports, payments)', xp: 15, type: 'plan' },
+    { date: '2026-03-04', event: 'feat: BalanceBoss Phase 1 scaffold -- auth, dashboard, IRS categories, 9-table schema, V1 plan, GitHub repo', xp: 100, type: 'project' },
+    { date: '2026-03-04', event: 'feat: LifeForge Phase 1 scaffold -- auth, onboarding, skill tree, Supabase schema, 3 domains/31 nodes, V1 plan, GitHub repo', xp: 100, type: 'project' },
     { date: '2026-03-04', event: 'milestone: Cash Cow V4 complete -- 32 files, 3223 insertions, Claude+Supabase full stack', xp: 100, type: 'milestone' },
     { date: '2026-03-04', event: 'feat: Cash Cow V4 Phase 4 -- PDF export, brief customizer, enhanced CSV, cron refresh', xp: 35, type: 'feature' },
     { date: '2026-03-04', event: 'feat: Cash Cow V4 Phase 3 -- Supabase auth, rate limiting, caching, watchlists, RLS', xp: 35, type: 'feature' },
@@ -605,6 +613,11 @@ var PROJECT_RULES = [
   [['pipeline simulator', 'pipeline-simulator'], 'Pipeline Simulator'],
   [['image forge', 'image-forge'], 'Image Forge'],
   [['pick & shovel', 'pick and shovel'], 'Pick & Shovel Suite'],
+  [['marcom', 'marketing os'], 'Marcom Engine'],
+  [['partner portal', 'partner-portal', 'landing page template'], 'Partner Portal Templates'],
+  [['balanceboss', 'balance boss', 'bookkeep'], 'BalanceBoss'],
+  [['lifeforge', 'life forge', 'life skills'], 'LifeForge'],
+  [['oculus', 'occulus', 'wealth management'], 'Oculus'],
   [['hero', 'boho', 'imagegen'], 'Image Gen'],
   [['subagent', 'claude', 'context'], 'Claude Config']
 ];
