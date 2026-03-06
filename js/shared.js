@@ -2,9 +2,9 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 11600, level: 10, title: 'Operator',
-  total_tasks_completed: 237, skills_created: 78, commits_made: 191,
-  plans_executed: 21, deploys: 42,
+  xp: 11765, level: 10, title: 'Operator',
+  total_tasks_completed: 240, skills_created: 78, commits_made: 194,
+  plans_executed: 21, deploys: 43,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -52,17 +52,17 @@ var CC_STATE = {
     { name: 'simplify', cat: 'System' }
   ],
   repos: [
-    { name: 'ctax-partner-site', url: 'https://github.com/lordshua1337/ctax-partner-site', live: 'https://lordshua1337.github.io/ctax-partner-site/' },
+    { name: 'ctax-partner-site', url: 'https://github.com/lordshua1337/ctax-partner-site', live: 'https://ctax-partner-site.vercel.app' },
     { name: 'doodleforge', url: 'https://github.com/lordshua1337/doodleforge', live: 'https://doodleforge.vercel.app' },
     { name: 'the-well', url: 'https://github.com/lordshua1337/the-well', live: 'https://the-well-eight.vercel.app' },
     { name: 'uncommon-cents', url: 'https://github.com/lordshua1337/uncommon-cents', live: 'https://uncommon-cents.vercel.app' },
     { name: 'stock-pilot', url: 'https://github.com/lordshua1337/stock-pilot', live: 'https://stock-pilot-puce.vercel.app' },
-    { name: 'josh-hub', url: 'https://github.com/lordshua1337/josh-hub', live: 'https://lordshua1337.github.io/josh-hub/' },
+    { name: 'josh-hub', url: 'https://github.com/lordshua1337/josh-hub', live: 'https://josh-hub-nine.vercel.app' },
 { name: 'ad-intelligence', url: 'https://github.com/lordshua1337/ad-intelligence', live: 'https://ad-intelligence-one.vercel.app' },
-    { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://lordshua1337.github.io/cash-cow/' },
+    { name: 'cash-cow', url: 'https://github.com/lordshua1337/cash-cow', live: 'https://cash-cow.vercel.app' },
     { name: 'pipeline-simulator', url: 'https://github.com/lordshua1337/pipeline-simulator', live: 'https://pipeline-simulator-woad.vercel.app' },
     { name: 'image-forge', url: 'https://github.com/lordshua1337/image-forge', live: 'https://image-forge-mauve.vercel.app' },
-    { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: 'https://lordshua1337.github.io/trend-sniper/' },
+    { name: 'trend-sniper', url: 'https://github.com/lordshua1337/trend-sniper', live: null, note: 'Absorbed into Cash Cow' },
     { name: 'oculus', url: 'https://github.com/lordshua1337/oculus', live: 'https://occulus.vercel.app' },
     { name: 'ctax-api-proxy', url: 'https://github.com/lordshua1337/ctax-api-proxy', live: null },
     { name: 'auth-billing-kit', url: 'https://github.com/lordshua1337/auth-billing-kit', live: null },
@@ -71,6 +71,25 @@ var CC_STATE = {
     { name: 'partner-portal-templates', url: 'https://github.com/lordshua1337/partner-portal-templates', live: 'https://partner-portal-templates-lordshua1337-lordshua1337s-projects.vercel.app' },
     { name: 'lifeforge', url: 'https://github.com/lordshua1337/lifeforge', live: 'https://lifeforge-two.vercel.app' },
     { name: 'balanceboss', url: 'https://github.com/lordshua1337/balanceboss', live: 'https://balanceboss.vercel.app' }
+  ],
+  // BITL (Bring It To Life) status per project
+  bitl: [
+    { name: 'doodleforge', soul: 'Your kid made something. It deserves to be treated like real art.', tier: 1, status: 'alive', missing: 'Artist Plaque + Share Cards' },
+    { name: 'stock-pilot', soul: 'Investing is personal. Your portfolio should know who you are.', tier: 1, status: 'alive', missing: 'Dynamic Stock-Personality Matching' },
+    { name: 'the-well', soul: "You're not broken. You never were.", tier: 1, status: 'complete', missing: null },
+    { name: 'uncommon-cents', soul: "Your financial advisor probably hasn't mentioned half of these.", tier: 1, status: 'alive', missing: 'Personal Financial Dashboard' },
+    { name: 'ctax-partner-site', soul: 'Keep your client. Solve the problem. Earn the fee.', tier: 1, status: 'alive', missing: 'Real Referral Dashboard' },
+    { name: 'cash-cow', soul: 'Stop building products nobody wants. Research first, build second.', tier: 1, status: 'alive', missing: 'Trends Dashboard' },
+    { name: 'josh-hub', soul: 'Everything I build, tracked in one place.', tier: 2, status: 'alive', missing: 'Live Project Hub' },
+    { name: 'oculus', soul: 'You know your clients by name. Your software should too.', tier: 2, status: 'scaffold', missing: 'Demo Seed Data + Client Notes' },
+    { name: 'image-forge', soul: 'You need a social media image. Not a Canva subscription.', tier: 2, status: 'scaffold', missing: 'AI Image Generation' },
+    { name: 'partner-portal-templates', soul: 'Stop building landing pages from scratch.', tier: 2, status: 'scaffold', missing: 'CRO Architecture Explainers' },
+    { name: 'lifeforge', soul: 'Nobody taught you how to be an adult.', tier: 3, status: 'scaffold', missing: 'AI Companion' },
+    { name: 'balanceboss', soul: 'Your books are a mess. We fix that.', tier: 3, status: 'scaffold', missing: 'Upload + Classify Pipeline' },
+    { name: 'pipeline-simulator', soul: 'See where things get stuck before they get stuck.', tier: 3, status: 'scaffold', missing: 'Interactive Pipeline Builder' },
+    { name: 'ad-intelligence', soul: "Know what your competitors are spending before they know you're watching.", tier: 3, status: 'scaffold', missing: 'Real Company Lookup' },
+    { name: 'marcom-engine', soul: "You're one person running marketing. You need mission control.", tier: 3, status: 'scaffold', missing: 'Command Center + Email MVP' },
+    { name: 'ctax-api-proxy', soul: 'One proxy to protect them all.', tier: 0, status: 'alive', missing: 'Usage Dashboard' }
   ],
   // Planned projects -- BUILD QUEUE (order = priority, top = next)
   planned_projects: [
