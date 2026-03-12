@@ -2,9 +2,9 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 11910, level: 10, title: 'Operator',
-  total_tasks_completed: 244, skills_created: 78, commits_made: 200,
-  plans_executed: 21, deploys: 45,
+  xp: 12055, level: 11, title: 'Operator',
+  total_tasks_completed: 249, skills_created: 78, commits_made: 202,
+  plans_executed: 22, deploys: 47,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
     { name: 'ai-tooling-audit', cat: 'AI' }, { name: 'analytics-tracking', cat: 'Analytics' },
@@ -174,6 +174,11 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-12', event: 'config: Full upgrade session -- evolution system, memory reorg, tool inventory', xp: 25, type: 'config' },
+    { date: '2026-03-12', event: 'deploy: joshuatree viewport fix deployed to Vercel', xp: 40, type: 'deployment' },
+    { date: '2026-03-12', event: 'deploy: cash-cow viewport fix deployed to Vercel', xp: 40, type: 'deployment' },
+    { date: '2026-03-12', event: 'fix: joshuatree -- viewport metadata for mobile scaling', xp: 20, type: 'bugfix' },
+    { date: '2026-03-12', event: 'fix: cash-cow -- viewport metadata for mobile scaling', xp: 20, type: 'bugfix' },
     { date: '2026-03-06', event: 'feat: Partner Portal Templates -- expanded tax resolution from 3 to 10 educational topics', xp: 35, type: 'feature' },
     { date: '2026-03-06', event: 'feat: BashBox -- brand SVG logos on hover for 72 periodic table integrations', xp: 35, type: 'feature' },
     { date: '2026-03-06', event: 'feat: BashBox -- working contact/subscribe APIs, SEO meta tags, smooth scroll', xp: 35, type: 'feature' },
