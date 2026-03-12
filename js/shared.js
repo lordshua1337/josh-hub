@@ -2,8 +2,8 @@
 
 // === COMMAND CENTER DATA ENGINE ===
 var CC_STATE = {
-  xp: 12055, level: 11, title: 'Operator',
-  total_tasks_completed: 249, skills_created: 78, commits_made: 202,
+  xp: 12125, level: 11, title: 'Operator',
+  total_tasks_completed: 256, skills_created: 78, commits_made: 209,
   plans_executed: 22, deploys: 47,
   skills: [
     { name: 'ab-test-setup', cat: 'CRO' }, { name: 'ai-agent-builder', cat: 'AI' },
@@ -174,6 +174,7 @@ var CC_STATE = {
     { id: 'nightcrawler', name: 'Nightcrawler', icon: 'moon', desc: 'Autonomous build mode -- ships features while you sleep', color: '#1E293B' }
   ],
   xp_log: [
+    { date: '2026-03-12', event: 'fix: Security audit -- .gitignore hardening across 7 projects', xp: 30, type: 'audit' },
     { date: '2026-03-12', event: 'config: Full upgrade session -- evolution system, memory reorg, tool inventory', xp: 25, type: 'config' },
     { date: '2026-03-12', event: 'deploy: joshuatree viewport fix deployed to Vercel', xp: 40, type: 'deployment' },
     { date: '2026-03-12', event: 'deploy: cash-cow viewport fix deployed to Vercel', xp: 40, type: 'deployment' },
