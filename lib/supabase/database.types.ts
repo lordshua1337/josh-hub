@@ -9,10 +9,10 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+type Row = Record<string, unknown>;
+
 export type Database = {
-  __InternalSupabase: {
-    PostgrestVersion: "14.5";
-  };
+  __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
       achievements: {
@@ -26,26 +26,13 @@ export type Database = {
           target_value: number;
           unlocked_at: string | null;
         };
-        Insert: {
-          category?: string | null;
-          current_value?: number | null;
-          derivation_query?: string | null;
+        Insert: Partial<Database["public"]["Tables"]["achievements"]["Row"]> & {
           description: string;
           id: string;
           name: string;
           target_value: number;
-          unlocked_at?: string | null;
         };
-        Update: {
-          category?: string | null;
-          current_value?: number | null;
-          derivation_query?: string | null;
-          description?: string;
-          id?: string;
-          name?: string;
-          target_value?: number;
-          unlocked_at?: string | null;
-        };
+        Update: Partial<Database["public"]["Tables"]["achievements"]["Row"]>;
         Relationships: [];
       };
       commits: {
@@ -59,26 +46,11 @@ export type Database = {
           sha: string;
           url: string | null;
         };
-        Insert: {
-          additions?: number | null;
-          author?: string | null;
+        Insert: Partial<Database["public"]["Tables"]["commits"]["Row"]> & {
           committed_at: string;
-          deletions?: number | null;
-          message?: string | null;
-          project_slug?: string | null;
           sha: string;
-          url?: string | null;
         };
-        Update: {
-          additions?: number | null;
-          author?: string | null;
-          committed_at?: string;
-          deletions?: number | null;
-          message?: string | null;
-          project_slug?: string | null;
-          sha?: string;
-          url?: string | null;
-        };
+        Update: Partial<Database["public"]["Tables"]["commits"]["Row"]>;
         Relationships: [];
       };
       deployments: {
@@ -94,30 +66,10 @@ export type Database = {
           url: string | null;
           vercel_deployment_id: string | null;
         };
-        Insert: {
-          branch?: string | null;
-          commit_sha?: string | null;
+        Insert: Partial<Database["public"]["Tables"]["deployments"]["Row"]> & {
           created_at: string;
-          error_message?: string | null;
-          id?: string;
-          project_slug?: string | null;
-          ready_at?: string | null;
-          state?: string | null;
-          url?: string | null;
-          vercel_deployment_id?: string | null;
         };
-        Update: {
-          branch?: string | null;
-          commit_sha?: string | null;
-          created_at?: string;
-          error_message?: string | null;
-          id?: string;
-          project_slug?: string | null;
-          ready_at?: string | null;
-          state?: string | null;
-          url?: string | null;
-          vercel_deployment_id?: string | null;
-        };
+        Update: Partial<Database["public"]["Tables"]["deployments"]["Row"]>;
         Relationships: [];
       };
       ingester_state: {
@@ -128,20 +80,10 @@ export type Database = {
           last_run_at: string | null;
           notes: string | null;
         };
-        Insert: {
-          cursor?: Json | null;
+        Insert: Partial<Database["public"]["Tables"]["ingester_state"]["Row"]> & {
           id: string;
-          last_file?: string | null;
-          last_run_at?: string | null;
-          notes?: string | null;
         };
-        Update: {
-          cursor?: Json | null;
-          id?: string;
-          last_file?: string | null;
-          last_run_at?: string | null;
-          notes?: string | null;
-        };
+        Update: Partial<Database["public"]["Tables"]["ingester_state"]["Row"]>;
         Relationships: [];
       };
       integrations: {
@@ -155,26 +97,44 @@ export type Database = {
           name: string;
           status: string | null;
         };
-        Insert: {
-          color?: string | null;
-          config?: Json | null;
-          description?: string | null;
-          icon?: string | null;
+        Insert: Partial<Database["public"]["Tables"]["integrations"]["Row"]> & {
           id: string;
-          last_synced_at?: string | null;
           name: string;
-          status?: string | null;
         };
-        Update: {
-          color?: string | null;
-          config?: Json | null;
-          description?: string | null;
-          icon?: string | null;
-          id?: string;
-          last_synced_at?: string | null;
-          name?: string;
-          status?: string | null;
+        Update: Partial<Database["public"]["Tables"]["integrations"]["Row"]>;
+        Relationships: [];
+      };
+      leads: {
+        Row: {
+          closed_at: string | null;
+          company: string | null;
+          contacted_at: string | null;
+          created_at: string;
+          email: string | null;
+          external_id: string | null;
+          id: string;
+          message: string | null;
+          metadata: Json | null;
+          name: string | null;
+          need: string | null;
+          notes: string | null;
+          qualified_at: string | null;
+          raw_body: string | null;
+          raw_subject: string | null;
+          received_at: string;
+          source: string;
+          source_url: string | null;
+          status: string;
+          updated_at: string;
+          utm_campaign: string | null;
+          utm_medium: string | null;
+          utm_source: string | null;
         };
+        Insert: Partial<Database["public"]["Tables"]["leads"]["Row"]> & {
+          received_at: string;
+          source: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["leads"]["Row"]>;
         Relationships: [];
       };
       message_excerpts: {
@@ -186,22 +146,11 @@ export type Database = {
           session_id: string;
           tool_name: string | null;
         };
-        Insert: {
-          content_preview?: string | null;
-          id?: number;
-          occurred_at?: string | null;
+        Insert: Partial<Database["public"]["Tables"]["message_excerpts"]["Row"]> & {
           role: string;
           session_id: string;
-          tool_name?: string | null;
         };
-        Update: {
-          content_preview?: string | null;
-          id?: number;
-          occurred_at?: string | null;
-          role?: string;
-          session_id?: string;
-          tool_name?: string | null;
-        };
+        Update: Partial<Database["public"]["Tables"]["message_excerpts"]["Row"]>;
         Relationships: [];
       };
       optimizations: {
@@ -219,34 +168,12 @@ export type Database = {
           target_ref: string | null;
           title: string;
         };
-        Insert: {
-          applied_at?: string | null;
-          created_at?: string;
+        Insert: Partial<Database["public"]["Tables"]["optimizations"]["Row"]> & {
           description: string;
-          dismissed_at?: string | null;
-          id?: number;
           kind: string;
-          metadata?: Json | null;
-          severity?: string;
-          status?: string;
-          suggested_action?: string | null;
-          target_ref?: string | null;
           title: string;
         };
-        Update: {
-          applied_at?: string | null;
-          created_at?: string;
-          description?: string;
-          dismissed_at?: string | null;
-          id?: number;
-          kind?: string;
-          metadata?: Json | null;
-          severity?: string;
-          status?: string;
-          suggested_action?: string | null;
-          target_ref?: string | null;
-          title?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["optimizations"]["Row"]>;
         Relationships: [];
       };
       project_aliases: {
@@ -255,16 +182,11 @@ export type Database = {
           created_at: string;
           project_slug: string;
         };
-        Insert: {
+        Insert: Partial<Database["public"]["Tables"]["project_aliases"]["Row"]> & {
           alias: string;
-          created_at?: string;
           project_slug: string;
         };
-        Update: {
-          alias?: string;
-          created_at?: string;
-          project_slug?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["project_aliases"]["Row"]>;
         Relationships: [];
       };
       projects: {
@@ -290,50 +212,11 @@ export type Database = {
           vercel_project_id: string | null;
           vercel_url: string | null;
         };
-        Insert: {
-          badge?: string | null;
-          created_at?: string;
-          current_status?: string | null;
-          description?: string | null;
-          gradient?: string | null;
-          last_deploy_at?: string | null;
-          last_deploy_state?: string | null;
-          last_touched_at?: string | null;
-          live_url?: string | null;
-          mode?: string | null;
+        Insert: Partial<Database["public"]["Tables"]["projects"]["Row"]> & {
           name: string;
-          notes?: string | null;
-          repo_url?: string | null;
           slug: string;
-          soul?: string | null;
-          stack?: string[] | null;
-          tier?: number | null;
-          updated_at?: string;
-          vercel_project_id?: string | null;
-          vercel_url?: string | null;
         };
-        Update: {
-          badge?: string | null;
-          created_at?: string;
-          current_status?: string | null;
-          description?: string | null;
-          gradient?: string | null;
-          last_deploy_at?: string | null;
-          last_deploy_state?: string | null;
-          last_touched_at?: string | null;
-          live_url?: string | null;
-          mode?: string | null;
-          name?: string;
-          notes?: string | null;
-          repo_url?: string | null;
-          slug?: string;
-          soul?: string | null;
-          stack?: string[] | null;
-          tier?: number | null;
-          updated_at?: string;
-          vercel_project_id?: string | null;
-          vercel_url?: string | null;
-        };
+        Update: Partial<Database["public"]["Tables"]["projects"]["Row"]>;
         Relationships: [];
       };
       sessions: {
@@ -356,44 +239,11 @@ export type Database = {
           tokens_out: number;
           tool_calls: Json | null;
         };
-        Insert: {
-          created_at?: string;
-          duration_min?: number | null;
-          ended_at?: string | null;
-          external_id?: string | null;
-          id?: string;
-          message_count?: number;
+        Insert: Partial<Database["public"]["Tables"]["sessions"]["Row"]> & {
           mode: string;
-          model?: string | null;
-          project_slug?: string | null;
-          raw_path?: string | null;
           started_at: string;
-          summary?: string | null;
-          tokens_cache_read?: number;
-          tokens_cache_write?: number;
-          tokens_in?: number;
-          tokens_out?: number;
-          tool_calls?: Json | null;
         };
-        Update: {
-          created_at?: string;
-          duration_min?: number | null;
-          ended_at?: string | null;
-          external_id?: string | null;
-          id?: string;
-          message_count?: number;
-          mode?: string;
-          model?: string | null;
-          project_slug?: string | null;
-          raw_path?: string | null;
-          started_at?: string;
-          summary?: string | null;
-          tokens_cache_read?: number;
-          tokens_cache_write?: number;
-          tokens_in?: number;
-          tokens_out?: number;
-          tool_calls?: Json | null;
-        };
+        Update: Partial<Database["public"]["Tables"]["sessions"]["Row"]>;
         Relationships: [];
       };
       tasks: {
@@ -407,26 +257,11 @@ export type Database = {
           title: string;
           url: string | null;
         };
-        Insert: {
-          completed_at?: string | null;
-          due?: string | null;
+        Insert: Partial<Database["public"]["Tables"]["tasks"]["Row"]> & {
           id: string;
-          project_slug?: string | null;
-          status?: string | null;
-          synced_at?: string;
           title: string;
-          url?: string | null;
         };
-        Update: {
-          completed_at?: string | null;
-          due?: string | null;
-          id?: string;
-          project_slug?: string | null;
-          status?: string | null;
-          synced_at?: string;
-          title?: string;
-          url?: string | null;
-        };
+        Update: Partial<Database["public"]["Tables"]["tasks"]["Row"]>;
         Relationships: [];
       };
       tool_usage: {
@@ -440,26 +275,11 @@ export type Database = {
           session_id: string;
           tool_name: string;
         };
-        Insert: {
-          call_count?: number;
-          category?: string | null;
-          first_called_at?: string | null;
-          id?: number;
-          last_called_at?: string | null;
-          project_slug?: string | null;
+        Insert: Partial<Database["public"]["Tables"]["tool_usage"]["Row"]> & {
           session_id: string;
           tool_name: string;
         };
-        Update: {
-          call_count?: number;
-          category?: string | null;
-          first_called_at?: string | null;
-          id?: number;
-          last_called_at?: string | null;
-          project_slug?: string | null;
-          session_id?: string;
-          tool_name?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["tool_usage"]["Row"]>;
         Relationships: [];
       };
       xp_events: {
@@ -472,24 +292,13 @@ export type Database = {
           type: string;
           xp: number;
         };
-        Insert: {
+        Insert: Partial<Database["public"]["Tables"]["xp_events"]["Row"]> & {
           event: string;
-          id?: number;
           occurred_at: string;
-          project_slug?: string | null;
-          source?: string | null;
           type: string;
           xp: number;
         };
-        Update: {
-          event?: string;
-          id?: number;
-          occurred_at?: string;
-          project_slug?: string | null;
-          source?: string | null;
-          type?: string;
-          xp?: number;
-        };
+        Update: Partial<Database["public"]["Tables"]["xp_events"]["Row"]>;
         Relationships: [];
       };
     };

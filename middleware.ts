@@ -8,6 +8,7 @@ function isPublic(pathname: string): boolean {
   if (PUBLIC_PATHS.has(pathname)) return true;
   if (pathname.startsWith("/auth/")) return true;
   if (pathname.startsWith("/api/cron/")) return true; // cron auth via JH_INGEST_KEY/x-vercel-cron
+  if (pathname.startsWith("/api/leads/")) return true; // own auth via x-lead-key header
   if (pathname === "/config-inspector.html") return true; // static asset
   return false;
 }
