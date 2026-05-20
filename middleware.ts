@@ -11,6 +11,7 @@ function isPublic(pathname: string): boolean {
   if (pathname.startsWith("/api/leads/")) return true; // own auth via x-lead-key header
   if (pathname === "/api/track") return true; // public pageview ingest (CORS open)
   if (pathname === "/track.js") return true; // analytics snippet served from public/
+  if (pathname.startsWith("/api/admin/")) return true; // admin endpoints own auth via x-admin-key header
   if (pathname === "/config-inspector.html") return true; // static asset
   return false;
 }
