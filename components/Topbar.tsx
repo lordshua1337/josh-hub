@@ -23,9 +23,9 @@ export function Topbar() {
             <span>//</span> CMD
           </div>
           <div className="logo-dropdown">
-            <Link href="/config-inspector">
+            <a href="/config-inspector.html">
               <span>//</span> CONFYG
-            </Link>
+            </a>
           </div>
         </div>
       </div>

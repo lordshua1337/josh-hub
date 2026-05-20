@@ -18,6 +18,19 @@ export function LockScreen() {
   const progressRef = useRef(progress);
   progressRef.current = progress;
 
+  function unlockNow() {
+    setMerge(true);
+    setTimeout(() => setSpin(true), 250);
+    setTimeout(() => setGlow(true), 450);
+    setTimeout(() => setClosing(true), 800);
+    setTimeout(() => {
+      try {
+        window.sessionStorage.setItem(STORAGE_KEY, "1");
+      } catch {}
+      setUnlocked(true);
+    }, 1300);
+  }
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.sessionStorage.getItem(STORAGE_KEY)) {
@@ -76,7 +89,10 @@ export function LockScreen() {
           <span className={`ldot${progress > 2 ? " filled" : ""}`} />
           <span className={`ldot${progress > 3 ? " filled" : ""}`} />
         </div>
-        <div className="lock-hint">Access Code</div>
+        <div className="lock-hint">Access Code — type 1·3·3·7</div>
+        <button type="button" className="lock-skip" onClick={unlockNow}>
+          enter →
+        </button>
       </div>
     </div>
   );
