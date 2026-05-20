@@ -4,11 +4,11 @@ export default function EmailPage() {
   return (
     <SectionStub
       title="Email"
-      tagline="Resend broadcasts + transactional — sends, opens, clicks."
+      tagline="Fastmail-powered email — broadcasts + transactional sends, opens, clicks."
       bullets={[
-        "Recent broadcasts with open/click rates",
-        "List + segment health (subscribers, unsubscribes)",
-        "Transactional volume by template",
+        "Recent broadcasts with open/click rates (Fastmail-via-SMTP)",
+        "Inbox state: replies, unread, flagged across mailboxes",
+        "Masked-email aliases per project + per campaign",
         "Bounce + complaint surfacing",
       ]}
     />
