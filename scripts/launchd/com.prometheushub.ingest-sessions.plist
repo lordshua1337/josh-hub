@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.prometheushub.ingest-sessions</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>/Users/joshhohenstein/projects/josh-hub/scripts/ingest-sessions.mjs</string>
+  </array>
+
+  <!-- Run every 15 minutes -->
+  <key>StartInterval</key>
+  <integer>900</integer>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/joshhohenstein/Library/Logs/prometheus-hub-ingest.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/joshhohenstein/Library/Logs/prometheus-hub-ingest.err</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+  </dict>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/joshhohenstein/projects/josh-hub</string>
+</dict>
+</plist>
