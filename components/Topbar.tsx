@@ -21,9 +21,36 @@ const TABS: Tab[] = [
       { href: "/integrations", label: "Integrations" },
     ],
   },
-  { type: "single", href: "/lead-gen", label: "Lead Gen" },
-  { type: "single", href: "/website", label: "Website" },
-  { type: "single", href: "/content", label: "Content" },
+  {
+    type: "group",
+    label: "Lead Gen",
+    items: [
+      { href: "/lead-gen/leads", label: "Leads" },
+      { href: "/lead-gen/forms", label: "Forms" },
+      { href: "/lead-gen/sources", label: "Sources" },
+      { href: "/lead-gen/sequences", label: "Sequences" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Website",
+    items: [
+      { href: "/website/analytics", label: "Analytics" },
+      { href: "/website/pages", label: "Pages" },
+      { href: "/website/seo", label: "SEO" },
+      { href: "/website/experiments", label: "A/B Tests" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Content",
+    items: [
+      { href: "/content/calendar", label: "Calendar" },
+      { href: "/content/posts", label: "Posts" },
+      { href: "/content/social", label: "Social" },
+      { href: "/content/email", label: "Email" },
+    ],
+  },
 ];
 
 function isActive(href: string, pathname: string): boolean {
