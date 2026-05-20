@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
-// Mount-once side effects: scroll-triggered reveals, stat counters, XP bar entrance,
-// button ripple, and scroll-aware navbar. Ported from legacy/js/shared.js.
+// Re-applies on every route change so client navigation re-reveals .fl-reveal
+// elements, re-attaches the IntersectionObservers, and re-runs the XP-bar +
+// stat-counter entrance animations on each page. Ported from legacy/js/shared.js.
 export function FaceLift() {
+  const pathname = usePathname();
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -128,7 +131,7 @@ export function FaceLift() {
       document.removeEventListener("click", onClick);
       window.removeEventListener("scroll", onScroll);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }
