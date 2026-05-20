@@ -4,27 +4,24 @@ import { CalendarView } from "./CalendarView";
 export const dynamic = "force-dynamic";
 
 async function load() {
-  const now = new Date();
   const [me, upcoming, past, eventTypes] = await Promise.all([
-    getMe(),
-    listBookings({ status: "upcoming", take: 50 }),
-    listBookings({ status: "past", take: 25 }),
-    listEventTypes(),
+    getMe().catch(() => null),
+    listBookings({ status: "upcoming", take: 50 }).catch(() => [] as CalBooking[]),
+    listBookings({ status: "past", take: 25 }).catch(() => [] as CalBooking[]),
+    listEventTypes().catch(() => [] as CalEventType[]),
   ]);
   return {
     me,
-    upcoming: upcoming.bookings,
-    past: past.bookings,
+    upcoming,
+    past,
     eventTypes,
-    now: now.toISOString(),
+    now: new Date().toISOString(),
   };
 }
 
 export default async function CalendarPage() {
-  let data: Awaited<ReturnType<typeof load>>;
-  try {
-    data = await load();
-  } catch (e) {
+  const data = await load();
+  if (!data.me) {
     return (
       <>
         <div className="header fl-reveal">
@@ -33,7 +30,7 @@ export default async function CalendarPage() {
         </div>
         <div className="main">
           <div className="card" style={{ padding: 20, color: "var(--danger)" }}>
-            {(e as Error).message}
+            Failed to authenticate with Cal.com. Check CALCOM_API_KEY.
           </div>
         </div>
       </>
@@ -52,9 +49,9 @@ export default async function CalendarPage() {
       <div className="main">
         <CalendarView
           me={data.me}
-          upcoming={data.upcoming as CalBooking[]}
-          past={data.past as CalBooking[]}
-          eventTypes={data.eventTypes as CalEventType[]}
+          upcoming={data.upcoming}
+          past={data.past}
+          eventTypes={data.eventTypes}
           now={data.now}
         />
       </div>
