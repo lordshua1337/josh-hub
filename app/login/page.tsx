@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
 function LoginInner() {
@@ -10,46 +9,22 @@ function LoginInner() {
   const params = useSearchParams();
   const from = params.get("from") || "/";
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [step, setStep] = useState<"email" | "code">("email");
-  const [status, setStatus] = useState<"idle" | "sending" | "verifying">("idle");
+  const [password, setPassword] = useState("");
+  const [status, setStatus] = useState<"idle" | "signing-in">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  async function sendCode(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!email) return;
-    setStatus("sending");
+    if (!email || !password) return;
+    setStatus("signing-in");
     setErrorMsg(null);
     const sb = supabaseBrowser();
-    const { error } = await sb.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true },
-    });
+    const { error } = await sb.auth.signInWithPassword({ email, password });
     setStatus("idle");
     if (error) {
       setErrorMsg(error.message);
       return;
     }
-    setStep("code");
-  }
-
-  async function verifyCode(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!code) return;
-    setStatus("verifying");
-    setErrorMsg(null);
-    const sb = supabaseBrowser();
-    const { error } = await sb.auth.verifyOtp({
-      email,
-      token: code.trim(),
-      type: "email",
-    });
-    setStatus("idle");
-    if (error) {
-      setErrorMsg(error.message);
-      return;
-    }
-    // Server middleware will accept the cookie on next request.
     router.replace(from);
     router.refresh();
   }
@@ -61,59 +36,32 @@ function LoginInner() {
           <span>//</span> CMD
         </div>
         <h1>Sign in</h1>
-        <p className="login-sub">
-          {step === "email"
-            ? "Email a 6-digit code."
-            : `Code sent to ${email}. Check your inbox.`}
-        </p>
+        <p className="login-sub">Command Center access.</p>
 
-        {step === "email" ? (
-          <form onSubmit={sendCode}>
-            <input
-              type="email"
-              required
-              autoFocus
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="login-input"
-            />
-            <button type="submit" className="login-btn" disabled={status === "sending"}>
-              {status === "sending" ? "Sending…" : "Send code"}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={verifyCode}>
-            <input
-              type="text"
-              required
-              autoFocus
-              inputMode="numeric"
-              pattern="[0-9]{6}"
-              maxLength={6}
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              placeholder="123456"
-              className="login-input login-code"
-            />
-            <button type="submit" className="login-btn" disabled={status === "verifying"}>
-              {status === "verifying" ? "Verifying…" : "Enter"}
-            </button>
-            <button
-              type="button"
-              className="login-link"
-              onClick={() => {
-                setStep("email");
-                setCode("");
-                setErrorMsg(null);
-              }}
-            >
-              Use a different email
-            </button>
-          </form>
-        )}
-
+        <form onSubmit={onSubmit}>
+          <input
+            type="email"
+            required
+            autoFocus
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="login-input"
+          />
+          <input
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="password"
+            className="login-input"
+          />
+          <button type="submit" className="login-btn" disabled={status === "signing-in"}>
+            {status === "signing-in" ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
         {errorMsg && <p className="login-error">{errorMsg}</p>}
       </div>
     </div>
