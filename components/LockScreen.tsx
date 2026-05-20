@@ -6,7 +6,11 @@ const CODE = [1, 3, 3, 7] as const;
 const STORAGE_KEY = "hub_unlocked";
 
 export function LockScreen() {
-  const [unlocked, setUnlocked] = useState(false);
+  // Optimistically unlocked on first paint. Only swing to locked AFTER we've
+  // had a chance to read sessionStorage. Avoids the lock flashing visibly
+  // between client navigations or during slow hydration.
+  const [unlocked, setUnlocked] = useState(true);
+  const [checked, setChecked] = useState(false);
   const [progress, setProgress] = useState(0);
   const [shake, setShake] = useState(false);
   const [merge, setMerge] = useState(false);
@@ -14,7 +18,6 @@ export function LockScreen() {
   const [glow, setGlow] = useState(false);
   const [closing, setClosing] = useState(false);
 
-  // Refs to read latest progress inside the keydown handler without re-binding.
   const progressRef = useRef(progress);
   progressRef.current = progress;
 
@@ -33,10 +36,10 @@ export function LockScreen() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.sessionStorage.getItem(STORAGE_KEY)) {
-      setUnlocked(true);
-      return;
-    }
+    const isUnlocked = !!window.sessionStorage.getItem(STORAGE_KEY);
+    setUnlocked(isUnlocked);
+    setChecked(true);
+    if (isUnlocked) return;
     const onKey = (e: KeyboardEvent) => {
       const num = parseInt(e.key, 10);
       if (Number.isNaN(num)) return;
@@ -70,7 +73,9 @@ export function LockScreen() {
     else document.body.classList.remove("hub-unlocked");
   }, [unlocked]);
 
-  if (unlocked) return null;
+  // Render nothing during SSR + first client paint; only show lock once we've
+  // explicitly confirmed the session is NOT unlocked.
+  if (!checked || unlocked) return null;
 
   return (
     <div id="lock" className={closing ? "unlocked" : undefined}>
