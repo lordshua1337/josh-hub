@@ -9,6 +9,8 @@ function isPublic(pathname: string): boolean {
   if (pathname.startsWith("/auth/")) return true;
   if (pathname.startsWith("/api/cron/")) return true; // cron auth via JH_INGEST_KEY/x-vercel-cron
   if (pathname.startsWith("/api/leads/")) return true; // own auth via x-lead-key header
+  if (pathname === "/api/track") return true; // public pageview ingest (CORS open)
+  if (pathname === "/track.js") return true; // analytics snippet served from public/
   if (pathname === "/config-inspector.html") return true; // static asset
   return false;
 }

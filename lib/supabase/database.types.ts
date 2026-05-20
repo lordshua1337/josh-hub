@@ -187,6 +187,28 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["message_excerpts"]["Row"]>;
         Relationships: [];
       };
+      pageviews: {
+        Row: {
+          id: number;
+          site: string;
+          path: string;
+          referrer: string | null;
+          user_agent: string | null;
+          country: string | null;
+          device: string | null;
+          utm_source: string | null;
+          utm_medium: string | null;
+          utm_campaign: string | null;
+          session_id: string | null;
+          ts: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["pageviews"]["Row"]> & {
+          site: string;
+          path: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["pageviews"]["Row"]>;
+        Relationships: [];
+      };
       optimizations: {
         Row: {
           applied_at: string | null;

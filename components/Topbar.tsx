@@ -10,6 +10,7 @@ type Tab =
 
 const TABS: Tab[] = [
   { type: "single", href: "/", label: "Dashboard" },
+  { type: "single", href: "/calendar", label: "Calendar" },
   {
     type: "group",
     label: "Claude",

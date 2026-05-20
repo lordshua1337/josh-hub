@@ -321,6 +321,34 @@ body {
 .email-draft-edit:focus { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
 .email-draft-body { cursor: text; }
 .email-draft-body:hover { background: var(--surface-hover); border-radius: 4px; }
+
+/* ===== Calendar ===== */
+.booking-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 16px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.booking-row:last-child { border-bottom: none; }
+.booking-row:hover { background: var(--surface-hover); }
+.booking-when { display: flex; flex-direction: column; gap: 2px; }
+.booking-date { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.booking-time { font-size: 14px; font-weight: 700; color: var(--text); font-family: var(--mono); }
+.booking-body { min-width: 0; }
+.booking-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.booking-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); }
+.booking-pill {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.booking-actions { display: flex; gap: 6px; }
 .email-sent-row {
   display: grid;
   grid-template-columns: 220px 1fr 80px;
