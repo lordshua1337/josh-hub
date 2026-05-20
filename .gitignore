@@ -19,6 +19,10 @@ next-env.d.ts
 .vscode/*
 !.vscode/settings.json
 
+# Per-session Claude Code permissions/worktrees
+.claude/settings.local.json
+.claude/worktrees
+
 # Logs
 *.log
 npm-debug.log*
