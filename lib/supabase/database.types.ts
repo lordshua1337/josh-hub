@@ -72,6 +72,40 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["deployments"]["Row"]>;
         Relationships: [];
       };
+      inbox_emails: {
+        Row: {
+          id: string;
+          fastmail_id: string;
+          thread_id: string | null;
+          from_address: string;
+          from_name: string | null;
+          to_address: string | null;
+          subject: string | null;
+          body_preview: string | null;
+          body_full: string | null;
+          received_at: string | null;
+          category: string | null;
+          category_confidence: number | null;
+          category_reasoning: string | null;
+          action_taken: string | null;
+          draft_response: string | null;
+          fastmail_draft_id: string | null;
+          draft_status: string;
+          sent_at: string | null;
+          discarded_at: string | null;
+          send_error: string | null;
+          classified_at: string | null;
+          drafted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["inbox_emails"]["Row"]> & {
+          fastmail_id: string;
+          from_address: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["inbox_emails"]["Row"]>;
+        Relationships: [];
+      };
       ingester_state: {
         Row: {
           cursor: Json | null;
