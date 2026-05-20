@@ -105,23 +105,7 @@ body {
 .lock-dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
 .ldot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--border); transition: background 0.3s, border-color 0.3s, box-shadow 0.3s; }
 .ldot.filled { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 6px rgba(217,119,6,0.3); }
-.lock-hint { font-size: 11px; letter-spacing: 2px; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 18px; }
-.lock-skip {
-  margin-top: 4px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--accent);
-  background: transparent;
-  border: 1px solid var(--accent);
-  padding: 8px 18px;
-  border-radius: 100px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, transform 0.15s;
-}
-.lock-skip:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
+.lock-hint { font-size: 11px; letter-spacing: 2px; color: var(--text-tertiary); text-transform: uppercase; }
 @keyframes lockShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
 .lock-inner.shake { animation: lockShake 0.4s ease; }
 
