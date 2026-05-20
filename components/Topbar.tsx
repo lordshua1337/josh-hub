@@ -44,6 +44,11 @@ export function Topbar() {
           );
         })}
         <ThemeToggle />
+        <form method="POST" action="/auth/signout" style={{ display: "inline" }}>
+          <button type="submit" className="tab-btn" title="Sign out">
+            ↪
+          </button>
+        </form>
       </div>
     </nav>
   );

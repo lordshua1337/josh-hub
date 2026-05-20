@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-import { LockScreen } from "@/components/LockScreen";
 import { Topbar } from "@/components/Topbar";
 import { Footer } from "@/components/Footer";
 import { FaceLift } from "@/components/FaceLift";
@@ -30,7 +29,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ThemeScript />
       </head>
       <body>
-        <LockScreen />
         <div id="dash">
           <Topbar />
           {children}
