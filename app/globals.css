@@ -219,6 +219,64 @@ body {
 .logo-dropdown a:hover { color: #8b5cf6; background: rgba(139,92,246,0.1); }
 .logo-dropdown a span { color: #8b5cf6; font-weight: 700; }
 
+/* Tab dropdown groups */
+.tab-group { position: relative; display: inline-flex; }
+.tab-group-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tab-group-caret {
+  font-size: 9px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: transform 0.15s ease;
+}
+.tab-group:hover .tab-group-caret,
+.tab-group:focus-within .tab-group-caret {
+  transform: rotate(180deg);
+}
+.tab-group-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 160px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+  z-index: 250;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+[data-theme="dark"] .tab-group-menu { box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.tab-group:hover .tab-group-menu,
+.tab-group:focus-within .tab-group-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.tab-group-item {
+  display: block;
+  padding: 8px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.tab-group-item:hover { color: var(--accent); background: var(--accent-soft); }
+.tab-group-item.active { color: #fff; background: var(--accent); }
+
 /* Hide old nav classes (keep for backwards compat) */
 .nav { display: none; }
 .nav-inner, .nav-brand, .nav-links, .nav-link, .nav-right, .nav-logo, .nav-brand-prefix, .nav-meta { display: none; }

@@ -4,14 +4,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 
-const TABS = [
-  { href: "/", label: "Dashboard" },
-  { href: "/skills", label: "Skills" },
-  { href: "/achievements", label: "Achievements" },
-  { href: "/activity", label: "Activity" },
-  { href: "/projects", label: "Projects" },
-  { href: "/integrations", label: "Integrations" },
+type Tab =
+  | { type: "single"; href: string; label: string }
+  | { type: "group"; label: string; items: { href: string; label: string }[] };
+
+const TABS: Tab[] = [
+  { type: "single", href: "/", label: "Dashboard" },
+  {
+    type: "group",
+    label: "Claude",
+    items: [
+      { href: "/skills", label: "Skills" },
+      { href: "/achievements", label: "Achievements" },
+      { href: "/activity", label: "Activity" },
+      { href: "/projects", label: "Projects" },
+      { href: "/integrations", label: "Integrations" },
+    ],
+  },
+  { type: "single", href: "/lead-gen", label: "Lead Gen" },
+  { type: "single", href: "/website", label: "Website" },
+  { type: "single", href: "/content", label: "Content" },
 ];
+
+function isActive(href: string, pathname: string): boolean {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
 
 export function Topbar() {
   const pathname = usePathname();
@@ -31,16 +48,50 @@ export function Topbar() {
       </div>
       <div className="topbar-tabs">
         {TABS.map((t) => {
-          const active = t.href === "/" ? pathname === "/" : pathname.startsWith(t.href);
+          if (t.type === "single") {
+            const active = isActive(t.href, pathname);
+            return (
+              <Link
+                key={t.href}
+                className={`tab-btn${active ? " active" : ""}`}
+                href={t.href}
+                aria-current={active ? "page" : undefined}
+              >
+                {t.label}
+              </Link>
+            );
+          }
+          const groupActive = t.items.some((it) => isActive(it.href, pathname));
           return (
-            <Link
-              key={t.href}
-              className={`tab-btn${active ? " active" : ""}`}
-              href={t.href}
-              aria-current={active ? "page" : undefined}
-            >
-              {t.label}
-            </Link>
+            <div key={t.label} className="tab-group">
+              <button
+                type="button"
+                className={`tab-btn tab-group-trigger${groupActive ? " active" : ""}`}
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                {t.label}
+                <span className="tab-group-caret" aria-hidden>
+                  ▾
+                </span>
+              </button>
+              <div className="tab-group-menu" role="menu">
+                {t.items.map((it) => {
+                  const active = isActive(it.href, pathname);
+                  return (
+                    <Link
+                      key={it.href}
+                      role="menuitem"
+                      className={`tab-group-item${active ? " active" : ""}`}
+                      href={it.href}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      {it.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           );
         })}
         <ThemeToggle />
