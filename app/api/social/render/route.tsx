@@ -12,6 +12,7 @@ import { CarouselCtaComposition } from "@/lib/social/compositions/carousel-cta";
 import { SplitContrastComposition } from "@/lib/social/compositions/split-contrast";
 import { SignoffComposition } from "@/lib/social/compositions/signoff";
 import { FieldReportComposition } from "@/lib/social/compositions/field-report";
+import { BigStat } from "@/lib/social/compositions/big-stat";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { SlideContent } from "@/lib/social/copy";
 
@@ -111,6 +112,17 @@ function renderSlide(brandSlug: string, slide: SlideContent, counter?: string): 
           counter={counter}
         />
       );
+    case "big_stat":
+      return (
+        <BigStat
+          eyebrow={slide.kicker || "field report"}
+          stat={slide.stat || slide.headline || "0"}
+          unit={slide.unit}
+          caption={slide.body || slide.footer || ""}
+          source={slide.source}
+          footerCounter={counter}
+        />
+      );
     default:
       throw new Error(`Unknown composition: ${slide.composition}`);
   }
@@ -163,6 +175,9 @@ export async function GET(req: Request) {
         theySaid: url.searchParams.get("theySaid") || undefined,
         trueLabel: url.searchParams.get("trueLabel") || undefined,
         trueLine: url.searchParams.get("trueLine") || undefined,
+        stat: url.searchParams.get("stat") || undefined,
+        unit: url.searchParams.get("unit") || undefined,
+        source: url.searchParams.get("source") || undefined,
       };
     }
 

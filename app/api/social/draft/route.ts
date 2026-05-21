@@ -38,6 +38,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `draft failed: ${(e as Error).message}` }, { status: 500 });
   }
 
+  // first_comment + reel_script ride along in metadata so the Package panel
+  // can surface them without bloating copy_blocks (which the renderer reads
+  // per-slide). Caption stays inside copy_blocks since it's part of the post.
+  const metadata: Record<string, unknown> = {};
+  if (copy.first_comment) metadata.first_comment = copy.first_comment;
+  if (copy.reel_script) metadata.reel_script = copy.reel_script;
+
   const sb = supabaseServer();
   const { data, error } = await sb
     .from("social_posts")
@@ -47,6 +54,7 @@ export async function POST(req: NextRequest) {
       composition: def.kind === "carousel" ? "carousel" : def.compositions[0],
       topic: parsed.data.topic,
       copy_blocks: copy as never,
+      metadata: Object.keys(metadata).length ? (metadata as never) : null,
       status: "draft",
       platform: "instagram",
     })

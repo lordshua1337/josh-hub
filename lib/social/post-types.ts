@@ -13,6 +13,7 @@ export type PostTypeDef = {
   description: string;       // shown in UI dropdown
   voiceHint: string;         // tone-specific guidance for the drafter
   compositions: string[];    // composition slugs this type can render with
+  signoffNote?: string;      // carousel-specific note rendered on the auto-appended signoff slide
 };
 
 export const POST_TYPES: PostTypeDef[] = [
@@ -64,6 +65,7 @@ export const POST_TYPES: PostTypeDef[] = [
     description: "How AI shows up for one specific role (CEO / CMO / Head of Sales / Ops Lead / Exec Assistant / CFO). 7 slides: hook + 4 plays + CTA + signoff.",
     voiceHint: "Pick ONE role. Be specific about the role's actual daily pain. Each play should be a 1-week move, not a 'transformation initiative.'",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
+    signoffNote: "tell me the role and the pain. I'll write back with the first play.",
   },
   {
     slug: "quick_wins",
@@ -74,6 +76,7 @@ export const POST_TYPES: PostTypeDef[] = [
     description: "5 small things an operator can build/automate THIS WEEK. 8 slides: hook + 5 plays + CTA + signoff.",
     voiceHint: "Every play must be specific enough to start tomorrow. Name tools where helpful. No vague 'improve X' language. Show the wedge, not the platform.",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
+    signoffNote: "stuck on the first one? send the workflow. I'll send the wedge.",
   },
   {
     slug: "diagnostic",
@@ -84,6 +87,7 @@ export const POST_TYPES: PostTypeDef[] = [
     description: "3-4 questions to ask yourself about your business. Each question reveals a hidden gap. 6 slides: hook + 3 questions + CTA + signoff.",
     voiceHint: "Questions, not statements. Each one should make the reader uncomfortable in a productive way. End with the question that matters most.",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
+    signoffNote: "answer one of them honestly in a reply. I'll tell you what I'd do next.",
   },
   {
     slug: "behind_the_build",
@@ -94,6 +98,7 @@ export const POST_TYPES: PostTypeDef[] = [
     description: "What we shipped this week. Real spec, real tools, real result. 6 slides: hook + 3 build notes + CTA + signoff.",
     voiceHint: "Mention the specific business problem, the solution, the tools, the result. Numbers if you have them. Modest about generalizing -- 'worked for us, might work for you.'",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
+    signoffNote: "name your two systems. I'll scope a similar bridge inside 48 hours.",
   },
   {
     slug: "compliance_gtm",
@@ -104,6 +109,7 @@ export const POST_TYPES: PostTypeDef[] = [
     description: "For regulated industries (healthcare, finance, legal, defense). AI playbook that doesn't get you sued. 6 slides: hook + 3 guardrails + CTA + signoff.",
     voiceHint: "Take compliance seriously. No 'just be careful' hand-waving. Specific guardrails, specific frameworks. Mention HIPAA / SOC2 / FedRAMP / FINRA where relevant.",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
+    signoffNote: "name your framework (HIPAA / SOC2 / FedRAMP). I'll send the salvage plan.",
   },
 ];
 

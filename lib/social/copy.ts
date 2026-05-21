@@ -36,12 +36,29 @@ export type SlideContent = {
   trueLine?: string;
   // field_report
   frLines?: { tag?: string; text: string }[];
+  // big_stat
+  stat?: string;
+  unit?: string;
+  source?: string;
+};
+
+export type ReelBeat = {
+  t: string;       // timestamp marker, e.g. "0:00"
+  label: string;   // HOOK / SETUP / PAYOFF / CTA
+  script: string;  // the line Josh reads
+};
+
+export type ReelScript = {
+  duration: string; // "45s" / "50s"
+  beats: ReelBeat[];
 };
 
 export type PostCopy = {
   is_carousel: boolean;
   slides: SlideContent[];
-  caption: string;
+  caption: string;          // paste into IG caption field
+  first_comment?: string;   // planted first reply where links live (IG penalizes links in captions)
+  reel_script?: ReelScript; // 45-50s talking-head script for the companion reel
 };
 
 // kept for back-compat with /api/social/draft callers from phase 1
@@ -161,7 +178,8 @@ async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string): Pro
 
   const text = await ask(`${voiceFor(brand)}
 
-You're writing an Instagram CAROUSEL.
+You're writing an Instagram CAROUSEL plus its companion publishing package
+(caption + planted first comment + 45-50s reel script).
 
 POST TYPE: ${def.label}. ${def.description}
 TONE: ${def.voiceHint}
@@ -185,7 +203,17 @@ Return ONLY raw JSON:
     "cta": "...",
     "link": ""
   },
-  "caption": "..."
+  "caption": "...",
+  "first_comment": "...",
+  "reel_script": {
+    "duration": "45s",
+    "beats": [
+      { "t": "0:00", "label": "HOOK", "script": "..." },
+      { "t": "0:08", "label": "SETUP", "script": "..." },
+      { "t": "0:22", "label": "PAYOFF", "script": "..." },
+      { "t": "0:40", "label": "CTA", "script": "..." }
+    ]
+  }
 }
 
 Hard rules:
@@ -195,13 +223,17 @@ Hard rules:
 - Vary the verb across steps (don't start all with "Build" or "Set up").
 - Each step body must reference a concrete tool / metric / artifact.
 - No emojis. No em dashes. No corporate slop ("transform" "leverage" "synergize").
-- Caption: 2-4 short paragraphs, references the step titles, ends with a question. 4-6 hashtags on a new line.`, 2400);
+- Caption: 600-900 chars. 2-4 short paragraphs, references the step titles. Ends with "- Josh" on its own line. NO link in the caption (IG penalizes that).
+- first_comment: 2-4 short lines. This is where the email + URL live ("josh@prometheusconsulting.ai" + "prometheusconsulting.ai"). Make it feel like a planted follow-up, not a CTA.
+- reel_script: exactly 4 beats (HOOK / SETUP / PAYOFF / CTA). 100-180 total words. Talking-head cadence: short sentences, specific numbers, no adjective tax.`, 3200);
 
   type Raw = {
     hook?: { kicker?: string; headline?: string; emphasize?: string; swipeHint?: string };
     steps?: { title?: string; body?: string; emphasize?: string }[];
     cta?: { closer?: string; cta?: string; link?: string };
     caption?: string;
+    first_comment?: string;
+    reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
   };
   const raw = safeParse<Raw>(text, {});
   const steps = (raw.steps ?? []).slice(0, stepCount);
@@ -233,13 +265,38 @@ Hard rules:
     link: raw.cta?.link || brand.schedulingLink || "",
   });
   // Brand-standard final slide — never LLM-generated, always appended.
+  // The per-post-type signoffNote reinforces this carousel's specific ask
+  // (e.g. case-study posts ask for the operator's two systems; diagnostic
+  // posts ask them to answer one of the questions honestly).
   slides.push({
     composition: "signoff",
     link: "josh@prometheusconsulting.ai",
     headline: "If this was useful, do one of these.",
     emphasize: "do one of these",
+    footer: def.signoffNote,
   });
-  return { is_carousel: true, slides, caption: raw.caption || "" };
+  // Normalize the reel script if Haiku returned it.
+  let reel_script: ReelScript | undefined;
+  if (raw.reel_script?.beats && raw.reel_script.beats.length > 0) {
+    const beats: ReelBeat[] = raw.reel_script.beats
+      .filter((b): b is { t: string; label: string; script: string } =>
+        Boolean(b?.t && b?.label && b?.script))
+      .slice(0, 4);
+    if (beats.length === 4) {
+      reel_script = {
+        duration: raw.reel_script.duration || "45s",
+        beats,
+      };
+    }
+  }
+
+  return {
+    is_carousel: true,
+    slides,
+    caption: raw.caption || "",
+    first_comment: raw.first_comment || undefined,
+    reel_script,
+  };
 }
 
 // ----- dispatcher -----
