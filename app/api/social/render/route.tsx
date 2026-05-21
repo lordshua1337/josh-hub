@@ -29,21 +29,6 @@ async function loadGoogleFont(family: string, weight: number): Promise<ArrayBuff
   return f.arrayBuffer();
 }
 
-// Pre-fetch a slide background image and inline it as a data: URI so Satori
-// never has to do its own network fetch (which is unreliable). Node runtime
-// has Buffer; this is the standard path.
-async function inlineImage(absUrl: string): Promise<string | undefined> {
-  try {
-    const r = await fetch(absUrl, { cache: "force-cache" });
-    if (!r.ok) return undefined;
-    const ct = r.headers.get("content-type") || "image/jpeg";
-    const buf = Buffer.from(await r.arrayBuffer());
-    return `data:${ct};base64,${buf.toString("base64")}`;
-  } catch {
-    return undefined;
-  }
-}
-
 async function renderSlide(
   brandSlug: string,
   slide: SlideContent,
@@ -59,7 +44,6 @@ async function renderSlide(
       ? slide.imageUrl
       : `${origin}${slide.imageUrl}`
     : undefined;
-  const dataUri = absImageUrl ? await inlineImage(absImageUrl) : undefined;
   switch (slide.composition) {
     case "declaration":
       return (
@@ -70,7 +54,7 @@ async function renderSlide(
           emphasize={slide.emphasize}
           footer={slide.footer}
           counter={counter}
-          backgroundImageUrl={dataUri}
+          backgroundImageUrl={absImageUrl}
         />
       );
     case "carousel_hook":
@@ -82,7 +66,7 @@ async function renderSlide(
           emphasize={slide.emphasize}
           swipeHint={slide.swipeHint}
           counter={counter}
-          backgroundImageUrl={dataUri}
+          backgroundImageUrl={absImageUrl}
         />
       );
     case "numbered_step":
