@@ -232,6 +232,35 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["optimizations"]["Row"]>;
         Relationships: [];
       };
+      social_posts: {
+        Row: {
+          id: string;
+          brand: string;
+          post_type: string;
+          composition: string;
+          topic: string | null;
+          copy_blocks: Json;
+          image_url: string | null;
+          image_variant: number | null;
+          status: string;
+          platform: string;
+          scheduled_for: string | null;
+          posted_at: string | null;
+          posted_id: string | null;
+          error: string | null;
+          metadata: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["social_posts"]["Row"]> & {
+          brand: string;
+          post_type: string;
+          composition: string;
+          copy_blocks: Json;
+        };
+        Update: Partial<Database["public"]["Tables"]["social_posts"]["Row"]>;
+        Relationships: [];
+      };
       project_aliases: {
         Row: {
           alias: string;

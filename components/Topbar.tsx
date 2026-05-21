@@ -46,10 +46,10 @@ const TABS: Tab[] = [
     type: "group",
     label: "Content",
     items: [
-      { href: "/content/calendar", label: "Calendar" },
-      { href: "/content/posts", label: "Posts" },
       { href: "/content/social", label: "Social" },
       { href: "/content/email", label: "Email" },
+      { href: "/content/calendar", label: "Calendar" },
+      { href: "/content/posts", label: "Posts" },
     ],
   },
 ];
