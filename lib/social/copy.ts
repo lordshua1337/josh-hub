@@ -40,6 +40,8 @@ export type SlideContent = {
   stat?: string;
   unit?: string;
   source?: string;
+  // background image (only set on hero slide — declaration / carousel_hook)
+  imageUrl?: string;
 };
 
 export type ReelBeat = {

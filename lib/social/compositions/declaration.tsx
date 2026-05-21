@@ -14,11 +14,12 @@ export type DeclarationProps = {
   emphasize?: string;
   footer?: string;
   counter?: string;
+  backgroundImageUrl?: string;
 };
 
-export function DeclarationComposition({ kicker, headline, emphasize, footer, counter }: DeclarationProps) {
+export function DeclarationComposition({ kicker, headline, emphasize, footer, counter, backgroundImageUrl }: DeclarationProps) {
   return (
-    <SlideFrame eyebrow={kicker} footerCounter={counter}>
+    <SlideFrame eyebrow={kicker} footerCounter={counter} backgroundImageUrl={backgroundImageUrl}>
       <div
         style={{
           display: "flex",

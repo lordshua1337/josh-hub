@@ -86,19 +86,23 @@ export function SlideFooter({ counter }: { counter?: string }) {
   );
 }
 
-// 1080×1080 frame — every layout sits inside this. Forge bg + amber rim.
+// 1080×1080 frame — every layout sits inside this. Defaults to the forge
+// radial bg; pass `backgroundImageUrl` for a forge PNG background and a
+// dark overlay automatically tones it down so text stays readable.
 export function SlideFrame({
   children,
   eyebrow,
   footerCounter,
   rim = true,
   background,
+  backgroundImageUrl,
 }: {
   children: React.ReactNode;
   eyebrow?: string;
   footerCounter?: string;
   rim?: boolean;
   background?: string;
+  backgroundImageUrl?: string;
 }) {
   return (
     <div
@@ -108,6 +112,10 @@ export function SlideFrame({
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        // ALWAYS pass a backgroundImage string — Satori crashes on
+        // `backgroundImage: undefined` ("Cannot read properties of
+        // undefined reading 'trim'"). When a backgroundImageUrl is set,
+        // the absolutely-positioned <img> below covers this anyway.
         backgroundImage: background ?? FORGE_BG,
         backgroundColor: TOKEN.bg600,
         fontFamily: "Inter, sans-serif",
@@ -116,6 +124,47 @@ export function SlideFrame({
         overflow: "hidden",
       }}
     >
+      {/* Optional forge background image. Satori only renders raster
+          images via <img>. Wrapped in a single absolute-positioned div
+          (Satori is finicky with fragment children at the flex root). */}
+      {backgroundImageUrl ? (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: 1080,
+            height: 1080,
+            display: "flex",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={backgroundImageUrl}
+            alt=""
+            width={1080}
+            height={1080}
+            style={{
+              width: 1080,
+              height: 1080,
+              objectFit: "cover",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 1080,
+              height: 1080,
+              display: "flex",
+              backgroundImage:
+                "linear-gradient(90deg, rgba(15,11,9,0.78) 0%, rgba(15,11,9,0.55) 60%, rgba(15,11,9,0.35) 100%)",
+            }}
+          />
+        </div>
+      ) : null}
+
       {rim ? (
         <div
           style={{
@@ -131,7 +180,7 @@ export function SlideFrame({
       ) : null}
 
       {eyebrow ? (
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", zIndex: 1 }}>
           <Eyebrow>{eyebrow}</Eyebrow>
         </div>
       ) : null}
@@ -143,12 +192,13 @@ export function SlideFrame({
           flexDirection: "column",
           minHeight: 0,
           marginTop: eyebrow ? 28 : 0,
+          zIndex: 1,
         }}
       >
         {children}
       </div>
 
-      <div style={{ display: "flex", marginTop: 40 }}>
+      <div style={{ display: "flex", marginTop: 40, zIndex: 1 }}>
         <SlideFooter counter={footerCounter} />
       </div>
     </div>

@@ -7,7 +7,7 @@ export default async function SocialPage() {
   const sb = supabaseServer();
   const { data, error } = await sb
     .from("social_posts")
-    .select("id, brand, post_type, composition, topic, copy_blocks, image_url, status, platform, scheduled_for, posted_at, posted_id, error, created_at")
+    .select("id, brand, post_type, composition, topic, copy_blocks, image_url, metadata, status, platform, scheduled_for, posted_at, posted_id, error, created_at")
     .order("created_at", { ascending: false })
     .limit(50);
 

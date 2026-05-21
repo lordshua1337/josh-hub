@@ -17,6 +17,7 @@ const Schema = z.object({
   brand: z.string().min(1),
   post_type: z.string().min(1),
   topic: z.string().min(3).max(500),
+  image_url: z.string().min(1).max(500).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -38,6 +39,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `draft failed: ${(e as Error).message}` }, { status: 500 });
   }
 
+  // If Josh picked a forge image, attach it to the hero slide. For singles
+  // that's the single slide; for carousels it's the carousel_hook. Body
+  // slides stay typography — the image stops the scroll, the text delivers.
+  if (parsed.data.image_url && copy.slides.length > 0) {
+    const heroIdx = copy.slides.findIndex(
+      (s) => s.composition === "declaration" || s.composition === "carousel_hook"
+    );
+    if (heroIdx >= 0) {
+      copy.slides[heroIdx] = { ...copy.slides[heroIdx], imageUrl: parsed.data.image_url };
+    }
+  }
+
   // first_comment + reel_script ride along in metadata so the Package panel
   // can surface them without bloating copy_blocks (which the renderer reads
   // per-slide). Caption stays inside copy_blocks since it's part of the post.
@@ -55,6 +68,7 @@ export async function POST(req: NextRequest) {
       topic: parsed.data.topic,
       copy_blocks: copy as never,
       metadata: Object.keys(metadata).length ? (metadata as never) : null,
+      image_url: parsed.data.image_url || null,
       status: "draft",
       platform: "instagram",
     })

@@ -3,7 +3,7 @@
 //   ?postId=...&slide=N        → DB-driven (public, no auth)
 //   ?composition=...&...&size  → live preview from query params
 
-import { ImageResponse } from "@vercel/og";
+import { ImageResponse } from "next/og";
 import { getBrand } from "@/lib/social/brands";
 import { DeclarationComposition } from "@/lib/social/compositions/declaration";
 import { CarouselHookComposition } from "@/lib/social/compositions/carousel-hook";
@@ -29,8 +29,37 @@ async function loadGoogleFont(family: string, weight: number): Promise<ArrayBuff
   return f.arrayBuffer();
 }
 
-function renderSlide(brandSlug: string, slide: SlideContent, counter?: string): React.ReactElement {
+// Pre-fetch a slide background image and inline it as a data: URI so Satori
+// never has to do its own network fetch (which is unreliable). Node runtime
+// has Buffer; this is the standard path.
+async function inlineImage(absUrl: string): Promise<string | undefined> {
+  try {
+    const r = await fetch(absUrl, { cache: "force-cache" });
+    if (!r.ok) return undefined;
+    const ct = r.headers.get("content-type") || "image/jpeg";
+    const buf = Buffer.from(await r.arrayBuffer());
+    return `data:${ct};base64,${buf.toString("base64")}`;
+  } catch {
+    return undefined;
+  }
+}
+
+async function renderSlide(
+  brandSlug: string,
+  slide: SlideContent,
+  counter: string | undefined,
+  origin: string,
+): Promise<React.ReactElement> {
   const brand = getBrand(brandSlug);
+  // Resolve the relative path against the request origin, then pre-fetch +
+  // inline so Satori only sees a data: URI (no network fetch from inside
+  // the renderer, which is unreliable under serverless Node runtime).
+  const absImageUrl = slide.imageUrl
+    ? slide.imageUrl.startsWith("http")
+      ? slide.imageUrl
+      : `${origin}${slide.imageUrl}`
+    : undefined;
+  const dataUri = absImageUrl ? await inlineImage(absImageUrl) : undefined;
   switch (slide.composition) {
     case "declaration":
       return (
@@ -41,6 +70,7 @@ function renderSlide(brandSlug: string, slide: SlideContent, counter?: string): 
           emphasize={slide.emphasize}
           footer={slide.footer}
           counter={counter}
+          backgroundImageUrl={dataUri}
         />
       );
     case "carousel_hook":
@@ -52,6 +82,7 @@ function renderSlide(brandSlug: string, slide: SlideContent, counter?: string): 
           emphasize={slide.emphasize}
           swipeHint={slide.swipeHint}
           counter={counter}
+          backgroundImageUrl={dataUri}
         />
       );
     case "numbered_step":
@@ -133,6 +164,7 @@ export async function GET(req: Request) {
   const size = parseInt(url.searchParams.get("size") || "1080", 10);
   const postId = url.searchParams.get("postId");
   const brandSlug = url.searchParams.get("brand") || "prometheus";
+  const origin = url.origin;
 
   try {
     let slide: SlideContent;
@@ -178,6 +210,7 @@ export async function GET(req: Request) {
         stat: url.searchParams.get("stat") || undefined,
         unit: url.searchParams.get("unit") || undefined,
         source: url.searchParams.get("source") || undefined,
+        imageUrl: url.searchParams.get("imageUrl") || undefined,
       };
     }
 
@@ -189,7 +222,8 @@ export async function GET(req: Request) {
       loadGoogleFont("JetBrains Mono", 500),
     ]);
 
-    return new ImageResponse(renderSlide(renderBrand, slide, counter), {
+    const element = await renderSlide(renderBrand, slide, counter, origin);
+    return new ImageResponse(element, {
       width: size,
       height: size,
       fonts: [
