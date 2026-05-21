@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prometheus Image Forge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;650;800;900&family=JetBrains+Mono:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="image-stage">
+        <div class="stage-art">
+          <img id="stageImage" src="assets/generated/mythic-sentinel.png" alt="Generated Prometheus Consulting background" />
+        </div>
+        <aside class="stage-panel">
+          <p class="eyebrow">// generated_backgrounds</p>
+          <h1>Prometheus Image Forge</h1>
+          <p class="lede">
+            Ten polished social background images built around AI, fire, responsible power, practical systems, and the Prometheus brand.
+          </p>
+
+          <div class="selected-meta">
+            <span id="stageTag">Prometheus figure</span>
+            <h2 id="stageName">Mythic Sentinel</h2>
+            <p id="stageBest">hero posts, thought leadership, AI superpowers</p>
+          </div>
+
+          <div class="action-row">
+            <a class="primary-action" id="downloadSelected" href="assets/generated/mythic-sentinel.png" download>
+              <i data-lucide="download"></i>
+              <span>Original</span>
+            </a>
+            <a class="quiet-action" id="openSelected" href="assets/generated/mythic-sentinel.png" target="_blank" rel="noopener">
+              <i data-lucide="maximize-2"></i>
+              <span>Open</span>
+            </a>
+            <button class="quiet-action" id="shuffleImage" type="button">
+              <i data-lucide="shuffle"></i>
+              <span>Shuffle</span>
+            </button>
+          </div>
+
+          <div class="resize-box">
+            <div class="resize-head">
+              <span>// post_size</span>
+              <strong id="presetSize">1080 x 1080</strong>
+            </div>
+            <label>
+              Format
+              <select id="postPreset">
+                <option value="instagram-square">Instagram / LinkedIn square</option>
+                <option value="instagram-portrait">Instagram portrait feed</option>
+                <option value="instagram-story">Stories / Reels / Shorts</option>
+                <option value="linkedin-link">LinkedIn link preview</option>
+                <option value="linkedin-banner">LinkedIn profile banner</option>
+                <option value="x-landscape">X landscape post</option>
+                <option value="facebook-landscape">Facebook landscape post</option>
+                <option value="youtube-thumbnail">YouTube thumbnail</option>
+                <option value="presentation-wide">Presentation / website wide</option>
+              </select>
+            </label>
+            <div class="crop-controls">
+              <div class="auto-row">
+                <button class="small-tool" id="autoFocus" type="button">
+                  <i data-lucide="scan-search"></i>
+                  <span>Auto focus</span>
+                </button>
+                <label class="auto-toggle">
+                  <input id="autoFocusToggle" type="checkbox" checked />
+                  Smart crops
+                </label>
+              </div>
+              <label>
+                Horizontal focus
+                <input id="focusX" type="range" min="0" max="100" value="50" />
+              </label>
+              <label>
+                Vertical focus
+                <input id="focusY" type="range" min="0" max="100" value="50" />
+              </label>
+              <div class="preset-row" aria-label="Crop presets">
+                <button type="button" data-crop-preset="text-left">Text left</button>
+                <button type="button" data-crop-preset="subject-right">Subject right</button>
+                <button type="button" data-crop-preset="center">Center</button>
+                <button type="button" data-crop-preset="skyline">Skyline</button>
+              </div>
+              <label>
+                Safe guides
+                <select id="guidePreset">
+                  <option value="none">No guides</option>
+                  <option value="left-copy">Left headline + CTA</option>
+                  <option value="center-square">Centered square copy</option>
+                  <option value="story-safe">Story safe zones</option>
+                  <option value="banner-safe">Banner avatar-safe zone</option>
+                </select>
+              </label>
+              <label>
+                Brand overlay
+                <select id="brandOverlay">
+                  <option value="none">None</option>
+                  <option value="fade-only">CTA-safe fade</option>
+                  <option value="corner-mark">Corner mark</option>
+                  <option value="wordmark">Wordmark</option>
+                  <option value="full-brand">Wordmark + fade</option>
+                </select>
+              </label>
+            </div>
+            <div class="crop-preview guide-none" id="cropPreview" aria-label="Cropped post preview">
+              <img id="cropPreviewImage" src="assets/generated/mythic-sentinel.png" alt="" />
+              <span class="preview-fade" id="previewFade" aria-hidden="true"></span>
+              <span class="preview-brand" id="previewBrand" aria-hidden="true">PROMETHEUS</span>
+              <span class="guide-box primary-guide" aria-hidden="true"></span>
+              <span class="guide-box secondary-guide" aria-hidden="true"></span>
+              <span class="focal-point" id="focalPoint" aria-hidden="true"></span>
+            </div>
+            <button class="export-action" id="exportSized" type="button">
+              <i data-lucide="image-down"></i>
+              <span>Render Sized PNG</span>
+            </button>
+            <div class="rendered-output" id="renderedOutput" hidden>
+              <img id="renderedImage" alt="Rendered sized background" />
+              <div class="rendered-actions">
+                <a id="downloadRendered" href="#" download>
+                  <i data-lucide="download"></i>
+                  <span>Download PNG</span>
+                </a>
+                <a id="openRendered" href="#" target="_blank" rel="noopener">
+                  <i data-lucide="external-link"></i>
+                  <span>Open PNG</span>
+                </a>
+              </div>
+              <div class="quality-box" id="qualityBox">
+                <strong id="qualityScore">Quality score</strong>
+                <ul id="qualityList"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="batch-box">
+            <div class="resize-head">
+              <span>// batch_export</span>
+              <strong id="batchCount">ready</strong>
+            </div>
+            <label>
+              Batch mode
+              <select id="batchMode">
+                <option value="selected-all-sizes">Selected image, all post sizes</option>
+                <option value="all-current-size">All images, current post size</option>
+              </select>
+            </label>
+            <button class="export-action" id="renderBatch" type="button">
+              <i data-lucide="layers"></i>
+              <span>Render Batch</span>
+            </button>
+            <div class="batch-output" id="batchOutput" hidden></div>
+          </div>
+
+          <div class="carousel-box">
+            <div class="resize-head">
+              <span>// seamless_carousel</span>
+              <strong id="carouselSize">2 panels</strong>
+            </div>
+            <div class="carousel-controls">
+              <label>
+                Panels
+                <select id="carouselSlides">
+                  <option value="2">2-panel split</option>
+                  <option value="3">3-panel swipe</option>
+                  <option value="4">4-panel swipe</option>
+                  <option value="5">5-panel swipe</option>
+                </select>
+              </label>
+              <label>
+                Panel format
+                <select id="carouselPreset">
+                  <option value="instagram-square">Square panels</option>
+                  <option value="instagram-portrait">Portrait panels</option>
+                  <option value="linkedin-link">Wide panels</option>
+                </select>
+              </label>
+            </div>
+            <button class="export-action" id="renderCarousel" type="button">
+              <i data-lucide="panels-top-left"></i>
+              <span>Render Carousel Panels</span>
+            </button>
+            <div class="carousel-output" id="carouselOutput" hidden>
+              <div class="strip-preview" id="stripPreview"></div>
+              <div class="panel-output" id="panelOutput"></div>
+            </div>
+          </div>
+
+          <details class="recipe-box">
+            <summary>
+              <i data-lucide="sparkles"></i>
+              <span>Visual recipe</span>
+            </summary>
+            <p id="stageRecipe"></p>
+            <button id="copyRecipe" type="button">
+              <i data-lucide="copy"></i>
+              <span>Copy recipe</span>
+            </button>
+          </details>
+        </aside>
+      </section>
+
+      <section class="gallery-section">
+        <div class="section-heading">
+          <p class="eyebrow">// select_output</p>
+          <h2>10 style directions</h2>
+        </div>
+        <div class="gallery-grid" id="gallery"></div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">Copied</div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

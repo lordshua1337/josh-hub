@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 
+type GroupItem = { href: string; label: string; external?: boolean };
 type Tab =
   | { type: "single"; href: string; label: string }
-  | { type: "group"; label: string; items: { href: string; label: string }[] };
+  | { type: "group"; label: string; items: GroupItem[] };
 
 const TABS: Tab[] = [
   { type: "single", href: "/", label: "Dashboard" },
@@ -51,6 +52,7 @@ const TABS: Tab[] = [
       { href: "/content/email", label: "Email" },
       { href: "/content/calendar", label: "Calendar" },
       { href: "/content/posts", label: "Posts" },
+      { href: "/forge/index.html", label: "Image Forge", external: true },
     ],
   },
 ];
@@ -107,6 +109,22 @@ export function Topbar() {
               <div className="tab-group-menu" role="menu">
                 {t.items.map((it) => {
                   const active = isActive(it.href, pathname);
+                  // External items (static HTML in /public, etc.) need a plain
+                  // anchor so Next.js doesn't try to prefetch / client-nav.
+                  if (it.external) {
+                    return (
+                      <a
+                        key={it.href}
+                        role="menuitem"
+                        className="tab-group-item"
+                        href={it.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {it.label} ↗
+                      </a>
+                    );
+                  }
                   return (
                     <Link
                       key={it.href}
