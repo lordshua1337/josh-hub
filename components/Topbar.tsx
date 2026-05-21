@@ -10,11 +10,24 @@ type Tab =
   | { type: "group"; label: string; items: GroupItem[] };
 
 const TABS: Tab[] = [
-  { type: "single", href: "/", label: "Dashboard" },
-  { type: "single", href: "/calendar", label: "Calendar" },
+  { type: "single", href: "/", label: "dashboard" },
+  { type: "single", href: "/content/social", label: "social" },
   {
     type: "group",
-    label: "Claude",
+    label: "business",
+    items: [
+      { href: "/calendar", label: "Calendar" },
+      { href: "/lead-gen/leads", label: "Leads" },
+      { href: "/lead-gen/forms", label: "Forms" },
+      { href: "/lead-gen/sources", label: "Sources" },
+      { href: "/lead-gen/sequences", label: "Sequences" },
+      { href: "/content/email", label: "Inbox / Email" },
+      { href: "/content/dms", label: "IG DMs" },
+    ],
+  },
+  {
+    type: "group",
+    label: "claude",
     items: [
       { href: "/skills", label: "Skills" },
       { href: "/achievements", label: "Achievements" },
@@ -25,17 +38,7 @@ const TABS: Tab[] = [
   },
   {
     type: "group",
-    label: "Lead Gen",
-    items: [
-      { href: "/lead-gen/leads", label: "Leads" },
-      { href: "/lead-gen/forms", label: "Forms" },
-      { href: "/lead-gen/sources", label: "Sources" },
-      { href: "/lead-gen/sequences", label: "Sequences" },
-    ],
-  },
-  {
-    type: "group",
-    label: "Website",
+    label: "website",
     items: [
       { href: "/website/analytics", label: "Analytics" },
       { href: "/website/pages", label: "Pages" },
@@ -45,13 +48,10 @@ const TABS: Tab[] = [
   },
   {
     type: "group",
-    label: "Content",
+    label: "tools",
     items: [
-      { href: "/content/social", label: "Social" },
-      { href: "/content/dms", label: "DMs" },
-      { href: "/content/email", label: "Email" },
-      { href: "/content/calendar", label: "Calendar" },
       { href: "/content/posts", label: "Posts" },
+      { href: "/content/calendar", label: "Content Calendar" },
       { href: "/forge/index.html", label: "Image Forge", external: true },
     ],
   },
@@ -68,11 +68,17 @@ export function Topbar() {
       <div className="topbar-left">
         <div className="logo-wrap">
           <div className="logo">
-            <span>//</span> CMD
+            <span className="brand-pre">pr</span>
+            <span className="brand-o">o</span>
+            <span className="brand-mid">metheus</span>
+            <span className="brand-cursor">_</span>
           </div>
           <div className="logo-dropdown">
             <a href="/config-inspector.html">
-              <span>//</span> CONFYG
+              <span>//</span> config
+            </a>
+            <a href="/forge/index.html" target="_blank" rel="noreferrer">
+              <span>//</span> image forge
             </a>
           </div>
         </div>

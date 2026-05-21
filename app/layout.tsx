@@ -7,8 +7,8 @@ import { FaceLift } from "@/components/FaceLift";
 import { ThemeScript } from "@/components/ThemeScript";
 
 export const metadata: Metadata = {
-  title: "Command Center | Josh H.",
-  description: "Level up. Ship code. Earn XP.",
+  title: "prometheus_ hub",
+  description: "Command center for Prometheus Consulting — social, leads, calendar, builds.",
 };
 
 export const viewport = {
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
         <ThemeScript />

@@ -33,10 +33,10 @@ function LoginInner() {
     <div className="login-shell">
       <div className="login-card">
         <div className="login-brand">
-          <span>//</span> CMD
+          <span>//</span> prometheus_ hub
         </div>
         <h1>Sign in</h1>
-        <p className="login-sub">Command Center access.</p>
+        <p className="login-sub">Operator access only.</p>
 
         <form onSubmit={onSubmit}>
           <input
@@ -75,7 +75,7 @@ export default function LoginPage() {
         <div className="login-shell">
           <div className="login-card">
             <div className="login-brand">
-              <span>//</span> CMD
+              <span>//</span> prometheus_ hub
             </div>
             <h1>Sign in</h1>
             <p className="login-sub">Loading…</p>

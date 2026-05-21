@@ -37,31 +37,40 @@
   --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-/* ===== DARK MODE ===== */
+/* ===== DARK MODE — Prometheus ember/forge palette ===== */
+/* Matches prometheusconsulting.ai: forge-lit charcoal background, cream
+   text, horizontal ember gradient on emphasis (#7a2a0a → #fff1d9), mono
+   eyebrows with `//` prefix. Default theme for the hub. */
 [data-theme="dark"] {
-  --bg: #0F0E0C;
-  --surface: #1A1816;
-  --surface-hover: #221F1C;
-  --border: #2E2A25;
-  --border-hover: #3D3730;
-  --text: #F0EBE3;
-  --text-secondary: #A39888;
-  --text-tertiary: #7A7068;
-  --accent: #FBBF24;
-  --accent-soft: rgba(251, 191, 36, 0.12);
-  --accent-hover: #F59E0B;
-  --success: #34D399;
+  --bg: #15100e;
+  --bg-forge: radial-gradient(130% 95% at 100% 0%, #3a2924 0%, #2e211d 22%, #1d1614 56%, #15100e 100%);
+  --surface: #1d1614;
+  --surface-hover: #251b18;
+  --border: rgba(243, 234, 216, 0.10);
+  --border-hover: rgba(243, 234, 216, 0.22);
+  --text: #f3ead8;
+  --text-secondary: #c8b89e;
+  --text-tertiary: #8a7960;
+  --accent: #ff8a2f;          /* ember500 */
+  --accent-soft: rgba(255, 138, 47, 0.10);
+  --accent-hover: #f26818;    /* ember600 */
+  --ember-050: #fff1d9;
+  --ember-300: #ffb27c;
+  --ember-500: #ff8a2f;
+  --ember-700: #c1430b;
+  --ember-h: linear-gradient(90deg, #7a2a0a 0%, #ff8a2f 32%, #ffb27c 62%, #fff1d9 100%);
+  --success: #34d399;
   --success-soft: rgba(52, 211, 153, 0.12);
-  --info: #60A5FA;
+  --info: #60a5fa;
   --info-soft: rgba(96, 165, 250, 0.12);
-  --warning: #FBBF24;
-  --warning-soft: rgba(251, 191, 36, 0.12);
-  --danger: #F87171;
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.12);
+  --danger: #f87171;
   --danger-soft: rgba(248, 113, 113, 0.12);
-  --xp-glow: rgba(251, 191, 36, 0.2);
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
-  --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  --xp-glow: rgba(255, 138, 47, 0.22);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 6px 14px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 body {
@@ -71,6 +80,39 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Forge-lit radial bg only in dark mode (the brand mode). */
+[data-theme="dark"] body {
+  background: var(--bg-forge);
+  background-attachment: fixed;
+}
+
+/* Ember gradient text helper — use on emphasis words throughout the app. */
+.ember-text {
+  background-image: var(--ember-h);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-weight: 800;
+}
+
+/* `//` mono eyebrows everywhere — matches the brand site treatment. */
+.eyebrow,
+.section-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+[data-theme="dark"] .eyebrow::before,
+[data-theme="dark"] .section-label::before {
+  content: "// ";
+  color: var(--accent);
+  opacity: 0.6;
 }
 
 /* ===== LOCK SCREEN ===== */
@@ -198,26 +240,35 @@ body {
 /* ===== LAYOUT ===== */
 /* Next port: LockScreen overlays #dash. Skip staged reveal so dash is paintable behind lock. */
 #dash { opacity: 1; transform: none; }
-/* Topbar -- identical to CONFYG's .topbar */
-.topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 6px; }
-[data-theme="dark"] .topbar { background: rgba(26,24,22,0.95); }
+/* Topbar — Prometheus brand. Dark surface with thin amber rule. */
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 6px; }
+[data-theme="dark"] .topbar { background: rgba(21, 16, 14, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255, 138, 47, 0.10); }
 .topbar-left { display: flex; align-items: center; gap: 12px; }
-.logo { font-size: 16px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); }
-.logo span { color: var(--accent); }
-.topbar-tabs { display: flex; gap: 3px; flex-wrap: wrap; }
-.tab-btn { background: none; border: none; color: var(--text-secondary); font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.15s; text-decoration: none; display: inline-block; }
+
+/* Brand wordmark — lowercase pr○metheus_ with amber `o` + ember cursor.
+   Mono font, no spacing tricks. Matches prometheusconsulting.ai. */
+.logo { font-family: var(--mono); font-size: 18px; font-weight: 500; letter-spacing: 0; color: var(--text); display: flex; align-items: baseline; line-height: 1; }
+.logo .brand-pre,
+.logo .brand-mid { color: var(--text); }
+.logo .brand-o { color: var(--ember-500); font-weight: 700; }
+.logo .brand-cursor { color: var(--ember-500); margin-left: 1px; animation: ember-cursor 1.4s steps(2) infinite; }
+@keyframes ember-cursor { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.35; } }
+
+.topbar-tabs { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+/* Nav tabs — lowercase mono with subtle letterspacing. Active = ember outline. */
+.tab-btn { background: none; border: 1px solid transparent; color: var(--text-secondary); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.06em; padding: 7px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; text-decoration: none; display: inline-block; }
 .tab-btn:hover { color: var(--text); background: var(--accent-soft); }
-.tab-btn.active { color: #fff; background: var(--accent); }
+.tab-btn.active { color: var(--ember-050); background: transparent; border-color: rgba(255, 138, 47, 0.45); box-shadow: 0 0 0 1px rgba(255, 138, 47, 0.18) inset; }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
 .topbar-meta { font-size: 12px; color: var(--text-tertiary); font-family: var(--mono); }
 
 /* Cross-site switcher dropdown */
 .logo-wrap { position: relative; }
-.logo-dropdown { position: absolute; top: 100%; left: 0; margin-top: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: all 0.15s ease; z-index: 200; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.logo-dropdown { position: absolute; top: 100%; left: 0; margin-top: 6px; background: #1d1614; border: 1px solid rgba(255, 138, 47, 0.20); border-radius: 4px; padding: 6px; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: all 0.15s ease; z-index: 200; white-space: nowrap; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55); }
 .logo-wrap:hover .logo-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
-.logo-dropdown a { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; color: var(--text-secondary); transition: all 0.15s; }
-.logo-dropdown a:hover { color: #8b5cf6; background: rgba(139,92,246,0.1); }
-.logo-dropdown a span { color: #8b5cf6; font-weight: 700; }
+.logo-dropdown a { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 3px; text-decoration: none; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.06em; color: var(--text-secondary); transition: all 0.15s; }
+.logo-dropdown a:hover { color: var(--ember-050); background: var(--accent-soft); }
+.logo-dropdown a span { color: var(--accent); opacity: 0.6; }
 
 /* ===== Inbox review ===== */
 .inbox-toolbar {
@@ -639,23 +690,22 @@ body {
   position: absolute;
   top: 100%;
   left: 0;
-  margin-top: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 4px;
-  min-width: 160px;
+  margin-top: 6px;
+  background: #1d1614;
+  border: 1px solid rgba(255, 138, 47, 0.20);
+  border-radius: 4px;
+  padding: 6px;
+  min-width: 200px;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-4px);
   transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
   z-index: 250;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 138, 47, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
-[data-theme="dark"] .tab-group-menu { box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
 .tab-group:hover .tab-group-menu,
 .tab-group:focus-within .tab-group-menu {
   opacity: 1;
@@ -664,17 +714,19 @@ body {
 }
 .tab-group-item {
   display: block;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 3px;
   text-decoration: none;
-  font-size: 12px;
-  font-weight: 600;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   color: var(--text-secondary);
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.12s, color 0.12s;
   white-space: nowrap;
 }
-.tab-group-item:hover { color: var(--accent); background: var(--accent-soft); }
-.tab-group-item.active { color: #fff; background: var(--accent); }
+.tab-group-item:hover { color: var(--ember-050); background: var(--accent-soft); }
+.tab-group-item.active { color: var(--ember-050); background: rgba(255, 138, 47, 0.14); border-left: 2px solid var(--accent); padding-left: 10px; }
 
 /* Hide old nav classes (keep for backwards compat) */
 .nav { display: none; }
@@ -694,9 +746,22 @@ body {
 .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 .theme-toggle svg { width: 16px; height: 16px; }
 
-.header { max-width: 1120px; margin: 0 auto; padding: 48px 32px 0; }
-.header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); margin-bottom: 6px; }
-.header-sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 32px; }
+.header { max-width: 1200px; margin: 0 auto; padding: 56px 32px 0; }
+.header h1 { font-size: 48px; font-weight: 800; letter-spacing: -0.035em; color: var(--text); margin-bottom: 8px; line-height: 1.05; }
+.header-sub { font-size: 16px; color: var(--text-secondary); margin-bottom: 36px; max-width: 720px; line-height: 1.55; }
+
+/* Optional `// eyebrow` rendered above an h1 — for any page that wants the
+   prometheusconsulting.ai treatment. Use as <p class="page-eyebrow">label</p>. */
+.page-eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.page-eyebrow::before { content: "// "; opacity: 0.6; }
 .main { max-width: 1120px; margin: 0 auto; padding: 0 32px 80px; }
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .section-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.3px; }
