@@ -9,11 +9,16 @@ import { DeclarationComposition } from "@/lib/social/compositions/declaration";
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-// Fonts fetched per request and cached by the edge. Inter + JetBrains Mono.
-async function fetchFont(url: string): Promise<ArrayBuffer> {
-  const res = await fetch(url, { cache: "force-cache" });
-  if (!res.ok) throw new Error(`font fetch ${url} ${res.status}`);
-  return res.arrayBuffer();
+// Google Fonts CSS API returns a TTF url (not woff2) when the request has
+// no modern User-Agent. Satori needs TTF/OTF, so this is the right path.
+async function loadGoogleFont(family: string, weight: number): Promise<ArrayBuffer> {
+  const cssUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}&display=swap`;
+  const css = await fetch(cssUrl, { cache: "force-cache" }).then((r) => r.text());
+  const m = css.match(/src:\s*url\((https:[^)]+)\)/);
+  if (!m) throw new Error(`Font URL not found in CSS for ${family} ${weight}`);
+  const fontRes = await fetch(m[1], { cache: "force-cache" });
+  if (!fontRes.ok) throw new Error(`Font fetch ${m[1]} ${fontRes.status}`);
+  return fontRes.arrayBuffer();
 }
 
 export async function GET(req: Request) {
@@ -30,11 +35,9 @@ export async function GET(req: Request) {
     const brand = getBrand(brandSlug);
 
     const [interBold, interMedium, monoBold] = await Promise.all([
-      fetchFont("https://github.com/rsms/inter/raw/master/docs/font-files/Inter-ExtraBold.otf"),
-      fetchFont("https://github.com/rsms/inter/raw/master/docs/font-files/Inter-Medium.otf"),
-      fetchFont(
-        "https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Bold.ttf"
-      ),
+      loadGoogleFont("Inter", 800),
+      loadGoogleFont("Inter", 500),
+      loadGoogleFont("JetBrains Mono", 700),
     ]);
 
     if (composition !== "declaration") {
