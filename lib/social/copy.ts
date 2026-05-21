@@ -42,6 +42,12 @@ export type SlideContent = {
   source?: string;
   // background image (only set on hero slide — declaration / carousel_hook)
   imageUrl?: string;
+  focalX?: number;       // 0..100, horizontal focal point (default 50)
+  focalY?: number;       // 0..100, vertical focal point (default 50)
+  overlay?: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none";
+  // panel_panorama (one image split across N slides)
+  panelIndex?: number;   // 0..N-1 — which panel of the panorama this slide shows
+  panelTotal?: number;   // total panels in the panorama
 };
 
 export type ReelBeat = {
@@ -301,9 +307,104 @@ Hard rules:
   };
 }
 
+// ----- panel_panorama (seamless image-split carousel) -----
+async function draftPanorama(brand: Brand, def: PostTypeDef, topic: string, panelCount = 3): Promise<PostCopy> {
+  const text = await ask(`${voiceFor(brand)}
+
+You're writing a SEAMLESS PANORAMA CAROUSEL. One image stretched across ${panelCount} swipeable panels. Each panel gets ONE short overlay phrase. Read together, they make a single statement.
+
+POST TYPE: ${def.label}. ${def.description}
+TONE: ${def.voiceHint}
+Topic: "${topic}"
+
+Return ONLY raw JSON:
+{
+  "panels": [
+    { "caption": "...", "emphasize": "..." }
+  ],
+  "cta": {
+    "closer": "...",
+    "cta": "...",
+    "link": ""
+  },
+  "caption": "...",
+  "first_comment": "...",
+  "reel_script": {
+    "duration": "30s",
+    "beats": [
+      { "t": "0:00", "label": "HOOK", "script": "..." },
+      { "t": "0:06", "label": "SETUP", "script": "..." },
+      { "t": "0:16", "label": "PAYOFF", "script": "..." },
+      { "t": "0:26", "label": "CTA", "script": "..." }
+    ]
+  }
+}
+
+Hard rules:
+- panels array MUST be exactly ${panelCount} items.
+- Each panel.caption is 4-8 words. Together they form ONE statement when swiped.
+- Each panel.emphasize is ONE word from its caption to ember-gradient (or omit).
+- No emojis. No em dashes.
+- Caption: 400-700 chars. 2-3 short paragraphs. Ends with "- Josh".
+- first_comment: 2-3 lines, contains josh@prometheusconsulting.ai.
+- reel_script: exactly 4 beats, 80-130 words total.`, 2400);
+
+  type Raw = {
+    panels?: { caption?: string; emphasize?: string }[];
+    cta?: { closer?: string; cta?: string; link?: string };
+    caption?: string;
+    first_comment?: string;
+    reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
+  };
+  const raw = safeParse<Raw>(text, {});
+  const panels = (raw.panels || []).slice(0, panelCount);
+
+  const slides: SlideContent[] = [];
+  for (let i = 0; i < panelCount; i++) {
+    const p = panels[i] || { caption: "" };
+    slides.push({
+      composition: "panel_slide",
+      headline: p.caption || "",
+      emphasize: p.emphasize,
+      panelIndex: i,
+      panelTotal: panelCount,
+    });
+  }
+  slides.push({
+    composition: "carousel_cta",
+    closer: raw.cta?.closer || "Pick one. Ship it this week.",
+    cta: raw.cta?.cta || "Book a 15-min reality check.",
+    link: raw.cta?.link || brand.schedulingLink || "",
+  });
+  slides.push({
+    composition: "signoff",
+    link: "josh@prometheusconsulting.ai",
+    headline: "If this was useful, do one of these.",
+    emphasize: "do one of these",
+    footer: def.signoffNote,
+  });
+
+  let reel_script: ReelScript | undefined;
+  if (raw.reel_script?.beats && raw.reel_script.beats.length === 4) {
+    const beats: ReelBeat[] = raw.reel_script.beats
+      .filter((b): b is { t: string; label: string; script: string } => Boolean(b?.t && b?.label && b?.script))
+      .slice(0, 4);
+    if (beats.length === 4) reel_script = { duration: raw.reel_script.duration || "30s", beats };
+  }
+
+  return {
+    is_carousel: true,
+    slides,
+    caption: raw.caption || "",
+    first_comment: raw.first_comment || undefined,
+    reel_script,
+  };
+}
+
 // ----- dispatcher -----
 export async function draftPost(brand: Brand, postTypeSlug: string, topic: string): Promise<PostCopy> {
   const def = getPostType(postTypeSlug);
+  if (def.slug === "panel_panorama") return draftPanorama(brand, def, topic);
   if (def.kind === "carousel") return draftCarousel(brand, def, topic);
   if (def.compositions[0] === "split_contrast") return draftReframe(brand, def, topic);
   return draftSingleDeclaration(brand, def, topic);

@@ -134,6 +134,18 @@
                   <i data-lucide="external-link"></i>
                   <span>Open PNG</span>
                 </a>
+                <button id="sendToHub" type="button">
+                  <i data-lucide="upload"></i>
+                  <span>Send to Hub</span>
+                </button>
+              </div>
+              <div class="hub-link" id="hubLink" hidden>
+                <span class="hub-link-label">// hub URL — paste into wizard step 3</span>
+                <input id="hubUrl" type="text" readonly />
+                <button id="copyHubUrl" type="button">
+                  <i data-lucide="copy"></i>
+                  <span>Copy</span>
+                </button>
               </div>
               <div class="quality-box" id="qualityBox">
                 <strong id="qualityScore">Quality score</strong>

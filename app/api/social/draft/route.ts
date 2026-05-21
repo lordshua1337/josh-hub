@@ -18,6 +18,9 @@ const Schema = z.object({
   post_type: z.string().min(1),
   topic: z.string().min(3).max(500),
   image_url: z.string().min(1).max(500).optional(),
+  focal_x: z.number().min(0).max(100).optional(),
+  focal_y: z.number().min(0).max(100).optional(),
+  overlay: z.enum(["subtle", "strong", "fade-bottom", "wordmark", "none"]).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -39,15 +42,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `draft failed: ${(e as Error).message}` }, { status: 500 });
   }
 
-  // If Josh picked a forge image, attach it to the hero slide. For singles
-  // that's the single slide; for carousels it's the carousel_hook. Body
-  // slides stay typography — the image stops the scroll, the text delivers.
+  // If Josh picked a forge image, attach it. For panoramas the image goes
+  // on EVERY panel slide (each shows a different slice of it). For other
+  // post types it goes on the hero slide only (declaration / carousel_hook).
   if (parsed.data.image_url && copy.slides.length > 0) {
-    const heroIdx = copy.slides.findIndex(
-      (s) => s.composition === "declaration" || s.composition === "carousel_hook"
-    );
-    if (heroIdx >= 0) {
-      copy.slides[heroIdx] = { ...copy.slides[heroIdx], imageUrl: parsed.data.image_url };
+    if (parsed.data.post_type === "panel_panorama") {
+      copy.slides = copy.slides.map((s) =>
+        s.composition === "panel_slide"
+          ? {
+              ...s,
+              imageUrl: parsed.data.image_url,
+              focalX: parsed.data.focal_x,
+              focalY: parsed.data.focal_y,
+              overlay: parsed.data.overlay,
+            }
+          : s
+      );
+    } else {
+      const heroIdx = copy.slides.findIndex(
+        (s) => s.composition === "declaration" || s.composition === "carousel_hook"
+      );
+      if (heroIdx >= 0) {
+        copy.slides[heroIdx] = {
+          ...copy.slides[heroIdx],
+          imageUrl: parsed.data.image_url,
+          focalX: parsed.data.focal_x,
+          focalY: parsed.data.focal_y,
+          overlay: parsed.data.overlay,
+        };
+      }
     }
   }
 

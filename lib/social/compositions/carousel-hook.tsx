@@ -13,11 +13,21 @@ export type CarouselHookProps = {
   swipeHint?: string;
   counter?: string;
   backgroundImageUrl?: string;
+  focalX?: number;
+  focalY?: number;
+  overlay?: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none";
 };
 
-export function CarouselHookComposition({ kicker, headline, emphasize, swipeHint = "swipe →", counter, backgroundImageUrl }: CarouselHookProps) {
+export function CarouselHookComposition({ kicker, headline, emphasize, swipeHint = "swipe →", counter, backgroundImageUrl, focalX, focalY, overlay }: CarouselHookProps) {
   return (
-    <SlideFrame eyebrow={kicker || "field notes"} footerCounter={counter} backgroundImageUrl={backgroundImageUrl}>
+    <SlideFrame
+      eyebrow={kicker || "field notes"}
+      footerCounter={counter}
+      backgroundImageUrl={backgroundImageUrl}
+      focalX={focalX}
+      focalY={focalY}
+      overlay={overlay}
+    >
       <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center" }}>
         <EmphasizedHeadline
           text={headline}

@@ -101,6 +101,17 @@ export const POST_TYPES: PostTypeDef[] = [
     signoffNote: "name your two systems. I'll scope a similar bridge inside 48 hours.",
   },
   {
+    slug: "panel_panorama",
+    label: "Panorama — Seamless Panel Carousel",
+    pillar: "Brand",
+    kind: "carousel",
+    slideCount: 5, // 3 panels + cta + signoff (drafter sizes panels dynamically below)
+    description: "One forge image stretched across multiple swipeable panels. Cinematic. Image is the message. 3-5 panels + CTA + signoff.",
+    voiceHint: "Each panel gets ONE short overlay phrase (4-7 words). Read together they should make a single statement. Don't over-explain; the image carries weight.",
+    compositions: ["panel_slide", "panel_slide", "panel_slide", "carousel_cta", "signoff"],
+    signoffNote: "save this for the next pitch deck. then tell me what you build.",
+  },
+  {
     slug: "compliance_gtm",
     label: "Compliance GTM",
     pillar: "Compliance",

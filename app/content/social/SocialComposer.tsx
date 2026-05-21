@@ -83,6 +83,10 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
   const [kind, setKind] = useState<PostKind | null>(null);
   const [postType, setPostType] = useState<string | null>(null);
   const [imageSlug, setImageSlug] = useState<string | null>(null);
+  const [customImageUrl, setCustomImageUrl] = useState<string | null>(null);
+  const [focalX, setFocalX] = useState<number>(50);
+  const [focalY, setFocalY] = useState<number>(50);
+  const [overlay, setOverlay] = useState<"subtle" | "strong" | "fade-bottom" | "wordmark" | "none">("subtle");
   const [topic, setTopic] = useState("");
 
   // Async state
@@ -101,6 +105,10 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
     setKind(null);
     setPostType(null);
     setImageSlug(null);
+    setCustomImageUrl(null);
+    setFocalX(50);
+    setFocalY(50);
+    setOverlay("subtle");
     setTopic("");
     setDraftedId(null);
   }
@@ -111,6 +119,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
   );
   const selectedDef = postType ? POST_TYPES.find((p) => p.slug === postType) : null;
   const selectedImage = imageSlug ? FORGE_IMAGES.find((f) => f.slug === imageSlug) : null;
+  const activeImageUrl = customImageUrl || selectedImage?.url || null;
 
   async function onDraft() {
     if (!postType || !topic.trim()) return;
@@ -123,7 +132,10 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
           brand: "prometheus",
           post_type: postType,
           topic,
-          image_url: selectedImage?.url,
+          image_url: activeImageUrl || undefined,
+          focal_x: activeImageUrl ? focalX : undefined,
+          focal_y: activeImageUrl ? focalY : undefined,
+          overlay: activeImageUrl ? overlay : undefined,
         }),
       });
       const json = (await res.json()) as { ok?: boolean; id?: string; error?: string };
@@ -230,12 +242,31 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
         {step === 3 && (
           <Step3Image
             imageSlug={imageSlug}
-            onPick={(slug) => {
+            customImageUrl={customImageUrl}
+            focalX={focalX}
+            focalY={focalY}
+            overlay={overlay}
+            setImageSlug={(slug) => {
               setImageSlug(slug);
-              setStep(4);
+              setCustomImageUrl(null);
+              // Reset focal to image's hint if defined
+              const hint = FORGE_IMAGES.find((f) => f.slug === slug)?.focalHint;
+              if (hint) {
+                setFocalX(Math.round(hint.x * 100));
+                setFocalY(Math.round(hint.y * 100));
+              }
             }}
+            setCustomImageUrl={(url) => {
+              setCustomImageUrl(url);
+              setImageSlug(null);
+            }}
+            setFocalX={setFocalX}
+            setFocalY={setFocalY}
+            setOverlay={setOverlay}
+            onNext={() => setStep(4)}
             onSkip={() => {
               setImageSlug(null);
+              setCustomImageUrl(null);
               setStep(4);
             }}
             onBack={() => setStep(2)}
@@ -497,35 +528,73 @@ function Step2PostType({
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Step 3 — pick a forge background or skip
+// Step 3 — pick a forge background, set focal point, choose overlay
 // ─────────────────────────────────────────────────────────────────────────
 function Step3Image({
   imageSlug,
-  onPick,
+  customImageUrl,
+  focalX,
+  focalY,
+  overlay,
+  setImageSlug,
+  setCustomImageUrl,
+  setFocalX,
+  setFocalY,
+  setOverlay,
+  onNext,
   onSkip,
   onBack,
 }: {
   imageSlug: string | null;
-  onPick: (slug: string) => void;
+  customImageUrl: string | null;
+  focalX: number;
+  focalY: number;
+  overlay: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none";
+  setImageSlug: (slug: string) => void;
+  setCustomImageUrl: (url: string | null) => void;
+  setFocalX: (n: number) => void;
+  setFocalY: (n: number) => void;
+  setOverlay: (o: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none") => void;
+  onNext: () => void;
   onSkip: () => void;
   onBack: () => void;
 }) {
+  const activeImageUrl = customImageUrl || (imageSlug ? FORGE_IMAGES.find((f) => f.slug === imageSlug)?.url : null);
+  const hasImage = !!activeImageUrl;
+
+  // Live preview URL — rebuilds on every state change. Cheap since the renderer caches by params.
+  const previewUrl = useMemo(() => {
+    if (!activeImageUrl) return null;
+    const p = new URLSearchParams({
+      composition: "declaration",
+      headline: "your headline lives here",
+      emphasize: "here",
+      imageUrl: activeImageUrl,
+      focalX: String(focalX),
+      focalY: String(focalY),
+      overlay,
+      size: "540",
+    });
+    return `/api/social/render?${p}`;
+  }, [activeImageUrl, focalX, focalY, overlay]);
+
   return (
     <div>
       <div className="section-label" style={{ marginBottom: 12 }}>
         Step 3 · Image (background)
       </div>
       <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 12 }}>
-        Pick a forge background for the hero slide (slide 1 of carousels, or the single slide).
-        Body slides stay typography. Or skip if you want pure-typographic.
-        Open the <a href="/forge/index.html" target="_blank" rel="noreferrer">Image Forge ↗</a> to tweak before picking.
+        Pick a forge background for the hero slide. Slide the focal points to frame the subject. Choose an overlay treatment. Or skip for pure-typographic.
+        Need wider control (cropping, panels, batch)? Open the <a href="/forge/index.html" target="_blank" rel="noreferrer">Image Forge ↗</a>.
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10, marginBottom: 16 }}>
+
+      {/* Gallery */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 8, marginBottom: 16 }}>
         {FORGE_IMAGES.map((f) => (
           <button
             key={f.slug}
             type="button"
-            onClick={() => onPick(f.slug)}
+            onClick={() => setImageSlug(f.slug)}
             style={{
               padding: 0,
               border: `2px solid ${imageSlug === f.slug ? "var(--accent)" : "var(--border)"}`,
@@ -541,25 +610,160 @@ function Step3Image({
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={f.url}
-              alt={f.name}
-              style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
-            />
-            <div style={{ padding: "8px 10px" }}>
-              <div style={{ fontSize: 12, fontWeight: 600 }}>{f.name}</div>
-              <div style={{ fontSize: 10, color: "var(--text-tertiary)", fontFamily: "var(--mono)" }}>
-                {f.tag}
-              </div>
+            <img src={f.url} alt={f.name} style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }} />
+            <div style={{ padding: "6px 8px" }}>
+              <div style={{ fontSize: 11, fontWeight: 600 }}>{f.name}</div>
+              <div style={{ fontSize: 9, color: "var(--text-tertiary)", fontFamily: "var(--mono)" }}>{f.tag}</div>
             </div>
           </button>
         ))}
       </div>
+
+      {/* Custom URL — pasted from the forge round-trip or anywhere */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 4 }}>
+          // or paste a custom image URL
+        </div>
+        <input
+          type="text"
+          placeholder="https://... (e.g. a render uploaded from the Image Forge)"
+          value={customImageUrl || ""}
+          onChange={(e) => setCustomImageUrl(e.target.value || null)}
+          style={{
+            width: "100%",
+            padding: "8px 10px",
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius-sm)",
+            color: "var(--text)",
+            fontFamily: "var(--mono)",
+            fontSize: 12,
+          }}
+        />
+      </div>
+
+      {/* Customization panel — only shown when an image is selected */}
+      {hasImage && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 16,
+            marginBottom: 16,
+            padding: 12,
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius-sm)",
+          }}
+        >
+          {/* Live preview */}
+          <div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
+              // live preview
+            </div>
+            <div style={{ position: "relative", borderRadius: "var(--radius-sm)", overflow: "hidden", aspectRatio: "1 / 1", border: "1px solid var(--border)" }}>
+              {previewUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={previewUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              )}
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
+                // focal point — horizontal {focalX}%
+              </div>
+              <input type="range" min={0} max={100} value={focalX} onChange={(e) => setFocalX(Number(e.target.value))} style={{ width: "100%" }} />
+            </div>
+            <div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
+                // focal point — vertical {focalY}%
+              </div>
+              <input type="range" min={0} max={100} value={focalY} onChange={(e) => setFocalY(Number(e.target.value))} style={{ width: "100%" }} />
+            </div>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              {(
+                [
+                  ["text-left", 75, 50],
+                  ["subject-right", 25, 50],
+                  ["center", 50, 50],
+                  ["skyline", 50, 25],
+                ] as [string, number, number][]
+              ).map(([label, x, y]) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => {
+                    setFocalX(x);
+                    setFocalY(y);
+                  }}
+                  style={{
+                    fontSize: 10,
+                    fontFamily: "var(--mono)",
+                    padding: "4px 8px",
+                    border: "1px solid var(--border)",
+                    background: focalX === x && focalY === y ? "rgba(242,138,47,0.12)" : "transparent",
+                    color: focalX === x && focalY === y ? "var(--accent)" : "var(--text-secondary)",
+                    cursor: "pointer",
+                    borderRadius: 3,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
+                // overlay — readability layer
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {(["subtle", "strong", "fade-bottom", "wordmark", "none"] as const).map((o) => (
+                  <button
+                    key={o}
+                    type="button"
+                    onClick={() => setOverlay(o)}
+                    style={{
+                      fontSize: 10,
+                      fontFamily: "var(--mono)",
+                      padding: "4px 8px",
+                      border: "1px solid var(--border)",
+                      background: overlay === o ? "rgba(242,138,47,0.12)" : "transparent",
+                      color: overlay === o ? "var(--accent)" : "var(--text-secondary)",
+                      cursor: "pointer",
+                      borderRadius: 3,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                    }}
+                  >
+                    {o}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 8, justifyContent: "space-between", alignItems: "center" }}>
         <button type="button" className="act-btn" onClick={onBack}>← Back</button>
-        <button type="button" className="act-btn" onClick={onSkip}>
-          Skip image (typographic only) →
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          {!hasImage && (
+            <button type="button" className="act-btn" onClick={onSkip}>
+              Skip image (typographic only) →
+            </button>
+          )}
+          {hasImage && (
+            <button type="button" className="act-btn act-btn-primary" onClick={onNext}>
+              Continue →
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

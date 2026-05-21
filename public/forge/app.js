@@ -178,6 +178,10 @@ const els = {
   openSelected: document.querySelector("#openSelected"),
   copyRecipe: document.querySelector("#copyRecipe"),
   exportSized: document.querySelector("#exportSized"),
+  sendToHub: document.querySelector("#sendToHub"),
+  hubLink: document.querySelector("#hubLink"),
+  hubUrl: document.querySelector("#hubUrl"),
+  copyHubUrl: document.querySelector("#copyHubUrl"),
   toast: document.querySelector("#toast"),
 };
 
@@ -726,6 +730,50 @@ document.querySelector("#shuffleImage").addEventListener("click", () => {
 els.copyRecipe.addEventListener("click", copyRecipe);
 els.autoFocus.addEventListener("click", applySmartFocus);
 els.exportSized.addEventListener("click", exportSizedImage);
+
+// ─── Send rendered image to the Hub (Supabase Storage upload) ──────────
+async function sendRenderedToHub() {
+  const image = images[selectedIndex];
+  const preset = presets[els.postPreset.value];
+  if (!preset) return;
+  els.sendToHub.disabled = true;
+  els.sendToHub.querySelector("span").textContent = "Uploading…";
+  try {
+    const canvas = await renderImageCanvas(image, preset, {
+      focusX: Number(els.focusX.value) / 100,
+      focusY: Number(els.focusY.value) / 100,
+      overlay: els.brandOverlay.value,
+    });
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png", 0.92));
+    if (!blob) throw new Error("canvas toBlob failed");
+    const filename = `${slug(image.name)}-${els.postPreset.value}-${preset.width}x${preset.height}.png`;
+    const formData = new FormData();
+    formData.append("file", blob, filename);
+    formData.append("slug", `${slug(image.name)}-${els.postPreset.value}`);
+    const res = await fetch("/api/forge/upload", { method: "POST", body: formData });
+    const json = await res.json();
+    if (!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
+    els.hubUrl.value = json.url;
+    els.hubLink.hidden = false;
+    showToast("Uploaded — copy URL into wizard");
+  } catch (e) {
+    showToast(`Upload failed: ${e.message}`);
+  } finally {
+    els.sendToHub.disabled = false;
+    els.sendToHub.querySelector("span").textContent = "Send to Hub";
+  }
+}
+els.sendToHub.addEventListener("click", sendRenderedToHub);
+els.copyHubUrl.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(els.hubUrl.value);
+    showToast("URL copied");
+  } catch {
+    els.hubUrl.select();
+    document.execCommand("copy");
+    showToast("URL copied");
+  }
+});
 els.postPreset.addEventListener("change", updateCropPreview);
 els.focusX.addEventListener("input", updateCropPreview);
 els.focusY.addEventListener("input", updateCropPreview);

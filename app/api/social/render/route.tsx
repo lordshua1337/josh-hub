@@ -13,6 +13,7 @@ import { SplitContrastComposition } from "@/lib/social/compositions/split-contra
 import { SignoffComposition } from "@/lib/social/compositions/signoff";
 import { FieldReportComposition } from "@/lib/social/compositions/field-report";
 import { BigStat } from "@/lib/social/compositions/big-stat";
+import { PanelSlideComposition } from "@/lib/social/compositions/panel-slide";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { SlideContent } from "@/lib/social/copy";
 
@@ -55,6 +56,9 @@ async function renderSlide(
           footer={slide.footer}
           counter={counter}
           backgroundImageUrl={absImageUrl}
+          focalX={slide.focalX}
+          focalY={slide.focalY}
+          overlay={slide.overlay}
         />
       );
     case "carousel_hook":
@@ -67,6 +71,9 @@ async function renderSlide(
           swipeHint={slide.swipeHint}
           counter={counter}
           backgroundImageUrl={absImageUrl}
+          focalX={slide.focalX}
+          focalY={slide.focalY}
+          overlay={slide.overlay}
         />
       );
     case "numbered_step":
@@ -138,6 +145,20 @@ async function renderSlide(
           footerCounter={counter}
         />
       );
+    case "panel_slide":
+      return (
+        <PanelSlideComposition
+          brand={brand}
+          imageUrl={absImageUrl || ""}
+          panelIndex={slide.panelIndex || 0}
+          panelTotal={slide.panelTotal || 3}
+          caption={slide.headline || slide.body}
+          emphasize={slide.emphasize}
+          counter={counter}
+          focalY={slide.focalY}
+          overlay={slide.overlay}
+        />
+      );
     default:
       throw new Error(`Unknown composition: ${slide.composition}`);
   }
@@ -195,6 +216,11 @@ export async function GET(req: Request) {
         unit: url.searchParams.get("unit") || undefined,
         source: url.searchParams.get("source") || undefined,
         imageUrl: url.searchParams.get("imageUrl") || undefined,
+        focalX: url.searchParams.get("focalX") ? parseFloat(url.searchParams.get("focalX")!) : undefined,
+        focalY: url.searchParams.get("focalY") ? parseFloat(url.searchParams.get("focalY")!) : undefined,
+        overlay: (url.searchParams.get("overlay") as SlideContent["overlay"]) || undefined,
+        panelIndex: url.searchParams.get("panelIndex") ? parseInt(url.searchParams.get("panelIndex")!, 10) : undefined,
+        panelTotal: url.searchParams.get("panelTotal") ? parseInt(url.searchParams.get("panelTotal")!, 10) : undefined,
       };
     }
 

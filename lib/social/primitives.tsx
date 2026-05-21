@@ -86,9 +86,35 @@ export function SlideFooter({ counter }: { counter?: string }) {
   );
 }
 
+// Overlay variants — Satori-safe CSS for the readability layer over a
+// forge background image. Each maps to a specific gradient.
+const OVERLAY_CSS: Record<NonNullable<SlideFrameProps["overlay"]>, string | null> = {
+  subtle:
+    "linear-gradient(90deg, rgba(15,11,9,0.78) 0%, rgba(15,11,9,0.55) 60%, rgba(15,11,9,0.35) 100%)",
+  strong:
+    "linear-gradient(90deg, rgba(15,11,9,0.92) 0%, rgba(15,11,9,0.78) 50%, rgba(15,11,9,0.62) 100%)",
+  "fade-bottom":
+    "linear-gradient(180deg, rgba(15,11,9,0.35) 0%, rgba(15,11,9,0.4) 55%, rgba(15,11,9,0.92) 100%)",
+  wordmark:
+    "linear-gradient(90deg, rgba(15,11,9,0.55) 0%, rgba(15,11,9,0.3) 60%, rgba(15,11,9,0.2) 100%)",
+  none: null,
+};
+
+type SlideFrameProps = {
+  children: React.ReactNode;
+  eyebrow?: string;
+  footerCounter?: string;
+  rim?: boolean;
+  background?: string;
+  backgroundImageUrl?: string;
+  focalX?: number;       // 0..100
+  focalY?: number;       // 0..100
+  overlay?: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none";
+};
+
 // 1080×1080 frame — every layout sits inside this. Defaults to the forge
-// radial bg; pass `backgroundImageUrl` for a forge PNG background and a
-// dark overlay automatically tones it down so text stays readable.
+// radial bg; pass `backgroundImageUrl` for a forge PNG background and the
+// `overlay` variant chooses the readability layer treatment.
 export function SlideFrame({
   children,
   eyebrow,
@@ -96,14 +122,10 @@ export function SlideFrame({
   rim = true,
   background,
   backgroundImageUrl,
-}: {
-  children: React.ReactNode;
-  eyebrow?: string;
-  footerCounter?: string;
-  rim?: boolean;
-  background?: string;
-  backgroundImageUrl?: string;
-}) {
+  focalX = 50,
+  focalY = 50,
+  overlay = "subtle",
+}: SlideFrameProps) {
   return (
     <div
       style={{
@@ -124,9 +146,10 @@ export function SlideFrame({
         overflow: "hidden",
       }}
     >
-      {/* Optional forge background image. Satori only renders raster
-          images via <img>. Wrapped in a single absolute-positioned div
-          (Satori is finicky with fragment children at the flex root). */}
+      {/* Optional forge background image with focal-point crop. Satori
+          only renders raster images via <img>; we use objectPosition to
+          shift the cover-crop toward the focal point so the subject of
+          the image lines up where Josh wants it. */}
       {backgroundImageUrl ? (
         <div
           style={{
@@ -148,20 +171,22 @@ export function SlideFrame({
               width: 1080,
               height: 1080,
               objectFit: "cover",
+              objectPosition: `${focalX}% ${focalY}%`,
             }}
           />
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: 1080,
-              height: 1080,
-              display: "flex",
-              backgroundImage:
-                "linear-gradient(90deg, rgba(15,11,9,0.78) 0%, rgba(15,11,9,0.55) 60%, rgba(15,11,9,0.35) 100%)",
-            }}
-          />
+          {OVERLAY_CSS[overlay] ? (
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: 1080,
+                height: 1080,
+                display: "flex",
+                backgroundImage: OVERLAY_CSS[overlay] as string,
+              }}
+            />
+          ) : null}
         </div>
       ) : null}
 

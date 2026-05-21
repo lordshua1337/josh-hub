@@ -15,11 +15,21 @@ export type DeclarationProps = {
   footer?: string;
   counter?: string;
   backgroundImageUrl?: string;
+  focalX?: number;
+  focalY?: number;
+  overlay?: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none";
 };
 
-export function DeclarationComposition({ kicker, headline, emphasize, footer, counter, backgroundImageUrl }: DeclarationProps) {
+export function DeclarationComposition({ kicker, headline, emphasize, footer, counter, backgroundImageUrl, focalX, focalY, overlay }: DeclarationProps) {
   return (
-    <SlideFrame eyebrow={kicker} footerCounter={counter} backgroundImageUrl={backgroundImageUrl}>
+    <SlideFrame
+      eyebrow={kicker}
+      footerCounter={counter}
+      backgroundImageUrl={backgroundImageUrl}
+      focalX={focalX}
+      focalY={focalY}
+      overlay={overlay}
+    >
       <div
         style={{
           display: "flex",
