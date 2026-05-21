@@ -3,6 +3,7 @@
   "framework": "nextjs",
   "crons": [
     { "path": "/api/cron/inbox", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/ig-replies", "schedule": "*/5 * * * *" },
     { "path": "/api/cron/vercel", "schedule": "*/30 * * * *" },
     { "path": "/api/cron/github", "schedule": "0 6 * * *" }
   ]

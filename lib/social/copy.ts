@@ -34,6 +34,8 @@ export type SlideContent = {
   theySaid?: string;
   trueLabel?: string;
   trueLine?: string;
+  // field_report
+  frLines?: { tag?: string; text: string }[];
 };
 
 export type PostCopy = {
@@ -152,8 +154,10 @@ Return ONLY raw JSON:
 
 // ----- carousels -----
 async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
-  const slideCount = def.slideCount ?? 5;
-  const stepCount = slideCount - 2; // first + last are hook + cta
+  // slideCount = total INCLUDING the auto-appended signoff. Step count is
+  // everything between the hook and the cta/signoff.
+  const slideCount = def.slideCount ?? 6;
+  const stepCount = slideCount - 3; // hook + cta + signoff
 
   const text = await ask(`${voiceFor(brand)}
 
@@ -227,6 +231,13 @@ Hard rules:
     closer: raw.cta?.closer || "Pick one. Ship it this week.",
     cta: raw.cta?.cta || "Book a 15-min reality check.",
     link: raw.cta?.link || brand.schedulingLink || "",
+  });
+  // Brand-standard final slide — never LLM-generated, always appended.
+  slides.push({
+    composition: "signoff",
+    link: "josh@prometheusconsulting.ai",
+    headline: "If this was useful, do one of these.",
+    emphasize: "do one of these",
   });
   return { is_carousel: true, slides, caption: raw.caption || "" };
 }

@@ -261,6 +261,35 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["social_posts"]["Row"]>;
         Relationships: [];
       };
+      ig_messages: {
+        Row: {
+          id: string;
+          ig_thread_id: string | null;
+          ig_message_id: string | null;
+          sender_id: string | null;
+          sender_username: string | null;
+          sender_name: string | null;
+          body: string;
+          raw_event: Json | null;
+          received_at: string;
+          category: string | null;
+          category_confidence: number | null;
+          category_reasoning: string | null;
+          draft_reply: string | null;
+          reply_status: string;
+          sent_at: string | null;
+          send_error: string | null;
+          source_kind: string;
+          source_ref: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["ig_messages"]["Row"]> & {
+          body: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ig_messages"]["Row"]>;
+        Relationships: [];
+      };
       project_aliases: {
         Row: {
           alias: string;

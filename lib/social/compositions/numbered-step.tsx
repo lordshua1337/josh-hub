@@ -1,199 +1,74 @@
-// Composition: numbered_step
-// Used in: quick_wins, role_acceleration, diagnostic, behind_the_build, compliance_gtm carousels.
-//
-// Layout: a giant outline numeral on the left, a strong title on top-right,
-// a short body below the title. Subtle amber underline beneath the numeral.
-// Bottom-right wordmark stamp.
+// Composition: numbered_step (the workhorse for carousel body slides)
+// Hairline-ruled row: tiny mono numeral + title + body. Adopted from Claude
+// Design's NumberedList layout but rendered as a SINGLE step per slide so
+// each play breathes.
 
 import type { Brand } from "../brands";
+import { SlideFrame, EmphasizedHeadline } from "../primitives";
+import { TOKEN } from "../tokens";
 
 export type NumberedStepProps = {
   brand: Brand;
-  index: number;          // 1-indexed step
-  total: number;          // total steps (shown as "N OF TOTAL" badge top-right)
-  title: string;          // 5-9 words
-  body: string;           // 1-3 short lines
-  emphasize?: string;     // word in `title` to amber
+  index: number;
+  total: number;
+  title: string;
+  body: string;
+  emphasize?: string;
+  eyebrow?: string;       // optional overline (defaults to "play X / total")
+  counter?: string;
 };
 
-export function NumberedStepComposition({ brand, index, total, title, body, emphasize }: NumberedStepProps) {
-  const { palette, fonts, wordmark } = brand;
-  const bgStyle: React.CSSProperties = palette.bgGradient
-    ? { background: `radial-gradient(ellipse at 70% 30%, ${palette.bgGradient[0]} 0%, ${palette.bgGradient[1]} 100%)` }
-    : { background: palette.bg };
-
+export function NumberedStepComposition({ index, total, title, body, emphasize, eyebrow, counter }: NumberedStepProps) {
+  const tag = eyebrow || `play ${index} of ${total}`;
   return (
-    <div
-      style={{
-        width: 1080,
-        height: 1080,
-        display: "flex",
-        position: "relative",
-        padding: 80,
-        fontFamily: fonts.body.family,
-        color: palette.text,
-        ...bgStyle,
-      }}
-    >
-      {/* Step count badge top-right */}
-      <div
-        style={{
-          position: "absolute",
-          top: 60,
-          right: 80,
-          fontFamily: fonts.mono.family,
-          fontSize: 22,
-          fontWeight: 700,
-          letterSpacing: 3,
-          color: palette.textMuted,
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
-        <div style={{ width: 6, height: 6, borderRadius: 3, background: palette.accent, display: "flex" }} />
-        {String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}
-      </div>
+    <SlideFrame eyebrow={tag} footerCounter={counter}>
+      <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center" }}>
+        {/* Hairline above */}
+        <div style={{ display: "flex", borderTop: `1px solid ${TOKEN.rule}`, height: 1, width: "100%" }} />
 
-      {/* Soft ember in the bottom-left */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: -160,
-          left: -160,
-          width: 460,
-          height: 460,
-          background: `radial-gradient(circle, ${palette.accent}1a, transparent 70%)`,
-          display: "flex",
-        }}
-      />
-
-      {/* Two-column body */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 60, marginTop: 60 }}>
-        {/* Giant outline numeral */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 36, paddingTop: 36 }}>
+          {/* Tiny mono numeral column */}
           <div
             style={{
-              fontFamily: fonts.display.family,
-              fontSize: 360,
-              fontWeight: 800,
-              color: "transparent",
-              WebkitTextStroke: `3px ${palette.accent}`,
-              lineHeight: 0.85,
-              letterSpacing: -10,
               display: "flex",
-            }}
-          >
-            {index}
-          </div>
-          <div
-            style={{
-              width: 140,
-              height: 4,
-              background: `linear-gradient(90deg, ${palette.accent}, transparent)`,
-              marginTop: 8,
-              display: "flex",
-            }}
-          />
-        </div>
-
-        {/* Title + body stack */}
-        <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-          <StepTitle
-            title={title}
-            emphasize={emphasize}
-            fontFamily={fonts.display.family}
-            weight={fonts.display.weight}
-            color={palette.text}
-            accent={palette.accent}
-          />
-          <div
-            style={{
-              fontSize: 30,
+              fontFamily: "JetBrains Mono, monospace",
+              fontSize: 28,
+              color: TOKEN.ember500,
               fontWeight: 500,
-              color: palette.textMuted,
-              marginTop: 28,
-              lineHeight: 1.5,
+              width: 80,
+              paddingTop: 12,
             }}
           >
-            {body}
+            {String(index).padStart(2, "0")}
+          </div>
+
+          {/* Title + body */}
+          <div style={{ display: "flex", flexDirection: "column", flex: 1, maxWidth: 820 }}>
+            <EmphasizedHeadline
+              text={title}
+              emphasize={emphasize}
+              fontSize={title.length < 40 ? 84 : 64}
+              letterSpacing="-0.028em"
+              lineHeight={1.05}
+            />
+            {body ? (
+              <div
+                style={{
+                  display: "flex",
+                  marginTop: 28,
+                  fontSize: 30,
+                  color: TOKEN.fg300,
+                  lineHeight: 1.45,
+                  fontWeight: 500,
+                  maxWidth: 760,
+                }}
+              >
+                {body}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
-
-      {/* Wordmark bottom-right */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 64,
-          right: 80,
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <div style={{ width: 6, height: 6, borderRadius: 3, background: palette.accent, display: "flex" }} />
-        <div
-          style={{
-            fontFamily: fonts.mono.family,
-            fontSize: 22,
-            fontWeight: 700,
-            letterSpacing: 3,
-            color: palette.textMuted,
-          }}
-        >
-          {wordmark}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StepTitle({
-  title,
-  emphasize,
-  fontFamily,
-  weight,
-  color,
-  accent,
-}: {
-  title: string;
-  emphasize?: string;
-  fontFamily: string;
-  weight: number;
-  color: string;
-  accent: string;
-}) {
-  const fontSize = title.length < 40 ? 64 : 52;
-  const base: React.CSSProperties = {
-    fontFamily,
-    fontSize,
-    fontWeight: weight,
-    color,
-    lineHeight: 1.1,
-    letterSpacing: -1.5,
-    display: "flex",
-    flexWrap: "wrap",
-  };
-  if (!emphasize) return <div style={base}>{title}</div>;
-  const idx = title.toLowerCase().indexOf(emphasize.toLowerCase());
-  if (idx === -1) return <div style={base}>{title}</div>;
-  const before = title.slice(0, idx);
-  const match = title.slice(idx, idx + emphasize.length);
-  const after = title.slice(idx + emphasize.length);
-  return (
-    <div style={base}>
-      <span style={{ display: "flex" }}>{before}</span>
-      <span style={{ display: "flex", color: accent }}>{match}</span>
-      <span style={{ display: "flex" }}>{after}</span>
-    </div>
+    </SlideFrame>
   );
 }

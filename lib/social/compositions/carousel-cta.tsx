@@ -1,151 +1,62 @@
-// Composition: carousel_cta
-// Last slide. Job: invite them to act without sounding salesy.
-//
-// Layout: top half is a short closer (1-2 lines), bottom half is the CTA
-// block in an amber bordered card (URL or action). Wordmark stays in
-// bottom-right but moved slightly to make room for the CTA.
+// Composition: carousel_cta (post-specific CTA, second-to-last slide).
+// Mono command-line treatment from Claude Design — amber border-left,
+// ember-color first line, fg200 follow-ups.
 
 import type { Brand } from "../brands";
+import { SlideFrame, EmphasizedHeadline } from "../primitives";
+import { TOKEN } from "../tokens";
 
 export type CarouselCtaProps = {
   brand: Brand;
-  closer: string;          // 1-2 line summary
-  cta: string;             // the action ("DM 'AUDIT'", "book a call", etc.)
-  link?: string;           // displayed below CTA, lowercase mono
+  closer: string;          // short payoff line; the question or push
+  emphasize?: string;
+  cta: string;             // the headline action (DM "AUDIT", book a call, etc.)
+  link?: string;           // optional URL or handle, shown as a comment line
+  counter?: string;
 };
 
-export function CarouselCtaComposition({ brand, closer, cta, link }: CarouselCtaProps) {
-  const { palette, fonts, wordmark, schedulingLink } = brand;
-  const resolvedLink = link || schedulingLink || "";
-  const bgStyle: React.CSSProperties = palette.bgGradient
-    ? { background: `radial-gradient(ellipse at 50% 80%, ${palette.bgGradient[0]} 0%, ${palette.bgGradient[1]} 100%)` }
-    : { background: palette.bg };
+export function CarouselCtaComposition({ closer, emphasize, cta, link, counter }: CarouselCtaProps) {
+  const commands: string[] = [`$ ${cta}`];
+  if (link) commands.push(`# ${link}`);
+  commands.push("# no obligation. plain english back.");
 
   return (
-    <div
-      style={{
-        width: 1080,
-        height: 1080,
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
-        padding: 80,
-        fontFamily: fonts.body.family,
-        color: palette.text,
-        ...bgStyle,
-      }}
-    >
-      {/* Ember from below */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: -200,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 700,
-          height: 500,
-          background: `radial-gradient(ellipse, ${palette.accent}1f, transparent 70%)`,
-          display: "flex",
-        }}
-      />
+    <SlideFrame eyebrow="next move" footerCounter={counter}>
+      <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center" }}>
+        <EmphasizedHeadline
+          text={closer}
+          emphasize={emphasize}
+          fontSize={closer.length < 60 ? 80 : 60}
+          letterSpacing="-0.028em"
+          lineHeight={1.05}
+        />
 
-      {/* Closer text — upper third */}
-      <div
-        style={{
-          marginTop: 80,
-          fontFamily: fonts.display.family,
-          fontSize: 64,
-          fontWeight: 800,
-          color: palette.text,
-          lineHeight: 1.15,
-          letterSpacing: -1.5,
-          maxWidth: "95%",
-          display: "flex",
-        }}
-      >
-        {closer}
-      </div>
-
-      {/* CTA card — center/bottom */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", marginTop: 40 }}>
         <div
           style={{
-            border: `2px solid ${palette.accent}`,
-            borderRadius: 16,
-            padding: "32px 36px",
-            background: palette.accentSoft,
             display: "flex",
             flexDirection: "column",
-            gap: 14,
+            gap: 18,
+            borderLeft: `2px solid ${TOKEN.ember500}`,
+            paddingLeft: 28,
+            marginTop: 48,
           }}
         >
-          <div
-            style={{
-              fontFamily: fonts.mono.family,
-              fontSize: 22,
-              fontWeight: 700,
-              color: palette.accent,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              display: "flex",
-            }}
-          >
-            Next move
-          </div>
-          <div
-            style={{
-              fontFamily: fonts.display.family,
-              fontSize: 52,
-              fontWeight: 800,
-              color: palette.text,
-              lineHeight: 1.15,
-              letterSpacing: -1,
-              display: "flex",
-            }}
-          >
-            {cta}
-          </div>
-          {resolvedLink && (
+          {commands.map((cmd, i) => (
             <div
+              key={i}
               style={{
-                fontFamily: fonts.mono.family,
-                fontSize: 22,
-                fontWeight: 600,
-                color: palette.textMuted,
-                marginTop: 4,
                 display: "flex",
+                fontFamily: "JetBrains Mono, monospace",
+                fontSize: 24,
+                color: i === 0 ? TOKEN.ember300 : TOKEN.fg200,
+                letterSpacing: 0,
               }}
             >
-              {resolvedLink}
+              {cmd}
             </div>
-          )}
+          ))}
         </div>
       </div>
-
-      {/* Wordmark bottom-right */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 64,
-          right: 80,
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <div style={{ width: 6, height: 6, borderRadius: 3, background: palette.accent, display: "flex" }} />
-        <div
-          style={{
-            fontFamily: fonts.mono.family,
-            fontSize: 22,
-            fontWeight: 700,
-            letterSpacing: 3,
-            color: palette.textMuted,
-          }}
-        >
-          {wordmark}
-        </div>
-      </div>
-    </div>
+    </SlideFrame>
   );
 }

@@ -1,20 +1,13 @@
-// GET (verification) + POST (events) for Instagram Graph webhooks.
-// Replaces ManyChat. Handles:
-//   - DM auto-responses (classify intent, draft Josh-voice reply)
-//   - Comment-triggered DMs ("post DEMO to get the link" style)
-//   - Story replies, mentions
-//
-// Phase 1: skeleton. When IG_WEBHOOK_VERIFY_TOKEN + IG_GRAPH_TOKEN are set,
-// we route events into draft replies stored in public.ig_messages (table
-// added in a follow-up migration). For now, we log and store the raw event.
+// IG Graph webhook — DM intake.
+// GET = Meta verification handshake.
+// POST = real-time DM/comment/story events. Each message gets stored, then
+// the cron at /api/cron/ig-replies classifies + drafts the reply.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-// Meta sends a GET to verify the subscription. We echo their challenge if
-// the verify_token matches.
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const mode = url.searchParams.get("hub.mode");
@@ -27,26 +20,76 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ error: "verify_failed" }, { status: 403 });
 }
 
+type MetaEntry = {
+  id?: string;
+  time?: number;
+  messaging?: {
+    sender?: { id?: string; username?: string; name?: string };
+    recipient?: { id?: string };
+    timestamp?: number;
+    message?: { mid?: string; text?: string };
+  }[];
+  changes?: {
+    field?: string;
+    value?: Record<string, unknown>;
+  }[];
+};
+
 export async function POST(req: NextRequest) {
-  let body: unknown;
+  let body: { entry?: MetaEntry[] } = {};
   try {
-    body = await req.json();
+    body = (await req.json()) as { entry?: MetaEntry[] };
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
-  // For phase 1: store the raw event in a generic "ig_events" log table
-  // (skipping the per-message structured table until we wire IG creds).
-  // The cron-style classifier + responder will live in /api/cron/ig-replies
-  // once the table is added.
   const sb = supabaseServer();
+
+  // Best-effort store of every event for replay/debug.
   await sb.from("ingester_state").upsert(
     {
       id: "ig_webhook",
       last_run_at: new Date().toISOString(),
       cursor: { last_event: body as never },
-      notes: "Raw event captured. Auto-responder requires IG_GRAPH_TOKEN to ship replies.",
+      notes: null,
     },
     { onConflict: "id" }
   );
-  return NextResponse.json({ ok: true });
+
+  const rows: {
+    ig_thread_id: string | null;
+    ig_message_id: string;
+    sender_id: string;
+    sender_username: string | null;
+    sender_name: string | null;
+    body: string;
+    raw_event: never;
+    received_at: string;
+    source_kind: string;
+  }[] = [];
+
+  for (const entry of body.entry ?? []) {
+    for (const m of entry.messaging ?? []) {
+      const text = m.message?.text;
+      const mid = m.message?.mid;
+      const senderId = m.sender?.id;
+      if (!text || !mid || !senderId) continue;
+      rows.push({
+        ig_thread_id: m.recipient?.id || null,
+        ig_message_id: mid,
+        sender_id: senderId,
+        sender_username: m.sender?.username || null,
+        sender_name: m.sender?.name || null,
+        body: text,
+        raw_event: m as never,
+        received_at: m.timestamp ? new Date(m.timestamp).toISOString() : new Date().toISOString(),
+        source_kind: "dm",
+      });
+    }
+  }
+
+  if (rows.length) {
+    await sb.from("ig_messages").upsert(rows, { onConflict: "ig_message_id" });
+  }
+
+  return NextResponse.json({ ok: true, captured: rows.length });
 }

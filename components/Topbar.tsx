@@ -47,6 +47,7 @@ const TABS: Tab[] = [
     label: "Content",
     items: [
       { href: "/content/social", label: "Social" },
+      { href: "/content/dms", label: "DMs" },
       { href: "/content/email", label: "Email" },
       { href: "/content/calendar", label: "Calendar" },
       { href: "/content/posts", label: "Posts" },

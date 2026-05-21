@@ -1,10 +1,7 @@
 // GET /api/social/render
-// Two call modes:
-//   ?postId=...&slide=N         → fetch the stored post + render slide N (public, no auth)
-//   ?composition=...&...        → render from raw query params (live preview)
-//
-// Either way returns a PNG via @vercel/og (Satori). Uses Node runtime so we
-// can reach the service-role Supabase client.
+// Two modes:
+//   ?postId=...&slide=N        → DB-driven (public, no auth)
+//   ?composition=...&...&size  → live preview from query params
 
 import { ImageResponse } from "@vercel/og";
 import { getBrand } from "@/lib/social/brands";
@@ -13,6 +10,8 @@ import { CarouselHookComposition } from "@/lib/social/compositions/carousel-hook
 import { NumberedStepComposition } from "@/lib/social/compositions/numbered-step";
 import { CarouselCtaComposition } from "@/lib/social/compositions/carousel-cta";
 import { SplitContrastComposition } from "@/lib/social/compositions/split-contrast";
+import { SignoffComposition } from "@/lib/social/compositions/signoff";
+import { FieldReportComposition } from "@/lib/social/compositions/field-report";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { SlideContent } from "@/lib/social/copy";
 
@@ -29,7 +28,7 @@ async function loadGoogleFont(family: string, weight: number): Promise<ArrayBuff
   return f.arrayBuffer();
 }
 
-function renderSlide(brandSlug: string, slide: SlideContent): React.ReactElement {
+function renderSlide(brandSlug: string, slide: SlideContent, counter?: string): React.ReactElement {
   const brand = getBrand(brandSlug);
   switch (slide.composition) {
     case "declaration":
@@ -40,6 +39,7 @@ function renderSlide(brandSlug: string, slide: SlideContent): React.ReactElement
           headline={slide.headline || ""}
           emphasize={slide.emphasize}
           footer={slide.footer}
+          counter={counter}
         />
       );
     case "carousel_hook":
@@ -50,6 +50,7 @@ function renderSlide(brandSlug: string, slide: SlideContent): React.ReactElement
           headline={slide.headline || ""}
           emphasize={slide.emphasize}
           swipeHint={slide.swipeHint}
+          counter={counter}
         />
       );
     case "numbered_step":
@@ -61,6 +62,7 @@ function renderSlide(brandSlug: string, slide: SlideContent): React.ReactElement
           title={slide.title || ""}
           body={slide.body || ""}
           emphasize={slide.emphasize}
+          counter={counter}
         />
       );
     case "carousel_cta":
@@ -68,8 +70,10 @@ function renderSlide(brandSlug: string, slide: SlideContent): React.ReactElement
         <CarouselCtaComposition
           brand={brand}
           closer={slide.closer || ""}
+          emphasize={slide.emphasize}
           cta={slide.cta || ""}
           link={slide.link}
+          counter={counter}
         />
       );
     case "split_contrast":
@@ -81,6 +85,30 @@ function renderSlide(brandSlug: string, slide: SlideContent): React.ReactElement
           trueLabel={slide.trueLabel}
           trueLine={slide.trueLine || ""}
           emphasize={slide.emphasize}
+          counter={counter}
+        />
+      );
+    case "signoff":
+      return (
+        <SignoffComposition
+          brand={brand}
+          headline={slide.headline}
+          emphasize={slide.emphasize}
+          email={slide.link}
+          contactNote={slide.footer}
+          counter={counter}
+        />
+      );
+    case "field_report":
+      return (
+        <FieldReportComposition
+          brand={brand}
+          eyebrow={slide.kicker}
+          timestamp={slide.swipeHint || "field report"}
+          title={slide.headline || slide.title || ""}
+          emphasize={slide.emphasize}
+          lines={(slide.frLines as { tag?: string; text: string }[]) || []}
+          counter={counter}
         />
       );
     default:
@@ -96,9 +124,10 @@ export async function GET(req: Request) {
 
   try {
     let slide: SlideContent;
+    let counter: string | undefined;
+    let renderBrand = brandSlug;
 
     if (postId) {
-      // DB-driven render
       const slideIdx = parseInt(url.searchParams.get("slide") || "0", 10);
       const sb = supabaseServer();
       const { data, error } = await sb
@@ -108,62 +137,52 @@ export async function GET(req: Request) {
         .maybeSingle();
       if (error || !data) throw new Error(`post ${postId} not found`);
       const cb = data.copy_blocks as { slides?: SlideContent[] };
+      const total = cb?.slides?.length ?? 0;
       const s = cb?.slides?.[slideIdx];
       if (!s) throw new Error(`slide ${slideIdx} out of range`);
       slide = s;
-
-      const [interBold, interMedium, monoBold] = await Promise.all([
-        loadGoogleFont("Inter", 800),
-        loadGoogleFont("Inter", 500),
-        loadGoogleFont("JetBrains Mono", 700),
-      ]);
-
-      return new ImageResponse(renderSlide(data.brand, slide), {
-        width: size,
-        height: size,
-        fonts: [
-          { name: "Inter", data: interBold, style: "normal", weight: 800 },
-          { name: "Inter", data: interMedium, style: "normal", weight: 500 },
-          { name: "JetBrains Mono", data: monoBold, style: "normal", weight: 700 },
-        ],
-      });
+      counter = total > 1 ? `${String(slideIdx + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}` : undefined;
+      renderBrand = data.brand;
+    } else {
+      const composition = url.searchParams.get("composition") || "declaration";
+      slide = {
+        composition,
+        kicker: url.searchParams.get("kicker") || undefined,
+        headline: url.searchParams.get("headline") || undefined,
+        emphasize: url.searchParams.get("emphasize") || undefined,
+        footer: url.searchParams.get("footer") || undefined,
+        swipeHint: url.searchParams.get("swipeHint") || undefined,
+        index: url.searchParams.get("index") ? parseInt(url.searchParams.get("index")!, 10) : undefined,
+        total: url.searchParams.get("total") ? parseInt(url.searchParams.get("total")!, 10) : undefined,
+        title: url.searchParams.get("title") || undefined,
+        body: url.searchParams.get("body") || undefined,
+        closer: url.searchParams.get("closer") || undefined,
+        cta: url.searchParams.get("cta") || undefined,
+        link: url.searchParams.get("link") || undefined,
+        theySaidLabel: url.searchParams.get("theySaidLabel") || undefined,
+        theySaid: url.searchParams.get("theySaid") || undefined,
+        trueLabel: url.searchParams.get("trueLabel") || undefined,
+        trueLine: url.searchParams.get("trueLine") || undefined,
+      };
     }
 
-    // Raw-params render
-    const composition = url.searchParams.get("composition") || "declaration";
-    slide = {
-      composition,
-      kicker: url.searchParams.get("kicker") || undefined,
-      headline: url.searchParams.get("headline") || undefined,
-      emphasize: url.searchParams.get("emphasize") || undefined,
-      footer: url.searchParams.get("footer") || undefined,
-      swipeHint: url.searchParams.get("swipeHint") || undefined,
-      index: url.searchParams.get("index") ? parseInt(url.searchParams.get("index")!, 10) : undefined,
-      total: url.searchParams.get("total") ? parseInt(url.searchParams.get("total")!, 10) : undefined,
-      title: url.searchParams.get("title") || undefined,
-      body: url.searchParams.get("body") || undefined,
-      closer: url.searchParams.get("closer") || undefined,
-      cta: url.searchParams.get("cta") || undefined,
-      link: url.searchParams.get("link") || undefined,
-      theySaidLabel: url.searchParams.get("theySaidLabel") || undefined,
-      theySaid: url.searchParams.get("theySaid") || undefined,
-      trueLabel: url.searchParams.get("trueLabel") || undefined,
-      trueLine: url.searchParams.get("trueLine") || undefined,
-    };
-
-    const [interBold, interMedium, monoBold] = await Promise.all([
+    const [interBold, interMedium, interSemibold, monoBold, monoMedium] = await Promise.all([
       loadGoogleFont("Inter", 800),
       loadGoogleFont("Inter", 500),
+      loadGoogleFont("Inter", 600),
       loadGoogleFont("JetBrains Mono", 700),
+      loadGoogleFont("JetBrains Mono", 500),
     ]);
 
-    return new ImageResponse(renderSlide(brandSlug, slide), {
+    return new ImageResponse(renderSlide(renderBrand, slide, counter), {
       width: size,
       height: size,
       fonts: [
         { name: "Inter", data: interBold, style: "normal", weight: 800 },
+        { name: "Inter", data: interSemibold, style: "normal", weight: 600 },
         { name: "Inter", data: interMedium, style: "normal", weight: 500 },
         { name: "JetBrains Mono", data: monoBold, style: "normal", weight: 700 },
+        { name: "JetBrains Mono", data: monoMedium, style: "normal", weight: 500 },
       ],
     });
   } catch (e) {
