@@ -1,35 +1,28 @@
 // POST /api/social/publish/[id]
-// Pushes a drafted post to Instagram as a DRAFT (Josh adds music/effects
-// then hits publish in the IG app). Wired against the IG Graph API:
-// 1. Upload the rendered PNG to a public URL (the /render endpoint itself)
-// 2. Create a media container with is_draft=true (when IG token is set)
-// 3. Store the container id so the IG app can finish the post
+// Single OR carousel push to IG Graph as a DRAFT.
 //
-// Until IG_GRAPH_TOKEN is set, this route stores the publish-intent and
-// flips the row to status='queued_for_ig'. We can publish manually for now.
+// Single: POST /{ig-user}/media with image_url + caption + is_draft=true.
+// Carousel: create one child media container per slide
+// (is_carousel_item=true), then a parent (media_type=CAROUSEL, children=ids,
+// is_draft=true). Josh finishes posting (music/effects) in the IG app.
+//
+// Without IG_GRAPH_TOKEN the route bakes the slide URLs and queues the row so
+// the UI can show what the post will look like.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { getBrand } from "@/lib/social/brands";
+import type { SlideContent } from "@/lib/social/copy";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-function renderUrlForPost(row: {
-  brand: string;
-  composition: string;
-  copy_blocks: { kicker?: string; headline?: string; emphasize?: string; footer?: string };
-}): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://prometheus-hub.vercel.app";
-  const params = new URLSearchParams({
-    brand: row.brand,
-    composition: row.composition,
-    size: "1080",
-  });
-  if (row.copy_blocks?.kicker) params.set("kicker", row.copy_blocks.kicker);
-  if (row.copy_blocks?.headline) params.set("headline", row.copy_blocks.headline);
-  if (row.copy_blocks?.emphasize) params.set("emphasize", row.copy_blocks.emphasize);
-  if (row.copy_blocks?.footer) params.set("footer", row.copy_blocks.footer);
-  return `${base}/api/social/render?${params}`;
+function siteBase(): string {
+  return process.env.NEXT_PUBLIC_SITE_URL || "https://prometheus-hub.vercel.app";
+}
+function slideUrl(postId: string, idx: number): string {
+  const p = new URLSearchParams({ postId, slide: String(idx), size: "1080" });
+  return `${siteBase()}/api/social/render?${p}`;
 }
 
 export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -38,70 +31,111 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
 
   const { data: row, error } = await sb
     .from("social_posts")
-    .select("id, brand, composition, copy_blocks, status, platform")
+    .select("id, brand, copy_blocks, status, platform")
     .eq("id", id)
     .maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!row) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
+  const cb = row.copy_blocks as { is_carousel?: boolean; slides?: SlideContent[]; caption?: string };
+  const slides = cb?.slides ?? [];
+  const isCarousel = !!cb?.is_carousel && slides.length > 1;
+  const caption = cb?.caption || "";
+  if (slides.length === 0) return NextResponse.json({ error: "no_slides" }, { status: 400 });
+
   const brand = getBrand(row.brand);
-  const imageUrl = renderUrlForPost(row as never);
   const igToken = process.env.IG_GRAPH_TOKEN;
   const igUserId = brand.igAccount?.userId || process.env.IG_USER_ID;
+  const imageUrls = slides.map((_s, i) => slideUrl(id, i));
 
-  // Phase 1 fallback: no IG token yet -> queue + return draft preview link.
+  // No IG creds yet -> queue and return the baked slide URLs.
   if (!igToken || !igUserId) {
     await sb
       .from("social_posts")
       .update({
-        image_url: imageUrl,
+        image_url: imageUrls[0],
         status: "queued_for_ig",
-        metadata: { reason: "IG_GRAPH_TOKEN missing; awaiting credential" },
+        metadata: { reason: "IG_GRAPH_TOKEN missing", slide_urls: imageUrls } as never,
       })
       .eq("id", id);
     return NextResponse.json({
       ok: true,
       queued: true,
-      reason: "IG_GRAPH_TOKEN not set yet — image baked and queued. Connect IG and re-publish to push to drafts.",
-      image_url: imageUrl,
+      reason: "IG creds not connected. Slide PNGs baked, ready to push.",
+      slides: imageUrls,
     });
   }
 
-  // Phase 2 path: IG Graph media container creation.
-  // Endpoint: POST /{ig-user-id}/media with image_url + caption + is_draft=true
   try {
-    const caption = (row.copy_blocks as { caption?: string })?.caption || "";
-    const createRes = await fetch(
+    if (!isCarousel) {
+      const res = await fetch(
+        `https://graph.facebook.com/v21.0/${igUserId}/media?` +
+          new URLSearchParams({ image_url: imageUrls[0], caption, is_draft: "true", access_token: igToken }),
+        { method: "POST" }
+      );
+      const json = (await res.json()) as { id?: string; error?: { message: string } };
+      if (!res.ok || !json.id) {
+        const msg = json.error?.message || `HTTP ${res.status}`;
+        await sb.from("social_posts").update({ status: "failed", error: msg, image_url: imageUrls[0] }).eq("id", id);
+        return NextResponse.json({ error: msg }, { status: 500 });
+      }
+      await sb
+        .from("social_posts")
+        .update({
+          image_url: imageUrls[0],
+          status: "draft_pushed",
+          posted_id: json.id,
+          posted_at: new Date().toISOString(),
+          metadata: { container_id: json.id, slide_urls: imageUrls } as never,
+        })
+        .eq("id", id);
+      return NextResponse.json({ ok: true, container_id: json.id });
+    }
+
+    // Carousel — create children then parent.
+    const childIds: string[] = [];
+    for (const url of imageUrls) {
+      const cRes = await fetch(
+        `https://graph.facebook.com/v21.0/${igUserId}/media?` +
+          new URLSearchParams({ image_url: url, is_carousel_item: "true", access_token: igToken }),
+        { method: "POST" }
+      );
+      const cJson = (await cRes.json()) as { id?: string; error?: { message: string } };
+      if (!cRes.ok || !cJson.id) {
+        const msg = cJson.error?.message || `child HTTP ${cRes.status}`;
+        await sb.from("social_posts").update({ status: "failed", error: msg }).eq("id", id);
+        return NextResponse.json({ error: msg }, { status: 500 });
+      }
+      childIds.push(cJson.id);
+    }
+    const pRes = await fetch(
       `https://graph.facebook.com/v21.0/${igUserId}/media?` +
         new URLSearchParams({
-          image_url: imageUrl,
+          media_type: "CAROUSEL",
+          children: childIds.join(","),
           caption,
-          // IG only honors is_draft via certain entry points; we ship it and
-          // let IG behave -- the user finishes in the app either way.
           is_draft: "true",
           access_token: igToken,
         }),
       { method: "POST" }
     );
-    const createJson = (await createRes.json()) as { id?: string; error?: { message: string } };
-    if (!createRes.ok || !createJson.id) {
-      const msg = createJson.error?.message || `HTTP ${createRes.status}`;
-      await sb.from("social_posts").update({ status: "failed", error: msg, image_url: imageUrl }).eq("id", id);
+    const pJson = (await pRes.json()) as { id?: string; error?: { message: string } };
+    if (!pRes.ok || !pJson.id) {
+      const msg = pJson.error?.message || `parent HTTP ${pRes.status}`;
+      await sb.from("social_posts").update({ status: "failed", error: msg }).eq("id", id);
       return NextResponse.json({ error: msg }, { status: 500 });
     }
-
     await sb
       .from("social_posts")
       .update({
-        image_url: imageUrl,
+        image_url: imageUrls[0],
         status: "draft_pushed",
-        posted_id: createJson.id,
+        posted_id: pJson.id,
         posted_at: new Date().toISOString(),
-        metadata: { container_id: createJson.id },
+        metadata: { container_id: pJson.id, child_ids: childIds, slide_urls: imageUrls } as never,
       })
       .eq("id", id);
-
-    return NextResponse.json({ ok: true, container_id: createJson.id });
+    return NextResponse.json({ ok: true, container_id: pJson.id, child_ids: childIds });
   } catch (e) {
     await sb.from("social_posts").update({ status: "failed", error: (e as Error).message }).eq("id", id);
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });

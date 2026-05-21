@@ -1,17 +1,48 @@
-// Draft copy for a single post in a brand's voice.
-// Generates a JSON object matching the composition's shape.
+// Copy generators per post type. Single + carousel.
+// Each generator emits JSON matching the composition's slot shape.
 
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import PROMETHEUS_VOICE from "./voices/prometheus";
 import type { Brand } from "./brands";
+import { getPostType, type PostTypeDef } from "./post-types";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
-const VOICES: Record<string, string> = {
-  prometheus: PROMETHEUS_VOICE,
+const VOICES: Record<string, string> = { prometheus: PROMETHEUS_VOICE };
+
+// ----- shared types -----
+export type SlideContent = {
+  composition: string;
+  // declaration / carousel_hook
+  kicker?: string;
+  headline?: string;
+  emphasize?: string;
+  footer?: string;
+  swipeHint?: string;
+  // numbered_step
+  index?: number;
+  total?: number;
+  title?: string;
+  body?: string;
+  // carousel_cta
+  closer?: string;
+  cta?: string;
+  link?: string;
+  // split_contrast
+  theySaidLabel?: string;
+  theySaid?: string;
+  trueLabel?: string;
+  trueLine?: string;
 };
 
+export type PostCopy = {
+  is_carousel: boolean;
+  slides: SlideContent[];
+  caption: string;
+};
+
+// kept for back-compat with /api/social/draft callers from phase 1
 export type DeclarationCopy = {
   kicker?: string;
   headline: string;
@@ -20,50 +51,203 @@ export type DeclarationCopy = {
   caption: string;
 };
 
-export async function draftDeclaration(brand: Brand, topic: string): Promise<DeclarationCopy> {
-  const voice = VOICES[brand.slug];
-  if (!voice) throw new Error(`No voice file for brand: ${brand.slug}`);
-
-  const prompt = `${voice}
-
-You're writing ONE Instagram post in the "declaration" format. The visual is typography-led, asymmetric, on a dark warm background. There is no background image.
-
-The composition has these slots:
-- kicker:   small all-caps mono line that opens the post. Optional. 6 words max. The restrained setup.
-- headline: the dominant line. The pivot, the punch. 10 words max. THE thing that hits.
-- emphasize: ONE single word from the headline to color in amber. The word that carries the weight.
-- footer:   optional small line under the headline. 15 words max. The nuance / specificity / one-more-twist.
-- caption:  the IG caption that goes BELOW the image. Longer-form, 2-4 short paragraphs. Conversational. Ends with a question or a path forward. Add 4-6 relevant hashtags at the bottom on their own line.
-
-Topic for this post: "${topic}"
-
-Constraints:
-- NO emojis anywhere.
-- NO em dashes (use -- if you must).
-- The on-image copy (kicker + headline + footer) must read as a single thought, not a paragraph.
-- The kicker should not repeat the headline's verb or noun.
-- The emphasize word must be IN the headline string exactly as written.
-- Caption must NOT just restate the on-image copy. It expands, gives an example, asks a question.
-
-Return ONLY a raw JSON object matching this shape (no markdown, no backticks):
-{"kicker": "...", "headline": "...", "emphasize": "...", "footer": "...", "caption": "..."}`;
-
+function voiceFor(brand: Brand): string {
+  const v = VOICES[brand.slug];
+  if (!v) throw new Error(`No voice for brand ${brand.slug}`);
+  return v;
+}
+async function ask(prompt: string, maxTokens = 1500): Promise<string> {
   const res = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 1200,
+    max_tokens: maxTokens,
     messages: [{ role: "user", content: prompt }],
   });
-
   const text = res.content[0].type === "text" ? res.content[0].text : "";
-  const cleaned = text.trim().replace(/^```json\n?|\n?```$/g, "");
-  const parsed = JSON.parse(cleaned) as DeclarationCopy;
+  return text.trim().replace(/^```json\n?|\n?```$/g, "");
+}
+function safeParse<T>(s: string, fallback: T): T {
+  try {
+    return JSON.parse(s) as T;
+  } catch {
+    return fallback;
+  }
+}
 
-  // Defensive: trim, drop accidental emojis, enforce maxes
+// ----- declaration / hot_take / founder_lens / ai_enablement_declaration -----
+async function draftSingleDeclaration(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
+  const text = await ask(`${voiceFor(brand)}
+
+You're writing ONE Instagram post in the "declaration" format. Typography-led, asymmetric, dark warm background. No background image.
+
+POST TYPE: ${def.label}. ${def.description}
+TONE: ${def.voiceHint}
+
+Slots:
+- kicker:    small all-caps mono opener, optional. <= 6 words.
+- headline:  the dominant line. <= 10 words.
+- emphasize: ONE word from the headline to color amber.
+- footer:    small line below headline. <= 18 words.
+- caption:   IG caption. 2-4 short paragraphs. Ends with a question or path forward. 4-6 hashtags on separate line at bottom.
+
+Topic: "${topic}"
+
+Constraints:
+- NO emojis. NO em dashes.
+- emphasize must appear verbatim in headline.
+- caption must NOT just restate the headline.
+
+Return ONLY raw JSON:
+{"kicker": "...", "headline": "...", "emphasize": "...", "footer": "...", "caption": "..."}`);
+  const p = safeParse(text, { headline: topic, caption: "" }) as {
+    kicker?: string; headline: string; emphasize?: string; footer?: string; caption: string;
+  };
   return {
-    kicker: parsed.kicker?.trim().slice(0, 60) || undefined,
-    headline: parsed.headline.trim().slice(0, 120),
-    emphasize: parsed.emphasize?.trim() || undefined,
-    footer: parsed.footer?.trim().slice(0, 160) || undefined,
-    caption: parsed.caption.trim(),
+    is_carousel: false,
+    slides: [
+      { composition: "declaration", kicker: p.kicker, headline: p.headline, emphasize: p.emphasize, footer: p.footer },
+    ],
+    caption: p.caption || "",
+  };
+}
+
+// ----- split_contrast (reframe) -----
+async function draftReframe(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
+  const text = await ask(`${voiceFor(brand)}
+
+You're writing ONE Instagram post in the "split_contrast" format. Top half (struck-through, muted) = what they were told. Bottom half (full color) = what's actually true.
+
+POST TYPE: ${def.label}. ${def.description}
+TONE: ${def.voiceHint}
+
+Slots:
+- theySaidLabel: 2-4 word label, all caps. Default "WHAT THEY SAID".
+- theySaid:      the popular take. <= 12 words. Accurate, not a strawman.
+- trueLabel:     2-4 word label, all caps. Default "WHAT'S TRUE".
+- trueLine:      the reframe. <= 15 words.
+- emphasize:     ONE word from trueLine to amber.
+- caption:       2-4 short paragraphs. Question at end. 4-6 hashtags.
+
+Topic: "${topic}"
+
+Return ONLY raw JSON:
+{"theySaidLabel": "...", "theySaid": "...", "trueLabel": "...", "trueLine": "...", "emphasize": "...", "caption": "..."}`);
+  const p = safeParse(text, { theySaid: "", trueLine: topic, caption: "" }) as {
+    theySaidLabel?: string; theySaid: string; trueLabel?: string; trueLine: string; emphasize?: string; caption: string;
+  };
+  return {
+    is_carousel: false,
+    slides: [
+      {
+        composition: "split_contrast",
+        theySaidLabel: p.theySaidLabel,
+        theySaid: p.theySaid,
+        trueLabel: p.trueLabel,
+        trueLine: p.trueLine,
+        emphasize: p.emphasize,
+      },
+    ],
+    caption: p.caption || "",
+  };
+}
+
+// ----- carousels -----
+async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
+  const slideCount = def.slideCount ?? 5;
+  const stepCount = slideCount - 2; // first + last are hook + cta
+
+  const text = await ask(`${voiceFor(brand)}
+
+You're writing an Instagram CAROUSEL.
+
+POST TYPE: ${def.label}. ${def.description}
+TONE: ${def.voiceHint}
+SLIDES: ${slideCount} total -- 1 hook + ${stepCount} body slides + 1 CTA.
+
+Topic: "${topic}"
+
+Return ONLY raw JSON:
+{
+  "hook": {
+    "kicker": "${stepCount} PLAYS",
+    "headline": "...",
+    "emphasize": "...",
+    "swipeHint": "swipe to start ->"
+  },
+  "steps": [
+    { "title": "...", "body": "...", "emphasize": "..." }
+  ],
+  "cta": {
+    "closer": "...",
+    "cta": "...",
+    "link": ""
+  },
+  "caption": "..."
+}
+
+Hard rules:
+- Steps array MUST be exactly ${stepCount} items.
+- Each step title <= 9 words; body 1-3 short lines.
+- Every step must be specific enough to start TODAY.
+- Vary the verb across steps (don't start all with "Build" or "Set up").
+- Each step body must reference a concrete tool / metric / artifact.
+- No emojis. No em dashes. No corporate slop ("transform" "leverage" "synergize").
+- Caption: 2-4 short paragraphs, references the step titles, ends with a question. 4-6 hashtags on a new line.`, 2400);
+
+  type Raw = {
+    hook?: { kicker?: string; headline?: string; emphasize?: string; swipeHint?: string };
+    steps?: { title?: string; body?: string; emphasize?: string }[];
+    cta?: { closer?: string; cta?: string; link?: string };
+    caption?: string;
+  };
+  const raw = safeParse<Raw>(text, {});
+  const steps = (raw.steps ?? []).slice(0, stepCount);
+
+  const slides: SlideContent[] = [
+    {
+      composition: "carousel_hook",
+      kicker: raw.hook?.kicker || `${stepCount} PLAYS`,
+      headline: raw.hook?.headline || topic,
+      emphasize: raw.hook?.emphasize,
+      swipeHint: raw.hook?.swipeHint || "swipe →",
+    },
+  ];
+  for (let i = 0; i < stepCount; i++) {
+    const s = steps[i] || { title: `Step ${i + 1}`, body: "" };
+    slides.push({
+      composition: "numbered_step",
+      index: i + 1,
+      total: stepCount,
+      title: s.title || `Step ${i + 1}`,
+      body: s.body || "",
+      emphasize: s.emphasize,
+    });
+  }
+  slides.push({
+    composition: "carousel_cta",
+    closer: raw.cta?.closer || "Pick one. Ship it this week.",
+    cta: raw.cta?.cta || "Book a 15-min reality check.",
+    link: raw.cta?.link || brand.schedulingLink || "",
+  });
+  return { is_carousel: true, slides, caption: raw.caption || "" };
+}
+
+// ----- dispatcher -----
+export async function draftPost(brand: Brand, postTypeSlug: string, topic: string): Promise<PostCopy> {
+  const def = getPostType(postTypeSlug);
+  if (def.kind === "carousel") return draftCarousel(brand, def, topic);
+  if (def.compositions[0] === "split_contrast") return draftReframe(brand, def, topic);
+  return draftSingleDeclaration(brand, def, topic);
+}
+
+// Back-compat single-declaration helper used by phase 1 callers
+export async function draftDeclaration(brand: Brand, topic: string): Promise<DeclarationCopy> {
+  const post = await draftSingleDeclaration(brand, getPostType("ai_enablement_declaration"), topic);
+  const s = post.slides[0];
+  return {
+    kicker: s.kicker,
+    headline: s.headline || topic,
+    emphasize: s.emphasize,
+    footer: s.footer,
+    caption: post.caption,
   };
 }
