@@ -23,11 +23,13 @@ body {
 
 body {
   margin: 0;
-  color: var(--ink);
+  color: var(--cream);
+  /* Forge bg — matches the hub: charcoal with ember warmth top-right. */
   background:
-    linear-gradient(180deg, rgba(245, 241, 234, 0.96), rgba(245, 241, 234, 0.88) 42rem, #1c1412 42rem),
-    radial-gradient(circle at 20% 0%, rgba(201, 107, 60, 0.18), transparent 36rem);
+    radial-gradient(130% 95% at 100% 0%, #3a2924 0%, #2e211d 22%, #1d1614 56%, #15100e 100%);
+  background-attachment: fixed;
   font-family: Inter, system-ui, sans-serif;
+  font-size: 14px;
 }
 
 button,
@@ -51,24 +53,72 @@ a {
 }
 
 .app-shell {
-  width: min(1500px, 100%);
+  width: min(1400px, 100%);
   margin: 0 auto;
+}
+
+/* Wizard return banner — shown only when ?return=wizard. */
+.wizard-banner {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: linear-gradient(90deg, rgba(255, 138, 47, 0.18) 0%, rgba(255, 138, 47, 0.08) 100%);
+  border-bottom: 1px solid rgba(255, 138, 47, 0.4);
+  backdrop-filter: blur(8px);
+}
+.wizard-banner-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: var(--cream);
+  font-size: 0.78rem;
+}
+.wizard-banner-label {
+  font-family: "JetBrains Mono", monospace;
+  color: #ffb27c;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+.wizard-banner-text {
+  color: rgba(245, 241, 234, 0.75);
+}
+.wizard-banner button {
+  margin-left: auto;
+  padding: 0.45rem 0.9rem;
+  background: #ff8a2f;
+  color: #15100e;
+  border: 1px solid #ff8a2f;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.wizard-banner button:hover {
+  background: #ffb27c;
+  border-color: #ffb27c;
 }
 
 .image-stage {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 390px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 0;
   align-items: stretch;
-  padding: clamp(0.85rem, 1.8vw, 1.5rem);
+  padding: 1rem;
 }
 
 .stage-art {
   position: relative;
-  min-height: calc(100vh - clamp(1.7rem, 3.6vw, 3rem));
+  min-height: calc(100vh - 2rem);
   overflow: hidden;
-  border-radius: 8px 0 0 8px;
+  border-radius: 6px 0 0 6px;
   background: var(--ink);
   box-shadow: var(--shadow);
 }
@@ -91,15 +141,17 @@ a {
 }
 
 .stage-panel {
-  min-height: calc(100vh - clamp(1.7rem, 3.6vw, 3rem));
+  min-height: calc(100vh - 2rem);
   display: flex;
   flex-direction: column;
-  justify-content: end;
-  padding: clamp(1.25rem, 2.6vw, 2rem);
-  border-radius: 0 8px 8px 0;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-radius: 0 6px 6px 0;
   color: var(--cream);
   background: var(--ink);
   box-shadow: var(--shadow);
+  overflow-y: auto;
 }
 
 .eyebrow,
@@ -123,18 +175,19 @@ p {
   margin-top: 0;
 }
 
+/* h1/h2 retuned for hub-embedded tool — was landing-page huge. */
 h1 {
-  margin-bottom: 1rem;
-  font-size: clamp(2.85rem, 6.2vw, 5.6rem);
-  line-height: 0.9;
-  font-weight: 900;
-  letter-spacing: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .lede {
-  margin-bottom: 2rem;
-  color: rgba(245, 241, 234, 0.76);
-  font-size: 1rem;
+  margin-bottom: 1.25rem;
+  color: rgba(245, 241, 234, 0.7);
+  font-size: 0.82rem;
   line-height: 1.55;
 }
 
@@ -152,11 +205,11 @@ h1 {
 }
 
 .selected-meta h2 {
-  margin-bottom: 0.6rem;
-  font-size: clamp(1.75rem, 3.2vw, 3rem);
-  line-height: 0.95;
-  font-weight: 900;
-  letter-spacing: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .selected-meta p {

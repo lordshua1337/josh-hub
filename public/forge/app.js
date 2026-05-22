@@ -732,6 +732,11 @@ els.autoFocus.addEventListener("click", applySmartFocus);
 els.exportSized.addEventListener("click", exportSizedImage);
 
 // ─── Send rendered image to the Hub (Supabase Storage upload) ──────────
+// If the forge was opened from the wizard (?return=wizard), this also
+// postMessages the parent window with the resulting URL and closes the
+// forge tab so Josh doesn't have to copy-paste anything.
+const isFromWizard = new URLSearchParams(location.search).get("return") === "wizard";
+
 async function sendRenderedToHub() {
   const image = images[selectedIndex];
   const preset = presets[els.postPreset.value];
@@ -755,15 +760,42 @@ async function sendRenderedToHub() {
     if (!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
     els.hubUrl.value = json.url;
     els.hubLink.hidden = false;
-    showToast("Uploaded — copy URL into wizard");
+
+    if (isFromWizard && window.opener) {
+      // Round-trip: hand the URL back to the wizard tab and close ourselves.
+      window.opener.postMessage(
+        { type: "forge:image-ready", url: json.url, sourceImage: image.name },
+        location.origin
+      );
+      showToast("Sent to wizard. Closing…");
+      setTimeout(() => window.close(), 700);
+    } else {
+      showToast("Uploaded — copy URL into wizard");
+    }
   } catch (e) {
     showToast(`Upload failed: ${e.message}`);
   } finally {
     els.sendToHub.disabled = false;
-    els.sendToHub.querySelector("span").textContent = "Send to Hub";
+    els.sendToHub.querySelector("span").textContent = isFromWizard ? "Use in wizard" : "Send to Hub";
   }
 }
+
+// Surface the round-trip mode in the button label so Josh knows what it does.
+if (isFromWizard && els.sendToHub) {
+  els.sendToHub.querySelector("span").textContent = "Use in wizard";
+}
 els.sendToHub.addEventListener("click", sendRenderedToHub);
+
+// Wizard return banner — surface a prominent CTA at the very top so
+// Josh doesn't have to dig for the "Send to Hub" button hidden in the
+// rendered-output panel.
+if (isFromWizard) {
+  const banner = document.querySelector("#wizardBanner");
+  if (banner) {
+    banner.hidden = false;
+    document.querySelector("#wizardSendNow").addEventListener("click", sendRenderedToHub);
+  }
+}
 els.copyHubUrl.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(els.hubUrl.value);

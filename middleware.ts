@@ -15,7 +15,7 @@ function isPublic(pathname: string): boolean {
   if (pathname === "/api/social/render") return true; // OG image render — needs to be reachable by IG fetcher
   if (pathname === "/api/social/ig-webhook") return true; // Meta webhook verifier + event POSTs
   if (pathname === "/config-inspector.html") return true; // static asset
-  if (pathname.startsWith("/forge/assets/")) return true; // forge brand images — Satori needs to fetch these server-side without cookies
+  if (pathname.startsWith("/forge/")) return true; // forge tool + assets (no sensitive data; brand images + canvas UI only)
   return false;
 }
 

@@ -11,7 +11,7 @@
 // State lives entirely client-side until step 4 hits /api/social/draft. Every
 // step has a Back button so Josh can tweak earlier choices before committing.
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { POST_TYPES, type PostKind } from "@/lib/social/post-types";
 import { FORGE_IMAGES } from "@/lib/social/forge-images";
@@ -78,6 +78,10 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
+  // Wizard is closed by default — landing view shows drafts + a big start CTA.
+  // Opens when Josh clicks "+ New Post" or "Edit a draft".
+  const [wizardOpen, setWizardOpen] = useState(false);
+
   // Wizard state
   const [step, setStep] = useState<Step>(1);
   const [kind, setKind] = useState<PostKind | null>(null);
@@ -112,6 +116,31 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
     setTopic("");
     setDraftedId(null);
   }
+
+  function openWizard() {
+    resetWizard();
+    setWizardOpen(true);
+  }
+
+  // Listen for forge round-trip postMessage. When Josh hits "Use in wizard"
+  // from the Image Forge, we get the public URL back here and auto-fill it
+  // into step 3 so he doesn't have to copy-paste anything.
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      if (e.origin !== window.location.origin) return;
+      const data = e.data as { type?: string; url?: string };
+      if (data?.type === "forge:image-ready" && data.url) {
+        setCustomImageUrl(data.url);
+        setImageSlug(null);
+        setWizardOpen(true);
+        setStep(3);
+        setFlash("Forge image attached — review and continue.");
+        setTimeout(() => setFlash(null), 4000);
+      }
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   const eligibleTypes = useMemo(
     () => (kind ? POST_TYPES.filter((p) => p.kind === kind) : []),
@@ -188,6 +217,53 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
 
   return (
     <div className="fl-reveal">
+      {/* Hero CTA — the obvious "start here" affordance when the wizard's closed. */}
+      {!wizardOpen && (
+        <div
+          className="card"
+          style={{
+            padding: 28,
+            marginBottom: 18,
+            display: "grid",
+            gridTemplateColumns: "1fr auto",
+            gap: 20,
+            alignItems: "center",
+            background: "linear-gradient(90deg, rgba(255,138,47,0.10) 0%, rgba(255,138,47,0.02) 60%, transparent 100%)",
+            border: "1px solid rgba(255,138,47,0.25)",
+          }}
+        >
+          <div>
+            <div className="section-label" style={{ marginBottom: 8 }}>start a new post</div>
+            <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 6 }}>
+              What are you shipping today?
+            </div>
+            <div style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.5 }}>
+              Single declaration, carousel, or panorama. Pick a forge background or go pure typographic. Voice-aligned copy and ready-to-post package every time.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={openWizard}
+            style={{
+              padding: "14px 28px",
+              background: "var(--accent)",
+              color: "#15100e",
+              border: "none",
+              borderRadius: "var(--radius-sm)",
+              fontFamily: "var(--mono)",
+              fontWeight: 700,
+              fontSize: 13,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+            }}
+          >
+            + New Post
+          </button>
+        </div>
+      )}
+
+      {/* Stats — small bar, always visible */}
       <div className="stats-bar" style={{ marginBottom: 16 }}>
         <div className="stat-card">
           <div className="stat-label">Drafts</div>
@@ -207,12 +283,27 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
         <div className="stat-card">
           <div className="stat-label">Forge images</div>
           <div className="stat-num">{FORGE_IMAGES.length}</div>
-          <div className="stat-delta"><a href="/forge/index.html" target="_blank" rel="noreferrer">Open Forge ↗</a></div>
+          <div className="stat-delta">
+            <a href="/forge/index.html" target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>
+              Open Forge ↗
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* Wizard */}
+      {/* Wizard — only when open */}
+      {wizardOpen && (
       <div className="card" style={{ padding: 20, marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div className="section-label">new post wizard</div>
+          <button
+            type="button"
+            onClick={() => setWizardOpen(false)}
+            style={{ background: "transparent", border: "1px solid var(--border)", color: "var(--text-secondary)", padding: "4px 10px", borderRadius: 4, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}
+          >
+            close ✕
+          </button>
+        </div>
         <StepHeader step={step} setStep={setStep} kind={kind} postType={postType} imageSlug={imageSlug} draftedId={draftedId} />
 
         {step === 1 && (
@@ -296,22 +387,32 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
           />
         )}
       </div>
+      )}
 
       {flash && <div className="inbox-flash">{flash}</div>}
 
-      {/* Pending drafts (other than the one we just made) */}
-      {drafts.length > 0 && drafts.some((r) => r.id !== draftedId) && (
+      {/* Drafts list — primary home view content */}
+      {drafts.length > 0 && (
         <>
           <div className="section-header" style={{ marginTop: 24 }}>
-            <div className="section-label">Other drafts</div>
-            <span className="log-count">{drafts.filter((r) => r.id !== draftedId).length}</span>
+            <div className="section-label">drafts</div>
+            <span className="log-count">{drafts.length} awaiting review</span>
           </div>
-          {drafts
-            .filter((r) => r.id !== draftedId)
-            .map((r) => (
-              <PostCard key={r.id} row={r} onPublish={onPublish} onDiscard={onDiscard} busyId={busyId} pending={pending} />
-            ))}
+          {drafts.map((r) => (
+            <PostCard key={r.id} row={r} onPublish={onPublish} onDiscard={onDiscard} busyId={busyId} pending={pending} />
+          ))}
         </>
+      )}
+
+      {drafts.length === 0 && !wizardOpen && (
+        <div className="card" style={{ padding: 32, textAlign: "center", color: "var(--text-tertiary)" }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--accent)", marginBottom: 6 }}>
+            // no drafts yet
+          </div>
+          <div style={{ fontSize: 14 }}>
+            Click <strong style={{ color: "var(--text)" }}>+ New Post</strong> above to start the wizard.
+          </div>
+        </div>
       )}
 
       {queued.length > 0 && (
@@ -585,7 +686,7 @@ function Step3Image({
       </div>
       <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 12 }}>
         Pick a forge background for the hero slide. Slide the focal points to frame the subject. Choose an overlay treatment. Or skip for pure-typographic.
-        Need wider control (cropping, panels, batch)? Open the <a href="/forge/index.html" target="_blank" rel="noreferrer">Image Forge ↗</a>.
+        Need wider control (cropping, panels, batch)? Open the <a href="/forge/index.html?return=wizard" target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>Image Forge ↗</a> — when you hit &quot;Use in wizard&quot; there, the image comes back here automatically.
       </div>
 
       {/* Gallery */}
