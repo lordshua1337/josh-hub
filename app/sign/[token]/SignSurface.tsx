@@ -58,13 +58,13 @@ export function SignSurface({
     <div style={{ minHeight: "100vh", padding: "40px 24px", maxWidth: 880, margin: "0 auto" }}>
       <div style={{ marginBottom: 28 }}>
         <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--accent)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 8 }}>
-          // sign document
+          // sign as josh
         </div>
         <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-0.025em", marginBottom: 6, color: "var(--text)" }}>
           {doc.title}
         </h1>
         <p style={{ fontSize: 14, color: "var(--text-secondary)" }}>
-          {template.name} · sent to {doc.recipient_name || doc.recipient_email}
+          {template.name} · other party: {doc.recipient_name || doc.recipient_email || "—"}
         </p>
       </div>
 
@@ -117,7 +117,11 @@ export function SignSurface({
         </div>
       ) : (
         <div className="card" style={{ padding: 28 }}>
-          <div className="section-label" style={{ marginBottom: 14 }}>Sign here</div>
+          <div className="section-label" style={{ marginBottom: 14 }}>Apply your signature</div>
+          <div style={{ marginBottom: 14, fontSize: 12, color: "var(--text-tertiary)", lineHeight: 1.55 }}>
+            Signs the doc as Josh, stamps a timestamp + IP, records the audit row.
+            Send the executed PDF to the other party out-of-band (email / DocuSign / wherever they want it).
+          </div>
           <label style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 14, cursor: "pointer" }}>
             <input
               type="checkbox"
@@ -126,8 +130,8 @@ export function SignSurface({
               style={{ marginTop: 4, accentColor: "var(--accent)" }}
             />
             <span style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.55 }}>
-              I have read this document and agree to be bound by its terms. By typing my name below,
-              I&apos;m providing my electronic signature, which has the same legal effect as a wet signature
+              I&apos;ve read this document and agree to be bound by its terms. By typing my name below,
+              I&apos;m providing my electronic signature with the same legal effect as a wet signature
               under the E-SIGN Act and UETA.
             </span>
           </label>

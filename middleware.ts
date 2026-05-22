@@ -16,8 +16,8 @@ function isPublic(pathname: string): boolean {
   if (pathname === "/api/social/ig-webhook") return true; // Meta webhook verifier + event POSTs
   if (pathname === "/config-inspector.html") return true; // static asset
   if (pathname.startsWith("/forge/")) return true; // forge tool + assets (no sensitive data; brand images + canvas UI only)
-  if (pathname.startsWith("/sign/")) return true; // public sign surface — recipient has the token, no login required
-  if (pathname.startsWith("/api/docs/sign/")) return true; // public sign POST endpoint paired with /sign/[token]
+  // NOTE: /sign/* and /api/docs/sign/* deliberately NOT public. The hub is
+  // single-user (Josh only). All doc surfaces stay behind hub auth.
   return false;
 }
 

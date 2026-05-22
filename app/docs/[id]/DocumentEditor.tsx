@@ -114,7 +114,7 @@ export function DocumentEditor({ row, template }: { row: DocumentRow; template: 
 
   async function onSendForSignature() {
     if (!recipient.email || !recipient.name) {
-      flashFor("Set recipient name + email first.");
+      flashFor("Set the other party's name + email first (so you remember who this is for).");
       return;
     }
     setBusy("send");
@@ -131,10 +131,10 @@ export function DocumentEditor({ row, template }: { row: DocumentRow; template: 
       const res = await fetch(`/api/docs/${row.id}/send`, { method: "POST" });
       const json = (await res.json()) as { ok?: boolean; sign_url?: string; error?: string };
       if (!res.ok || !json.ok) {
-        flashFor(`Send failed: ${json.error}`);
+        flashFor(`Lock failed: ${json.error}`);
         return;
       }
-      flashFor(`Sent. Sign URL: ${json.sign_url}`);
+      flashFor("Locked. Open the sign page to apply your signature.");
       startTransition(() => router.refresh());
     } finally {
       setBusy(null);
@@ -217,7 +217,7 @@ export function DocumentEditor({ row, template }: { row: DocumentRow; template: 
               disabled={busy !== null || pending}
               className="act-btn act-btn-primary"
             >
-              {busy === "send" ? "Sending…" : "Send for Signature →"}
+              {busy === "send" ? "Locking…" : "Lock & ready to sign →"}
             </button>
           )}
           {(status === "sent" || status === "viewed") && (
@@ -243,7 +243,7 @@ export function DocumentEditor({ row, template }: { row: DocumentRow; template: 
         </div>
       </div>
 
-      {/* Sign link banner once sent */}
+      {/* Sign link banner once locked */}
       {signUrl && (status === "sent" || status === "viewed") && (
         <div
           className="card"
@@ -255,15 +255,22 @@ export function DocumentEditor({ row, template }: { row: DocumentRow; template: 
           }}
         >
           <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#60a5fa", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-            // sign URL — send this to {recipient.name || "the recipient"}
+            // doc locked — open sign page to apply your signature
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <input readOnly value={signUrl} style={{ flex: 1, padding: 8, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 4, fontFamily: "var(--mono)", fontSize: 12, color: "var(--text)" }} />
+            <a
+              href={`/sign/${row.sign_token}`}
+              className="act-btn act-btn-primary"
+              style={{ textDecoration: "none" }}
+            >
+              Open →
+            </a>
             <button
               type="button"
               onClick={async () => {
                 await navigator.clipboard.writeText(signUrl).catch(() => undefined);
-                flashFor("Sign URL copied.");
+                flashFor("URL copied.");
               }}
               className="act-btn"
             >
@@ -282,7 +289,7 @@ export function DocumentEditor({ row, template }: { row: DocumentRow; template: 
           {/* Recipient block */}
           <div style={{ padding: 12, background: "rgba(242,138,47,0.04)", border: "1px solid rgba(255,138,47,0.16)", borderRadius: 4, marginBottom: 14 }}>
             <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-              // recipient (who&apos;s signing)
+              // other party (your client / contractor)
             </div>
             <input
               type="text"
@@ -306,7 +313,7 @@ export function DocumentEditor({ row, template }: { row: DocumentRow; template: 
                   patchDoc({ recipient_email: recipient.email });
                 }
               }}
-              placeholder="Email"
+              placeholder="Email (so you remember to send the PDF)"
               disabled={isLocked}
               style={{ ...fieldStyle, marginTop: 6 }}
             />
