@@ -17,9 +17,25 @@ type Tab =
   | { type: "single"; href: string; label: string }
   | { type: "group"; key: string; label: string; items: GroupItem[] };
 
+// Everything that produces or schedules content lives under ONE group.
+// Per Josh: "it should live under one thing called Content. then it says
+// Post Engine, Email Engine, Campaign Builder, Content Calendar, etc."
 const TABS: Tab[] = [
   { type: "single", href: "/", label: "dashboard" },
-  { type: "single", href: "/content/social", label: "social" },
+  {
+    type: "group",
+    key: "content",
+    label: "content",
+    items: [
+      { href: "/content/social", label: "Post Engine" },
+      { href: "/content/email", label: "Email Engine" },
+      { href: "/content/dms", label: "DM Engine" },
+      { href: "/content/campaigns", label: "Campaign Builder" },
+      { href: "/content/calendar", label: "Content Calendar" },
+      { href: "/content/posts", label: "Long-Form Drafts" },
+      { href: "/forge/index.html", label: "Image Forge", external: true },
+    ],
+  },
   {
     type: "group",
     key: "business",
@@ -30,8 +46,6 @@ const TABS: Tab[] = [
       { href: "/lead-gen/forms", label: "Forms" },
       { href: "/lead-gen/sources", label: "Sources" },
       { href: "/lead-gen/sequences", label: "Sequences" },
-      { href: "/content/email", label: "Inbox / Email" },
-      { href: "/content/dms", label: "IG DMs" },
     ],
   },
   {
@@ -55,17 +69,6 @@ const TABS: Tab[] = [
       { href: "/website/pages", label: "Pages" },
       { href: "/website/seo", label: "SEO" },
       { href: "/website/experiments", label: "A/B Tests" },
-    ],
-  },
-  {
-    type: "group",
-    key: "tools",
-    label: "tools",
-    items: [
-      { href: "/content/posts", label: "Posts" },
-      { href: "/content/calendar", label: "Content Calendar" },
-      { href: "/forge/index.html", label: "Image Forge", external: true },
-      { href: "/config-inspector.html", label: "Config", external: true },
     ],
   },
 ];
