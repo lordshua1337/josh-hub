@@ -249,6 +249,8 @@ export type Database = {
           posted_id: string | null;
           error: string | null;
           metadata: Json | null;
+          campaign_id: string | null;
+          campaign_order: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -259,6 +261,104 @@ export type Database = {
           copy_blocks: Json;
         };
         Update: Partial<Database["public"]["Tables"]["social_posts"]["Row"]>;
+        Relationships: [];
+      };
+      sequences: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          goal: string | null;
+          brand: string;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sequences"]["Row"]> & {
+          slug: string;
+          name: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["sequences"]["Row"]>;
+        Relationships: [];
+      };
+      sequence_steps: {
+        Row: {
+          id: string;
+          sequence_id: string;
+          step_order: number;
+          wait_days: number;
+          subject: string | null;
+          body: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sequence_steps"]["Row"]> & {
+          sequence_id: string;
+          step_order: number;
+          body: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["sequence_steps"]["Row"]>;
+        Relationships: [];
+      };
+      lead_sequence_progress: {
+        Row: {
+          id: string;
+          lead_id: string;
+          sequence_id: string;
+          current_step: number;
+          status: string;
+          last_sent_at: string | null;
+          next_due_at: string | null;
+          enrolled_at: string;
+          completed_at: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["lead_sequence_progress"]["Row"]> & {
+          lead_id: string;
+          sequence_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["lead_sequence_progress"]["Row"]>;
+        Relationships: [];
+      };
+      sequence_sends: {
+        Row: {
+          id: string;
+          lead_id: string;
+          sequence_id: string;
+          step_order: number;
+          sent_at: string;
+          status: string;
+          fastmail_message_id: string | null;
+          error: string | null;
+          preview: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sequence_sends"]["Row"]> & {
+          lead_id: string;
+          sequence_id: string;
+          step_order: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["sequence_sends"]["Row"]>;
+        Relationships: [];
+      };
+      campaigns: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          theme: string | null;
+          pitch: string | null;
+          status: string;
+          brand: string;
+          start_at: string | null;
+          end_at: string | null;
+          cadence: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["campaigns"]["Row"]> & {
+          slug: string;
+          name: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["campaigns"]["Row"]>;
         Relationships: [];
       };
       documents: {
