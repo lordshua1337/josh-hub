@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-import { Topbar } from "@/components/Topbar";
+import { Sidebar } from "@/components/Sidebar";
 import { Footer } from "@/components/Footer";
 import { FaceLift } from "@/components/FaceLift";
 import { ThemeScript } from "@/components/ThemeScript";
@@ -29,10 +29,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ThemeScript />
       </head>
       <body>
-        <div id="dash">
-          <Topbar />
-          {children}
-          <Footer />
+        <div id="dash" className="has-sidebar">
+          <Sidebar />
+          <div className="app-main">
+            {children}
+            <Footer />
+          </div>
         </div>
         <FaceLift />
       </body>

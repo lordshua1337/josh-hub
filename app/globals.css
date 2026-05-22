@@ -240,7 +240,260 @@ body {
 /* ===== LAYOUT ===== */
 /* Next port: LockScreen overlays #dash. Skip staged reveal so dash is paintable behind lock. */
 #dash { opacity: 1; transform: none; }
-/* Topbar — Prometheus brand. Dark surface with thin amber rule. */
+/* ─── Sidebar (left rail) — primary nav with collapsible group sections.
+   Replaces the old Topbar dropdown menus. 220px wide, sticky, scrolls
+   internally if the group list overflows. */
+
+#dash.has-sidebar {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: rgba(21, 16, 14, 0.92);
+  border-right: 1px solid rgba(255, 138, 47, 0.10);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 14px 14px;
+  z-index: 90;
+  overflow-y: auto;
+}
+
+[data-theme="dark"] .sidebar {
+  background: rgba(21, 16, 14, 0.92);
+}
+:root:not([data-theme="dark"]) .sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  padding: 4px 8px 18px;
+  line-height: 1;
+}
+.sidebar-brand .brand-pre,
+.sidebar-brand .brand-mid {
+  color: var(--text);
+}
+.sidebar-brand .brand-o {
+  color: var(--ember-500);
+  font-weight: 700;
+}
+.sidebar-brand .brand-cursor {
+  color: var(--ember-500);
+  margin-left: 1px;
+  animation: ember-cursor 1.4s steps(2) infinite;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Single-link items (Dashboard, Social) */
+.sidebar-item {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.sidebar-item:hover {
+  color: var(--ember-050);
+  background: var(--accent-soft);
+}
+.sidebar-item.is-active {
+  color: var(--ember-050);
+  background: rgba(255, 138, 47, 0.14);
+  border-left-color: var(--accent);
+}
+
+/* Group sections — expandable */
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-group-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+}
+.sidebar-group-trigger:hover {
+  color: var(--ember-050);
+  background: var(--accent-soft);
+}
+.sidebar-group.has-active > .sidebar-group-trigger {
+  color: var(--ember-050);
+  border-left-color: var(--accent);
+}
+
+.sidebar-caret {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  opacity: 0.7;
+  width: 12px;
+  text-align: center;
+}
+
+.sidebar-subitems {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 0 6px 14px;
+  margin-bottom: 4px;
+  border-left: 1px solid rgba(255, 138, 47, 0.18);
+  margin-left: 14px;
+}
+
+.sidebar-subitem {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+}
+.sidebar-subitem:hover {
+  color: var(--ember-050);
+  background: var(--accent-soft);
+}
+.sidebar-subitem.is-active {
+  color: var(--ember-050);
+  background: rgba(255, 138, 47, 0.14);
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px 4px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255, 138, 47, 0.08);
+}
+
+.sidebar-signout {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: var(--text-tertiary);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.sidebar-signout:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Mobile — hide sidebar by default, hamburger reveals it */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 95;
+  width: 38px;
+  height: 38px;
+  background: rgba(21, 16, 14, 0.92);
+  border: 1px solid rgba(255, 138, 47, 0.30);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.sidebar-toggle span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: var(--ember-300);
+}
+.sidebar-scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 11, 9, 0.7);
+  z-index: 89;
+}
+
+@media (max-width: 820px) {
+  #dash.has-sidebar { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .sidebar.is-open {
+    transform: translateX(0);
+  }
+  .sidebar-toggle {
+    display: flex;
+  }
+  .sidebar.is-open ~ .sidebar-scrim,
+  .sidebar-scrim {
+    display: block;
+  }
+  .app-main {
+    padding-top: 56px;
+  }
+}
+
+/* Legacy Topbar styles — kept for any pages that still reference them
+   but the active nav is now in Sidebar. */
 .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 6px; }
 [data-theme="dark"] .topbar { background: rgba(21, 16, 14, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255, 138, 47, 0.10); }
 .topbar-left { display: flex; align-items: center; gap: 12px; }
