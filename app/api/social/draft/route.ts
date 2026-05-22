@@ -20,6 +20,7 @@ const Schema = z.object({
   image_url: z.string().min(1).max(500).optional(),
   focal_x: z.number().min(0).max(100).optional(),
   focal_y: z.number().min(0).max(100).optional(),
+  focal_zoom: z.number().min(0.3).max(3).optional(),
   overlay: z.enum(["subtle", "strong", "fade-bottom", "wordmark", "none"]).optional(),
 });
 
@@ -54,6 +55,7 @@ export async function POST(req: NextRequest) {
               imageUrl: parsed.data.image_url,
               focalX: parsed.data.focal_x,
               focalY: parsed.data.focal_y,
+              zoom: parsed.data.focal_zoom,
               overlay: parsed.data.overlay,
             }
           : s
@@ -68,6 +70,7 @@ export async function POST(req: NextRequest) {
           imageUrl: parsed.data.image_url,
           focalX: parsed.data.focal_x,
           focalY: parsed.data.focal_y,
+          zoom: parsed.data.focal_zoom,
           overlay: parsed.data.overlay,
         };
       }

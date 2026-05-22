@@ -11,7 +11,7 @@
 // State lives entirely client-side until step 4 hits /api/social/draft. Every
 // step has a Back button so Josh can tweak earlier choices before committing.
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { POST_TYPES, type PostKind } from "@/lib/social/post-types";
 import { FORGE_IMAGES } from "@/lib/social/forge-images";
@@ -95,6 +95,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
   const [customImageUrl, setCustomImageUrl] = useState<string | null>(null);
   const [focalX, setFocalX] = useState<number>(50);
   const [focalY, setFocalY] = useState<number>(50);
+  const [zoom, setZoom] = useState<number>(1);
   const [overlay, setOverlay] = useState<"subtle" | "strong" | "fade-bottom" | "wordmark" | "none">("subtle");
   const [topic, setTopic] = useState("");
 
@@ -122,6 +123,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
     setCustomImageUrl(null);
     setFocalX(50);
     setFocalY(50);
+    setZoom(1);
     setOverlay("subtle");
     setTopic("");
     setDraftedId(null);
@@ -174,6 +176,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
           image_url: activeImageUrl || undefined,
           focal_x: activeImageUrl ? focalX : undefined,
           focal_y: activeImageUrl ? focalY : undefined,
+          focal_zoom: activeImageUrl ? zoom : undefined,
           overlay: activeImageUrl ? overlay : undefined,
         }),
       });
@@ -366,6 +369,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             customImageUrl={customImageUrl}
             focalX={focalX}
             focalY={focalY}
+            zoom={zoom}
             overlay={overlay}
             setImageSlug={(slug) => {
               setImageSlug(slug);
@@ -375,6 +379,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
                 setFocalX(Math.round(hint.x * 100));
                 setFocalY(Math.round(hint.y * 100));
               }
+              setZoom(1);
             }}
             setCustomImageUrl={(url) => {
               setCustomImageUrl(url);
@@ -382,6 +387,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             }}
             setFocalX={setFocalX}
             setFocalY={setFocalY}
+            setZoom={setZoom}
             setOverlay={setOverlay}
             onNext={() => setStep(2)}
             onSkip={() => {
@@ -799,11 +805,13 @@ function Step1ImagePick({
   customImageUrl,
   focalX,
   focalY,
+  zoom,
   overlay,
   setImageSlug,
   setCustomImageUrl,
   setFocalX,
   setFocalY,
+  setZoom,
   setOverlay,
   onNext,
   onSkip,
@@ -813,11 +821,13 @@ function Step1ImagePick({
   customImageUrl: string | null;
   focalX: number;
   focalY: number;
+  zoom: number;
   overlay: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none";
   setImageSlug: (slug: string) => void;
   setCustomImageUrl: (url: string | null) => void;
   setFocalX: (n: number) => void;
   setFocalY: (n: number) => void;
+  setZoom: (n: number) => void;
   setOverlay: (o: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none") => void;
   onNext: () => void;
   onSkip: () => void;
@@ -826,7 +836,14 @@ function Step1ImagePick({
   const activeImageUrl = customImageUrl || (imageSlug ? FORGE_IMAGES.find((f) => f.slug === imageSlug)?.url : null);
   const hasImage = !!activeImageUrl;
 
-  // Live preview URL — rebuilds on every state change. Cheap since the renderer caches by params.
+  // Server-rendered preview — debounced. Only re-fetches when the user
+  // stops adjusting for ~500ms. Drag updates the canvas client-side
+  // instantly via CSS; this fires for the high-fidelity check on release.
+  const [debouncedFocal, setDebouncedFocal] = useState({ x: focalX, y: focalY, z: zoom, o: overlay });
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedFocal({ x: focalX, y: focalY, z: zoom, o: overlay }), 500);
+    return () => clearTimeout(t);
+  }, [focalX, focalY, zoom, overlay]);
   const previewUrl = useMemo(() => {
     if (!activeImageUrl) return null;
     const p = new URLSearchParams({
@@ -834,13 +851,70 @@ function Step1ImagePick({
       headline: "your headline lives here",
       emphasize: "here",
       imageUrl: activeImageUrl,
-      focalX: String(focalX),
-      focalY: String(focalY),
-      overlay,
+      focalX: String(debouncedFocal.x),
+      focalY: String(debouncedFocal.y),
+      zoom: String(debouncedFocal.z),
+      overlay: debouncedFocal.o,
       size: "540",
     });
     return `/api/social/render?${p}`;
-  }, [activeImageUrl, focalX, focalY, overlay]);
+  }, [activeImageUrl, debouncedFocal]);
+
+  // ── Drag-to-focus on the live canvas ────────────────────────────────────
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const updateFocalFromEvent = useCallback(
+    (clientX: number, clientY: number) => {
+      const el = canvasRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+      setFocalX(Math.round(x));
+      setFocalY(Math.round(y));
+    },
+    [setFocalX, setFocalY]
+  );
+  function onCanvasPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (!hasImage) return;
+    e.preventDefault();
+    setIsDragging(true);
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    updateFocalFromEvent(e.clientX, e.clientY);
+  }
+  function onCanvasPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!isDragging) return;
+    updateFocalFromEvent(e.clientX, e.clientY);
+  }
+  function onCanvasPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    setIsDragging(false);
+    (e.target as Element).releasePointerCapture?.(e.pointerId);
+  }
+  // Scroll-wheel zoom (desktop) — Ctrl/Cmd+wheel for quick zoom in/out.
+  function onCanvasWheel(e: React.WheelEvent<HTMLDivElement>) {
+    if (!hasImage) return;
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const next = Math.max(0.5, Math.min(2, zoom + (e.deltaY < 0 ? 0.05 : -0.05)));
+    setZoom(Number(next.toFixed(2)));
+  }
+
+  // The visible image inside the canvas — applies focal + zoom client-side.
+  // scaled width/height: if zoom=2, image is 200% of canvas, cover-fits
+  // the larger box, then objectPosition slides to the focal point.
+  const scaledPct = Math.round(zoom * 100);
+  const canvasImgStyle: React.CSSProperties = {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: `${scaledPct}%`,
+    height: `${scaledPct}%`,
+    objectFit: "cover",
+    objectPosition: `${focalX}% ${focalY}%`,
+    transform: `translate(${(100 - scaledPct) * (focalX / 100)}%, ${(100 - scaledPct) * (focalY / 100)}%)`,
+    pointerEvents: "none",
+    userSelect: "none",
+  };
 
   return (
     <div>
@@ -907,84 +981,210 @@ function Step1ImagePick({
       </div>
 
       {/* Customization panel — only shown when an image is selected */}
-      {hasImage && (
+      {hasImage && activeImageUrl && (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "1.4fr 1fr",
             gap: 16,
             marginBottom: 16,
-            padding: 12,
+            padding: 14,
             background: "var(--bg)",
             border: "1px solid var(--border)",
             borderRadius: "var(--radius-sm)",
           }}
         >
-          {/* Live preview */}
+          {/* Interactive canvas — drag the pin to focus. Scroll-wheel + ctrl/cmd to zoom. */}
           <div>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-              // live preview
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+                marginBottom: 6,
+              }}
+            >
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+                // drag to focus
+              </div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--text-tertiary)" }}>
+                {focalX}% · {focalY}% · {zoom.toFixed(2)}x
+              </div>
             </div>
-            <div style={{ position: "relative", borderRadius: "var(--radius-sm)", overflow: "hidden", aspectRatio: "1 / 1", border: "1px solid var(--border)" }}>
-              {previewUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={previewUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+
+            <div
+              ref={canvasRef}
+              onPointerDown={onCanvasPointerDown}
+              onPointerMove={onCanvasPointerMove}
+              onPointerUp={onCanvasPointerUp}
+              onPointerCancel={onCanvasPointerUp}
+              onWheel={onCanvasWheel}
+              style={{
+                position: "relative",
+                aspectRatio: "1 / 1",
+                overflow: "hidden",
+                background: "#15100e",
+                border: `1px solid ${isDragging ? "var(--accent)" : "var(--border)"}`,
+                borderRadius: "var(--radius-sm)",
+                cursor: isDragging ? "grabbing" : "crosshair",
+                userSelect: "none",
+                touchAction: "none",
+              }}
+            >
+              {/* The image at scaled %, positioned by focal */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={activeImageUrl} alt="" style={canvasImgStyle} draggable={false} />
+
+              {/* Dark readability overlay preview (matches selected overlay variant — only horizontal/bottom modes shown) */}
+              {overlay !== "none" && (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    pointerEvents: "none",
+                    background:
+                      overlay === "fade-bottom"
+                        ? "linear-gradient(180deg, rgba(15,11,9,0) 55%, rgba(15,11,9,0.7) 100%)"
+                        : overlay === "strong"
+                        ? "linear-gradient(90deg, rgba(15,11,9,0.92), rgba(15,11,9,0.78) 50%, rgba(15,11,9,0.62))"
+                        : overlay === "wordmark"
+                        ? "linear-gradient(90deg, rgba(15,11,9,0.55), rgba(15,11,9,0.3) 60%, rgba(15,11,9,0.2))"
+                        : "linear-gradient(90deg, rgba(15,11,9,0.78), rgba(15,11,9,0.55) 60%, rgba(15,11,9,0.35))",
+                  }}
+                />
               )}
+
+              {/* Focal pin */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: `${focalX}%`,
+                  top: `${focalY}%`,
+                  width: 26,
+                  height: 26,
+                  marginLeft: -13,
+                  marginTop: -13,
+                  borderRadius: "50%",
+                  border: "2px solid #15100e",
+                  outline: "2px solid var(--accent)",
+                  background: "rgba(255,138,47,0.45)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.6)",
+                  pointerEvents: "none",
+                  transition: isDragging ? "none" : "left 80ms, top 80ms",
+                }}
+              />
+
+              {/* Tiny instruction footer */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: 8,
+                  bottom: 8,
+                  fontFamily: "var(--mono)",
+                  fontSize: 9,
+                  color: "rgba(255,255,255,0.7)",
+                  letterSpacing: "0.06em",
+                  background: "rgba(0,0,0,0.5)",
+                  padding: "2px 6px",
+                  borderRadius: 2,
+                  pointerEvents: "none",
+                }}
+              >
+                drag to focus · ⌘+scroll to zoom
+              </div>
+            </div>
+
+            {/* Zoom slider */}
+            <div style={{ marginTop: 10 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  marginBottom: 4,
+                }}
+              >
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+                  // zoom
+                </div>
+                <div style={{ display: "flex", gap: 4 }}>
+                  {[0.6, 1, 1.4, 1.8].map((z) => (
+                    <button
+                      key={z}
+                      type="button"
+                      onClick={() => setZoom(z)}
+                      style={{
+                        fontFamily: "var(--mono)",
+                        fontSize: 9,
+                        padding: "2px 6px",
+                        border: `1px solid ${zoom === z ? "var(--accent)" : "var(--border)"}`,
+                        background: zoom === z ? "rgba(242,138,47,0.12)" : "transparent",
+                        color: zoom === z ? "var(--accent)" : "var(--text-tertiary)",
+                        borderRadius: 2,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {z}x
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <input
+                type="range"
+                min={0.5}
+                max={2}
+                step={0.05}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                style={{ width: "100%", accentColor: "var(--accent)" }}
+              />
             </div>
           </div>
 
-          {/* Controls */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* Right column — focal presets + overlay buttons + server-rendered actual-output preview */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
               <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-                // focal point — horizontal {focalX}%
+                // focal presets
               </div>
-              <input type="range" min={0} max={100} value={focalX} onChange={(e) => setFocalX(Number(e.target.value))} style={{ width: "100%" }} />
-            </div>
-            <div>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-                // focal point — vertical {focalY}%
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {(
+                  [
+                    ["text-left", 75, 50],
+                    ["subject-right", 25, 50],
+                    ["center", 50, 50],
+                    ["skyline", 50, 25],
+                  ] as [string, number, number][]
+                ).map(([label, x, y]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => {
+                      setFocalX(x);
+                      setFocalY(y);
+                    }}
+                    style={{
+                      fontSize: 10,
+                      fontFamily: "var(--mono)",
+                      padding: "4px 8px",
+                      border: "1px solid var(--border)",
+                      background: focalX === x && focalY === y ? "rgba(242,138,47,0.12)" : "transparent",
+                      color: focalX === x && focalY === y ? "var(--accent)" : "var(--text-secondary)",
+                      cursor: "pointer",
+                      borderRadius: 3,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
-              <input type="range" min={0} max={100} value={focalY} onChange={(e) => setFocalY(Number(e.target.value))} style={{ width: "100%" }} />
-            </div>
-
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-              {(
-                [
-                  ["text-left", 75, 50],
-                  ["subject-right", 25, 50],
-                  ["center", 50, 50],
-                  ["skyline", 50, 25],
-                ] as [string, number, number][]
-              ).map(([label, x, y]) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => {
-                    setFocalX(x);
-                    setFocalY(y);
-                  }}
-                  style={{
-                    fontSize: 10,
-                    fontFamily: "var(--mono)",
-                    padding: "4px 8px",
-                    border: "1px solid var(--border)",
-                    background: focalX === x && focalY === y ? "rgba(242,138,47,0.12)" : "transparent",
-                    color: focalX === x && focalY === y ? "var(--accent)" : "var(--text-secondary)",
-                    cursor: "pointer",
-                    borderRadius: 3,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
             </div>
 
             <div>
               <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-                // overlay — readability layer
+                // overlay
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                 {(["subtle", "strong", "fade-bottom", "wordmark", "none"] as const).map((o) => (
@@ -1008,6 +1208,30 @@ function Step1ImagePick({
                     {o}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
+                // rendered hero slide (debounced)
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  borderRadius: "var(--radius-sm)",
+                  overflow: "hidden",
+                  aspectRatio: "1 / 1",
+                  border: "1px solid var(--border)",
+                  background: "var(--bg)",
+                }}
+              >
+                {previewUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={previewUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                )}
+              </div>
+              <div style={{ fontSize: 9, color: "var(--text-tertiary)", marginTop: 4, fontFamily: "var(--mono)" }}>
+                updates 500ms after you stop adjusting
               </div>
             </div>
           </div>

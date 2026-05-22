@@ -109,6 +109,7 @@ type SlideFrameProps = {
   backgroundImageUrl?: string;
   focalX?: number;       // 0..100
   focalY?: number;       // 0..100
+  zoom?: number;         // 0.5 = pulled back (more of image visible), 1.0 = cover (default), 2.0 = zoomed in
   overlay?: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none";
 };
 
@@ -124,6 +125,7 @@ export function SlideFrame({
   backgroundImageUrl,
   focalX = 50,
   focalY = 50,
+  zoom = 1,
   overlay = "subtle",
 }: SlideFrameProps) {
   return (
@@ -146,10 +148,12 @@ export function SlideFrame({
         overflow: "hidden",
       }}
     >
-      {/* Optional forge background image with focal-point crop. Satori
-          only renders raster images via <img>; we use objectPosition to
-          shift the cover-crop toward the focal point so the subject of
-          the image lines up where Josh wants it. */}
+      {/* Optional forge background image with focal-point crop + zoom.
+          - zoom = 1: object-fit cover with object-position for focal. (Default.)
+          - zoom > 1: image rendered LARGER than the frame and offset so the
+            focal point stays at (focalX%, focalY%) of the visible frame.
+          - zoom < 1: image rendered smaller than the frame (letterboxed). The
+            forge bg color fills the rest. */}
       {backgroundImageUrl ? (
         <div
           style={{
@@ -159,21 +163,57 @@ export function SlideFrame({
             width: 1080,
             height: 1080,
             display: "flex",
+            overflow: "hidden",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={backgroundImageUrl}
-            alt=""
-            width={1080}
-            height={1080}
-            style={{
-              width: 1080,
-              height: 1080,
-              objectFit: "cover",
-              objectPosition: `${focalX}% ${focalY}%`,
-            }}
-          />
+          {zoom === 1 ? (
+            // Fast path: native cover + object-position
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={backgroundImageUrl}
+              alt=""
+              width={1080}
+              height={1080}
+              style={{
+                width: 1080,
+                height: 1080,
+                objectFit: "cover",
+                objectPosition: `${focalX}% ${focalY}%`,
+              }}
+            />
+          ) : (
+            // Zoom path: render image at (1080*zoom) size, manually translate
+            // so the (focalX,focalY) point of the SOURCE sits at the same
+            // proportional point of the FRAME. Satori supports `transform:
+            // translate(...)` on a positioned element.
+            (() => {
+              const scaled = Math.round(1080 * zoom);
+              // We want pixel at (focalX% of scaled) to line up with
+              // (focalX% of 1080). Since scaled is bigger/smaller, compute
+              // the translation offset that achieves that.
+              const offsetX = Math.round((1080 - scaled) * (focalX / 100));
+              const offsetY = Math.round((1080 - scaled) * (focalY / 100));
+              return (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={backgroundImageUrl}
+                  alt=""
+                  width={scaled}
+                  height={scaled}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: scaled,
+                    height: scaled,
+                    objectFit: "cover",
+                    objectPosition: `${focalX}% ${focalY}%`,
+                    transform: `translate(${offsetX}px, ${offsetY}px)`,
+                  }}
+                />
+              );
+            })()
+          )}
           {OVERLAY_CSS[overlay] ? (
             <div
               style={{

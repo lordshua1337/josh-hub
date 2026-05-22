@@ -12,15 +12,17 @@ export type DeclarationProps = {
   kicker?: string;
   headline: string;
   emphasize?: string;
+  subtitle?: string;
   footer?: string;
   counter?: string;
   backgroundImageUrl?: string;
   focalX?: number;
   focalY?: number;
+  zoom?: number;
   overlay?: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none";
 };
 
-export function DeclarationComposition({ kicker, headline, emphasize, footer, counter, backgroundImageUrl, focalX, focalY, overlay }: DeclarationProps) {
+export function DeclarationComposition({ kicker, headline, emphasize, subtitle, footer, counter, backgroundImageUrl, focalX, focalY, zoom, overlay }: DeclarationProps) {
   return (
     <SlideFrame
       eyebrow={kicker}
@@ -28,6 +30,7 @@ export function DeclarationComposition({ kicker, headline, emphasize, footer, co
       backgroundImageUrl={backgroundImageUrl}
       focalX={focalX}
       focalY={focalY}
+      zoom={zoom}
       overlay={overlay}
     >
       <div
@@ -46,12 +49,29 @@ export function DeclarationComposition({ kicker, headline, emphasize, footer, co
           letterSpacing="-0.04em"
           lineHeight={0.98}
         />
+        {subtitle ? (
+          <div
+            style={{
+              display: "flex",
+              marginTop: 36,
+              fontSize: 36,
+              lineHeight: 1.35,
+              color: TOKEN.fg200,
+              fontFamily: "Inter, sans-serif",
+              fontWeight: 600,
+              maxWidth: 820,
+              letterSpacing: "-0.012em",
+            }}
+          >
+            {subtitle}
+          </div>
+        ) : null}
         {footer ? (
           <div
             style={{
               display: "flex",
-              marginTop: 44,
-              fontSize: 28,
+              marginTop: subtitle ? 20 : 44,
+              fontSize: 24,
               lineHeight: 1.45,
               color: TOKEN.fg300,
               fontFamily: "Inter, sans-serif",

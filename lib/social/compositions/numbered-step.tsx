@@ -14,11 +14,12 @@ export type NumberedStepProps = {
   title: string;
   body: string;
   emphasize?: string;
-  eyebrow?: string;       // optional overline (defaults to "play X / total")
+  subtitle?: string;       // optional tagline rendered between title and body
+  eyebrow?: string;        // optional overline (defaults to "play X / total")
   counter?: string;
 };
 
-export function NumberedStepComposition({ index, total, title, body, emphasize, eyebrow, counter }: NumberedStepProps) {
+export function NumberedStepComposition({ index, total, title, body, emphasize, subtitle, eyebrow, counter }: NumberedStepProps) {
   const tag = eyebrow || `play ${index} of ${total}`;
   return (
     <SlideFrame eyebrow={tag} footerCounter={counter}>
@@ -51,12 +52,29 @@ export function NumberedStepComposition({ index, total, title, body, emphasize, 
               letterSpacing="-0.028em"
               lineHeight={1.05}
             />
+            {subtitle ? (
+              <div
+                style={{
+                  display: "flex",
+                  marginTop: 18,
+                  fontSize: 28,
+                  color: TOKEN.fg200,
+                  lineHeight: 1.35,
+                  fontWeight: 600,
+                  maxWidth: 760,
+                  letterSpacing: "-0.012em",
+                  fontStyle: "italic",
+                }}
+              >
+                {subtitle}
+              </div>
+            ) : null}
             {body ? (
               <div
                 style={{
                   display: "flex",
-                  marginTop: 28,
-                  fontSize: 30,
+                  marginTop: subtitle ? 20 : 28,
+                  fontSize: 28,
                   color: TOKEN.fg300,
                   lineHeight: 1.45,
                   fontWeight: 500,

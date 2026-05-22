@@ -53,11 +53,13 @@ async function renderSlide(
           kicker={slide.kicker}
           headline={slide.headline || ""}
           emphasize={slide.emphasize}
+          subtitle={slide.subtitle}
           footer={slide.footer}
           counter={counter}
           backgroundImageUrl={absImageUrl}
           focalX={slide.focalX}
           focalY={slide.focalY}
+          zoom={slide.zoom}
           overlay={slide.overlay}
         />
       );
@@ -68,11 +70,13 @@ async function renderSlide(
           kicker={slide.kicker}
           headline={slide.headline || ""}
           emphasize={slide.emphasize}
+          subtitle={slide.subtitle}
           swipeHint={slide.swipeHint}
           counter={counter}
           backgroundImageUrl={absImageUrl}
           focalX={slide.focalX}
           focalY={slide.focalY}
+          zoom={slide.zoom}
           overlay={slide.overlay}
         />
       );
@@ -85,15 +89,18 @@ async function renderSlide(
           title={slide.title || ""}
           body={slide.body || ""}
           emphasize={slide.emphasize}
+          subtitle={slide.subtitle}
           counter={counter}
         />
       );
     case "carousel_cta":
+      // NOTE: emphasize prop deliberately NOT passed — drafter never produces
+      // it on CTA slides and the composition doesn't actually use it
+      // editorially. Passing undefined was a silent contract drift.
       return (
         <CarouselCtaComposition
           brand={brand}
           closer={slide.closer || ""}
-          emphasize={slide.emphasize}
           cta={slide.cta || ""}
           link={slide.link}
           counter={counter}
@@ -199,6 +206,7 @@ export async function GET(req: Request) {
         kicker: url.searchParams.get("kicker") || undefined,
         headline: url.searchParams.get("headline") || undefined,
         emphasize: url.searchParams.get("emphasize") || undefined,
+        subtitle: url.searchParams.get("subtitle") || undefined,
         footer: url.searchParams.get("footer") || undefined,
         swipeHint: url.searchParams.get("swipeHint") || undefined,
         index: url.searchParams.get("index") ? parseInt(url.searchParams.get("index")!, 10) : undefined,
@@ -218,6 +226,7 @@ export async function GET(req: Request) {
         imageUrl: url.searchParams.get("imageUrl") || undefined,
         focalX: url.searchParams.get("focalX") ? parseFloat(url.searchParams.get("focalX")!) : undefined,
         focalY: url.searchParams.get("focalY") ? parseFloat(url.searchParams.get("focalY")!) : undefined,
+        zoom: url.searchParams.get("zoom") ? parseFloat(url.searchParams.get("zoom")!) : undefined,
         overlay: (url.searchParams.get("overlay") as SlideContent["overlay"]) || undefined,
         panelIndex: url.searchParams.get("panelIndex") ? parseInt(url.searchParams.get("panelIndex")!, 10) : undefined,
         panelTotal: url.searchParams.get("panelTotal") ? parseInt(url.searchParams.get("panelTotal")!, 10) : undefined,
