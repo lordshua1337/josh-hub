@@ -22,6 +22,7 @@ type Tab =
 // Post Engine, Email Engine, Campaign Builder, Content Calendar, etc."
 const TABS: Tab[] = [
   { type: "single", href: "/", label: "dashboard" },
+  { type: "single", href: "/clients", label: "clients" },
   {
     type: "group",
     key: "content",
