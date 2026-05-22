@@ -23,6 +23,8 @@ type Tab =
 const TABS: Tab[] = [
   { type: "single", href: "/", label: "dashboard" },
   { type: "single", href: "/clients", label: "clients" },
+  { type: "single", href: "/projects", label: "projects" },
+  { type: "single", href: "/ideas", label: "ideas" },
   {
     type: "group",
     key: "content",
@@ -57,7 +59,6 @@ const TABS: Tab[] = [
       { href: "/skills", label: "Skills" },
       { href: "/achievements", label: "Achievements" },
       { href: "/activity", label: "Activity" },
-      { href: "/projects", label: "Projects" },
       { href: "/integrations", label: "Integrations" },
     ],
   },
