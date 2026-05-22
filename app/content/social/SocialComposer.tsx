@@ -72,7 +72,12 @@ function slidePreviewUrl(postId: string, idx: number, size = 540): string {
   return `/api/social/render?${p}`;
 }
 
-type Step = 1 | 2 | 3 | 4 | 5;
+// 3-step wizard, image-first:
+//   1. Image     pick a forge background, customize focal/overlay
+//   2. Compose   kind toggle + post-type pick + topic input (all one screen)
+//   3. Generate  render, surface caption + first_comment + reel script with
+//                a regenerate button, push to IG drafts when ready
+type Step = 1 | 2 | 3;
 
 export function SocialComposer({ rows }: { rows: SocialRow[] }) {
   const router = useRouter();
@@ -95,6 +100,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
 
   // Async state
   const [drafting, setDrafting] = useState(false);
+  const [regenning, setRegenning] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const [draftedId, setDraftedId] = useState<string | null>(null);
@@ -133,7 +139,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
         setCustomImageUrl(data.url);
         setImageSlug(null);
         setWizardOpen(true);
-        setStep(3);
+        setStep(1);
         setFlash("Forge image attached — review and continue.");
         setTimeout(() => setFlash(null), 4000);
       }
@@ -174,12 +180,31 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
       }
       flashFor("Drafted");
       setDraftedId(json.id);
-      setStep(5);
+      setStep(3);
       startTransition(() => router.refresh());
     } catch (e) {
       flashFor(`Draft failed: ${(e as Error).message}`);
     } finally {
       setDrafting(false);
+    }
+  }
+
+  async function onRegenCaption() {
+    if (!draftedId) return;
+    setRegenning(true);
+    try {
+      const res = await fetch(`/api/social/regen-caption/${draftedId}`, { method: "POST" });
+      const json = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !json.ok) {
+        flashFor(`Regen failed: ${json.error}`);
+        return;
+      }
+      flashFor("Caption regenerated.");
+      startTransition(() => router.refresh());
+    } catch (e) {
+      flashFor(`Regen failed: ${(e as Error).message}`);
+    } finally {
+      setRegenning(false);
     }
   }
 
@@ -304,34 +329,10 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             close ✕
           </button>
         </div>
-        <StepHeader step={step} setStep={setStep} kind={kind} postType={postType} imageSlug={imageSlug} draftedId={draftedId} />
+        <StepHeader step={step} setStep={setStep} imageSlug={imageSlug} customImageUrl={customImageUrl} kind={kind} postType={postType} topic={topic} draftedId={draftedId} />
 
         {step === 1 && (
-          <Step1Kind
-            kind={kind}
-            onPick={(k) => {
-              setKind(k);
-              setPostType(null);
-              setStep(2);
-            }}
-          />
-        )}
-
-        {step === 2 && kind && (
-          <Step2PostType
-            kind={kind}
-            postType={postType}
-            options={eligibleTypes}
-            onPick={(slug) => {
-              setPostType(slug);
-              setStep(3);
-            }}
-            onBack={() => setStep(1)}
-          />
-        )}
-
-        {step === 3 && (
-          <Step3Image
+          <Step1ImagePick
             imageSlug={imageSlug}
             customImageUrl={customImageUrl}
             focalX={focalX}
@@ -340,7 +341,6 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             setImageSlug={(slug) => {
               setImageSlug(slug);
               setCustomImageUrl(null);
-              // Reset focal to image's hint if defined
               const hint = FORGE_IMAGES.find((f) => f.slug === slug)?.focalHint;
               if (hint) {
                 setFocalX(Math.round(hint.x * 100));
@@ -354,36 +354,47 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             setFocalX={setFocalX}
             setFocalY={setFocalY}
             setOverlay={setOverlay}
-            onNext={() => setStep(4)}
+            onNext={() => setStep(2)}
             onSkip={() => {
               setImageSlug(null);
               setCustomImageUrl(null);
-              setStep(4);
+              setStep(2);
             }}
-            onBack={() => setStep(2)}
+            onCancel={() => setWizardOpen(false)}
           />
         )}
 
-        {step === 4 && selectedDef && (
-          <Step4Copy
-            def={selectedDef}
+        {step === 2 && (
+          <Step2Compose
+            kind={kind}
+            postType={postType}
             topic={topic}
-            setTopic={setTopic}
-            selectedImageName={selectedImage?.name || null}
+            selectedImageName={selectedImage?.name || (customImageUrl ? "custom upload" : null)}
+            options={eligibleTypes}
+            allTypes={POST_TYPES}
             drafting={drafting}
+            setKind={(k) => {
+              setKind(k);
+              setPostType(null);
+            }}
+            setPostType={setPostType}
+            setTopic={setTopic}
             onDraft={onDraft}
-            onBack={() => setStep(3)}
+            onBack={() => setStep(1)}
           />
         )}
 
-        {step === 5 && draftedId && (
-          <Step5Review
+        {step === 3 && draftedId && (
+          <Step3Generate
             row={rows.find((r) => r.id === draftedId)}
             busy={busyId === draftedId}
             pending={pending}
+            regenning={regenning}
             onPublish={() => onPublish(draftedId)}
             onDiscard={() => onDiscard(draftedId)}
+            onRegenCaption={onRegenCaption}
             onStartOver={resetWizard}
+            onBackToCompose={() => setStep(2)}
           />
         )}
       </div>
@@ -463,32 +474,37 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
 function StepHeader({
   step,
   setStep,
+  imageSlug,
+  customImageUrl,
   kind,
   postType,
-  imageSlug,
+  topic,
   draftedId,
 }: {
   step: Step;
   setStep: (s: Step) => void;
+  imageSlug: string | null;
+  customImageUrl: string | null;
   kind: PostKind | null;
   postType: string | null;
-  imageSlug: string | null;
+  topic: string;
   draftedId: string | null;
 }) {
+  const imageLabel = customImageUrl
+    ? "custom"
+    : imageSlug || (step > 1 ? "typographic" : "—");
+  const composeLabel = postType
+    ? `${postType.replace(/_/g, " ")}${kind ? ` (${kind})` : ""}`
+    : kind
+    ? `${kind}`
+    : "—";
   const steps = [
-    { n: 1, label: "Post Type", done: !!kind, value: kind ? kind : "—" },
-    { n: 2, label: "Customize", done: !!postType, value: postType || "—" },
-    {
-      n: 3,
-      label: "Image",
-      done: imageSlug !== null || step > 3,
-      value: imageSlug || (step > 3 ? "typographic" : "—"),
-    },
-    { n: 4, label: "Build Copy", done: !!draftedId, value: draftedId ? "drafted" : "—" },
-    { n: 5, label: "Review", done: false, value: draftedId ? "ready" : "—" },
+    { n: 1, label: "Image", done: step > 1, value: imageLabel },
+    { n: 2, label: "Compose", done: !!draftedId, value: composeLabel + (topic ? " · topic ✓" : "") },
+    { n: 3, label: "Generate", done: false, value: draftedId ? "ready" : "—" },
   ];
   return (
-    <div style={{ display: "flex", gap: 6, marginBottom: 18, flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
       {steps.map((s) => {
         const active = step === s.n;
         const reachable = s.n <= step || s.done;
@@ -501,19 +517,20 @@ function StepHeader({
             }}
             disabled={!reachable}
             style={{
-              flex: "1 1 140px",
-              minWidth: 130,
+              flex: "1 1 200px",
+              minWidth: 180,
               textAlign: "left",
-              padding: "10px 12px",
+              padding: "12px 14px",
               border: `1px solid ${active ? "var(--accent)" : "var(--border)"}`,
-              background: active ? "rgba(242,138,47,0.08)" : "transparent",
+              background: active ? "rgba(242,138,47,0.10)" : "transparent",
               color: reachable ? "var(--text)" : "var(--text-tertiary)",
               cursor: reachable ? "pointer" : "not-allowed",
               borderRadius: "var(--radius-sm)",
               fontFamily: "inherit",
+              borderLeft: active ? "3px solid var(--accent)" : `1px solid ${active ? "var(--accent)" : "var(--border)"}`,
             }}
           >
-            <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--text-tertiary)" }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: active ? "var(--accent)" : "var(--text-tertiary)" }}>
               0{s.n} · {s.label}
             </div>
             <div style={{ fontSize: 13, marginTop: 4, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -527,111 +544,160 @@ function StepHeader({
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Step 1 — single vs carousel
+// Step 2 — Compose. Kind toggle + post-type pick + topic input in one screen.
+// This is where Josh picks "what's the post" after he's already locked in
+// the image in step 1. All controls visible at once, no sub-steps.
 // ─────────────────────────────────────────────────────────────────────────
-function Step1Kind({ kind, onPick }: { kind: PostKind | null; onPick: (k: PostKind) => void }) {
+function Step2Compose({
+  kind,
+  postType,
+  topic,
+  selectedImageName,
+  options,
+  allTypes,
+  drafting,
+  setKind,
+  setPostType,
+  setTopic,
+  onDraft,
+  onBack,
+}: {
+  kind: PostKind | null;
+  postType: string | null;
+  topic: string;
+  selectedImageName: string | null;
+  options: typeof POST_TYPES;
+  allTypes: typeof POST_TYPES;
+  drafting: boolean;
+  setKind: (k: PostKind) => void;
+  setPostType: (slug: string) => void;
+  setTopic: (s: string) => void;
+  onDraft: () => void;
+  onBack: () => void;
+}) {
+  const def = postType ? allTypes.find((p) => p.slug === postType) : null;
   return (
     <div>
-      <div className="section-label" style={{ marginBottom: 12 }}>Step 1 · Post type</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="section-label" style={{ marginBottom: 12 }}>Step 2 · Compose</div>
+      <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 14 }}>
+        Image locked: <strong style={{ color: "var(--text)" }}>{selectedImageName || "typographic only"}</strong>.
+        Now choose the format + tell me what it&apos;s about. AI fills the copy.
+      </div>
+
+      {/* Kind toggle — single / carousel */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
         {(["single", "carousel"] as PostKind[]).map((k) => (
           <button
             key={k}
             type="button"
-            onClick={() => onPick(k)}
+            onClick={() => setKind(k)}
             style={{
-              textAlign: "left",
-              padding: 20,
-              background: kind === k ? "rgba(242,138,47,0.08)" : "transparent",
+              flex: 1,
+              padding: "10px 14px",
+              fontFamily: "var(--mono)",
+              fontSize: 12,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              background: kind === k ? "rgba(242,138,47,0.12)" : "transparent",
               border: `1px solid ${kind === k ? "var(--accent)" : "var(--border)"}`,
+              color: kind === k ? "var(--ember-050)" : "var(--text-secondary)",
               borderRadius: "var(--radius-sm)",
               cursor: "pointer",
-              color: "var(--text)",
-              fontFamily: "inherit",
             }}
           >
-            <div style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
-              {k === "single" ? "// single" : "// carousel"}
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 600, marginTop: 8 }}>
-              {k === "single" ? "Single image post" : "Multi-slide carousel"}
-            </div>
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 8, lineHeight: 1.5 }}>
-              {k === "single"
-                ? "One typography-led slide. Use for declarations, hot takes, reframes, founder lens."
-                : "6-8 slides: hook + plays + CTA + signoff. Use for role guides, quick wins, diagnostics, behind-the-build, compliance plays."}
-            </div>
+            {k === "single" ? "single image" : "multi-slide carousel"}
           </button>
         ))}
       </div>
-    </div>
-  );
-}
 
-// ─────────────────────────────────────────────────────────────────────────
-// Step 2 — pick the specific post type from the registry
-// ─────────────────────────────────────────────────────────────────────────
-function Step2PostType({
-  kind,
-  postType,
-  options,
-  onPick,
-  onBack,
-}: {
-  kind: PostKind;
-  postType: string | null;
-  options: typeof POST_TYPES;
-  onPick: (slug: string) => void;
-  onBack: () => void;
-}) {
-  return (
-    <div>
-      <div className="section-label" style={{ marginBottom: 12 }}>
-        Step 2 · Customize ({kind})
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
-        {options.map((p) => (
-          <button
-            key={p.slug}
-            type="button"
-            onClick={() => onPick(p.slug)}
+      {/* Post-type grid — filtered by kind */}
+      {kind && (
+        <>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
+            // post type
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+            {options.map((p) => (
+              <button
+                key={p.slug}
+                type="button"
+                onClick={() => setPostType(p.slug)}
+                style={{
+                  textAlign: "left",
+                  padding: 12,
+                  background: postType === p.slug ? "rgba(242,138,47,0.10)" : "transparent",
+                  border: `1px solid ${postType === p.slug ? "var(--accent)" : "var(--border)"}`,
+                  borderRadius: "var(--radius-sm)",
+                  cursor: "pointer",
+                  color: "var(--text)",
+                  fontFamily: "inherit",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{p.label}</div>
+                  <div style={{ fontSize: 9, fontFamily: "var(--mono)", color: "var(--text-tertiary)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                    {p.kind === "carousel" ? `${p.slideCount} slides` : "single"}
+                  </div>
+                </div>
+                <div style={{ fontSize: 10, color: "var(--accent)", marginTop: 2, fontFamily: "var(--mono)" }}>
+                  {p.pillar}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 6, lineHeight: 1.4 }}>
+                  {p.description}
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Topic — only enabled once a post type is picked */}
+      {def && (
+        <>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
+            // topic — what&apos;s the post about
+          </div>
+          <textarea
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder={`Topic for "${def.label}". e.g. ${def.voiceHint.split(".")[0].toLowerCase()}`}
+            rows={4}
             style={{
-              textAlign: "left",
-              padding: 16,
-              background: postType === p.slug ? "rgba(242,138,47,0.08)" : "transparent",
-              border: `1px solid ${postType === p.slug ? "var(--accent)" : "var(--border)"}`,
+              width: "100%",
+              padding: 12,
+              fontSize: 14,
+              fontFamily: "'Inter', sans-serif",
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
               borderRadius: "var(--radius-sm)",
-              cursor: "pointer",
               color: "var(--text)",
-              fontFamily: "inherit",
+              resize: "vertical",
+              marginBottom: 12,
             }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-              <div style={{ fontWeight: 600, fontSize: 15 }}>{p.label}</div>
-              <div style={{ fontSize: 10, fontFamily: "var(--mono)", color: "var(--text-tertiary)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
-                {p.kind === "carousel" ? `${p.slideCount} slides` : "single"}
-              </div>
-            </div>
-            <div style={{ fontSize: 11, color: "var(--accent)", marginTop: 4, fontFamily: "var(--mono)" }}>
-              {p.pillar}
-            </div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8, lineHeight: 1.45 }}>
-              {p.description}
-            </div>
-          </button>
-        ))}
-      </div>
-      <div style={{ display: "flex", gap: 8 }}>
-        <button type="button" className="act-btn" onClick={onBack}>← Back</button>
+          />
+        </>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+        <button type="button" className="act-btn" onClick={onBack} disabled={drafting}>← Back</button>
+        <button
+          type="button"
+          className="act-btn act-btn-primary"
+          onClick={onDraft}
+          disabled={drafting || !def || !topic.trim()}
+        >
+          {drafting ? "Generating…" : "Generate post →"}
+        </button>
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Step 3 — pick a forge background, set focal point, choose overlay
+// Step 1 — Image pick. Forge background + focal/overlay tweaks.
+// (This is the START of the flow now. Image-first per Josh's redesign.)
 // ─────────────────────────────────────────────────────────────────────────
-function Step3Image({
+function Step1ImagePick({
   imageSlug,
   customImageUrl,
   focalX,
@@ -644,7 +710,7 @@ function Step3Image({
   setOverlay,
   onNext,
   onSkip,
-  onBack,
+  onCancel,
 }: {
   imageSlug: string | null;
   customImageUrl: string | null;
@@ -658,7 +724,7 @@ function Step3Image({
   setOverlay: (o: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none") => void;
   onNext: () => void;
   onSkip: () => void;
-  onBack: () => void;
+  onCancel: () => void;
 }) {
   const activeImageUrl = customImageUrl || (imageSlug ? FORGE_IMAGES.find((f) => f.slug === imageSlug)?.url : null);
   const hasImage = !!activeImageUrl;
@@ -682,10 +748,10 @@ function Step3Image({
   return (
     <div>
       <div className="section-label" style={{ marginBottom: 12 }}>
-        Step 3 · Image (background)
+        Step 1 · Pick your image
       </div>
       <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 12 }}>
-        Pick a forge background for the hero slide. Slide the focal points to frame the subject. Choose an overlay treatment. Or skip for pure-typographic.
+        Start by picking a forge background for the hero slide. Slide the focal points to frame the subject. Choose an overlay treatment. Or skip and go pure-typographic.
         Need wider control (cropping, panels, batch)? Open the <a href="/forge/index.html?return=wizard" target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>Image Forge ↗</a> — when you hit &quot;Use in wizard&quot; there, the image comes back here automatically.
       </div>
 
@@ -852,7 +918,7 @@ function Step3Image({
       )}
 
       <div style={{ display: "flex", gap: 8, justifyContent: "space-between", alignItems: "center" }}>
-        <button type="button" className="act-btn" onClick={onBack}>← Back</button>
+        <button type="button" className="act-btn" onClick={onCancel}>Cancel</button>
         <div style={{ display: "flex", gap: 8 }}>
           {!hasImage && (
             <button type="button" className="act-btn" onClick={onSkip}>
@@ -871,83 +937,29 @@ function Step3Image({
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Step 4 — topic input + draft
+// Step 3 — Generate & Review. Slides rendered, caption + first_comment +
+// reel script shown, each with a regenerate button. Push to IG drafts CTA.
 // ─────────────────────────────────────────────────────────────────────────
-function Step4Copy({
-  def,
-  topic,
-  setTopic,
-  selectedImageName,
-  drafting,
-  onDraft,
-  onBack,
-}: {
-  def: (typeof POST_TYPES)[number];
-  topic: string;
-  setTopic: (s: string) => void;
-  selectedImageName: string | null;
-  drafting: boolean;
-  onDraft: () => void;
-  onBack: () => void;
-}) {
-  return (
-    <div>
-      <div className="section-label" style={{ marginBottom: 12 }}>
-        Step 4 · Build copy
-      </div>
-      <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 12 }}>
-        Type: <strong style={{ color: "var(--text)" }}>{def.label}</strong> · {def.kind === "carousel" ? `${def.slideCount} slides` : "single"} · Image: <strong style={{ color: "var(--text)" }}>{selectedImageName || "typographic"}</strong>
-      </div>
-      <textarea
-        value={topic}
-        onChange={(e) => setTopic(e.target.value)}
-        placeholder={`Topic for "${def.label}". e.g. ${def.voiceHint.split(".")[0].toLowerCase()}`}
-        rows={4}
-        style={{
-          width: "100%",
-          padding: 12,
-          fontSize: 14,
-          fontFamily: "'Inter', sans-serif",
-          background: "var(--bg)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius-sm)",
-          color: "var(--text)",
-          resize: "vertical",
-          marginBottom: 12,
-        }}
-      />
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-        <button type="button" className="act-btn" onClick={onBack} disabled={drafting}>← Back</button>
-        <button
-          type="button"
-          className="act-btn act-btn-primary"
-          onClick={onDraft}
-          disabled={drafting || !topic.trim()}
-        >
-          {drafting ? "Drafting…" : "Generate copy →"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// Step 5 — review + push
-// ─────────────────────────────────────────────────────────────────────────
-function Step5Review({
+function Step3Generate({
   row,
   busy,
   pending,
+  regenning,
   onPublish,
   onDiscard,
+  onRegenCaption,
   onStartOver,
+  onBackToCompose,
 }: {
   row: SocialRow | undefined;
   busy: boolean;
   pending: boolean;
+  regenning: boolean;
   onPublish: () => void;
   onDiscard: () => void;
+  onRegenCaption: () => void;
   onStartOver: () => void;
+  onBackToCompose: () => void;
 }) {
   if (!row) {
     return (
@@ -959,7 +971,11 @@ function Step5Review({
   return (
     <div>
       <div className="section-label" style={{ marginBottom: 12 }}>
-        Step 5 · Review and ship
+        Step 3 · Generated post — review and ship
+      </div>
+      <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 14 }}>
+        Visuals are locked. Caption + first comment + reel script auto-generated below.
+        Don&apos;t love them? Hit <strong style={{ color: "var(--accent)" }}>↻ Regenerate caption</strong> for a different angle. When you&apos;re happy, push to IG drafts.
       </div>
       <PostCard
         row={row}
@@ -968,10 +984,16 @@ function Step5Review({
         busyId={busy ? row.id : null}
         pending={pending}
         embedded
+        showRegen
+        regenning={regenning}
+        onRegenCaption={onRegenCaption}
       />
-      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-        <button type="button" className="act-btn" onClick={onStartOver}>
-          ← Start over
+      <div style={{ display: "flex", gap: 8, marginTop: 14, justifyContent: "space-between" }}>
+        <button type="button" className="act-btn" onClick={onBackToCompose} disabled={regenning}>
+          ← Back to compose
+        </button>
+        <button type="button" className="act-btn" onClick={onStartOver} disabled={regenning}>
+          Start over
         </button>
       </div>
     </div>
@@ -989,6 +1011,9 @@ function PostCard({
   pending,
   compact,
   embedded,
+  showRegen,
+  regenning,
+  onRegenCaption,
 }: {
   row: SocialRow;
   onPublish: (id: string) => void;
@@ -997,6 +1022,9 @@ function PostCard({
   pending: boolean;
   compact?: boolean;
   embedded?: boolean;
+  showRegen?: boolean;
+  regenning?: boolean;
+  onRegenCaption?: () => void;
 }) {
   const [showCopy, setShowCopy] = useState<"caption" | "first_comment" | "reel" | null>(null);
   const isCarousel = !!row.copy_blocks?.is_carousel;
@@ -1094,6 +1122,45 @@ function PostCard({
       </div>
 
       {/* Caption / first_comment / reel — three columns when there's room */}
+      {/* Regenerate toolbar — only in Step 3 review */}
+      {showRegen && onRegenCaption && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 10,
+            padding: "10px 12px",
+            background: "rgba(242,138,47,0.06)",
+            border: "1px solid rgba(255,138,47,0.20)",
+            borderRadius: "var(--radius-sm)",
+          }}
+        >
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+            Don&apos;t love the caption? Roll a different angle. Slides stay the same.
+          </div>
+          <button
+            type="button"
+            onClick={onRegenCaption}
+            disabled={regenning}
+            style={{
+              background: "transparent",
+              border: "1px solid var(--accent)",
+              color: "var(--accent)",
+              padding: "6px 12px",
+              borderRadius: 4,
+              fontFamily: "var(--mono)",
+              fontSize: 11,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              cursor: regenning ? "wait" : "pointer",
+            }}
+          >
+            {regenning ? "rolling…" : "↻ regenerate caption"}
+          </button>
+        </div>
+      )}
+
       {(caption || firstComment || reel) && !compact && (
         <div
           style={{

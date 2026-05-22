@@ -401,6 +401,95 @@ Hard rules:
   };
 }
 
+// ----- caption regenerator -----
+// Re-rolls just the caption + first_comment + reel_script for an already-
+// drafted post. Reuses the post's existing slides as context so the new
+// caption stays consistent with the visuals.
+export type RegenPackage = {
+  caption: string;
+  first_comment?: string;
+  reel_script?: ReelScript;
+};
+
+export async function regenCopyPackage(
+  brand: Brand,
+  postTypeSlug: string,
+  topic: string,
+  existing: { caption?: string; slides: SlideContent[] }
+): Promise<RegenPackage> {
+  const def = getPostType(postTypeSlug);
+  // Pull the headline / steps so the new caption stays grounded in what
+  // the slides actually say.
+  const slideSummary = existing.slides
+    .map((s, i) => {
+      const head = s.headline || s.title || s.body || s.cta || s.trueLine || "";
+      return head ? `${i + 1}. [${s.composition}] ${head}` : null;
+    })
+    .filter(Boolean)
+    .join("\n");
+
+  const isCarousel = def.kind === "carousel";
+  const text = await ask(`${voiceFor(brand)}
+
+You're regenerating the PUBLISHING PACKAGE for an already-drafted Instagram post.
+The visuals are locked. Only the caption, first comment, and reel script need to change.
+Try a different angle / opening hook than what's likely already there — Josh is regenerating because he wants alternatives.
+
+POST TYPE: ${def.label}. ${def.description}
+TONE: ${def.voiceHint}
+TOPIC: "${topic}"
+
+The slides that are already locked in:
+${slideSummary || "(no slide context)"}
+
+${existing.caption ? `Previous caption (for reference — do NOT repeat the same opening line):\n"""\n${existing.caption.slice(0, 600)}\n"""\n` : ""}
+
+Return ONLY raw JSON:
+{
+  "caption": "...",
+  "first_comment": "...",
+  "reel_script": {
+    "duration": "${isCarousel ? "45s" : "30s"}",
+    "beats": [
+      { "t": "0:00", "label": "HOOK", "script": "..." },
+      { "t": "0:08", "label": "SETUP", "script": "..." },
+      { "t": "0:22", "label": "PAYOFF", "script": "..." },
+      { "t": "0:40", "label": "CTA", "script": "..." }
+    ]
+  }
+}
+
+Hard rules:
+- Caption: ${isCarousel ? "600-900" : "400-700"} chars. Short paragraphs. Ends with "- Josh".
+- DON'T start with the same opening line as the previous caption.
+- first_comment: 2-3 lines including josh@prometheusconsulting.ai.
+- reel_script: exactly 4 beats.
+- No emojis. No em dashes.`, 2400);
+
+  type Raw = {
+    caption?: string;
+    first_comment?: string;
+    reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
+  };
+  const raw = safeParse<Raw>(text, {});
+
+  let reel_script: ReelScript | undefined;
+  if (raw.reel_script?.beats && raw.reel_script.beats.length === 4) {
+    const beats: ReelBeat[] = raw.reel_script.beats
+      .filter((b): b is { t: string; label: string; script: string } => Boolean(b?.t && b?.label && b?.script))
+      .slice(0, 4);
+    if (beats.length === 4) {
+      reel_script = { duration: raw.reel_script.duration || (isCarousel ? "45s" : "30s"), beats };
+    }
+  }
+
+  return {
+    caption: raw.caption || existing.caption || "",
+    first_comment: raw.first_comment || undefined,
+    reel_script,
+  };
+}
+
 // ----- dispatcher -----
 export async function draftPost(brand: Brand, postTypeSlug: string, topic: string): Promise<PostCopy> {
   const def = getPostType(postTypeSlug);
