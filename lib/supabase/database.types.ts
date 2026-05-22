@@ -261,6 +261,72 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["social_posts"]["Row"]>;
         Relationships: [];
       };
+      documents: {
+        Row: {
+          id: string;
+          template_id: string;
+          title: string;
+          status: string;
+          field_values: Json;
+          recipient_name: string | null;
+          recipient_email: string | null;
+          recipient_company: string | null;
+          client_id: string | null;
+          sign_token: string | null;
+          sent_at: string | null;
+          viewed_at: string | null;
+          signed_at: string | null;
+          cancelled_at: string | null;
+          notes: string | null;
+          pdf_url: string | null;
+          metadata: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["documents"]["Row"]> & {
+          template_id: string;
+          title: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["documents"]["Row"]>;
+        Relationships: [];
+      };
+      document_signatures: {
+        Row: {
+          id: string;
+          document_id: string;
+          signer_role: string;
+          signer_name: string;
+          signer_email: string | null;
+          signature_image: string | null;
+          ip_address: string | null;
+          user_agent: string | null;
+          signed_at: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["document_signatures"]["Row"]> & {
+          document_id: string;
+          signer_role: string;
+          signer_name: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["document_signatures"]["Row"]>;
+        Relationships: [];
+      };
+      document_events: {
+        Row: {
+          id: string;
+          document_id: string;
+          event_type: string;
+          actor: string | null;
+          meta: Json | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["document_events"]["Row"]> & {
+          document_id: string;
+          event_type: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["document_events"]["Row"]>;
+        Relationships: [];
+      };
       ig_messages: {
         Row: {
           id: string;
