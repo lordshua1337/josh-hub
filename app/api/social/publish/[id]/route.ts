@@ -31,11 +31,16 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
 
   const { data: row, error } = await sb
     .from("social_posts")
-    .select("id, brand, copy_blocks, status, platform")
+    .select("id, brand, copy_blocks, metadata, status, platform")
     .eq("id", id)
     .maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!row) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+  // Existing metadata holds first_comment + reel_script. Every update below
+  // MUST merge into this object, never overwrite — losing first_comment
+  // breaks the IG workflow (that's where the link lives).
+  const existingMeta = (row.metadata as Record<string, unknown>) || {};
 
   const cb = row.copy_blocks as { is_carousel?: boolean; slides?: SlideContent[]; caption?: string };
   const slides = cb?.slides ?? [];
@@ -55,7 +60,7 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
       .update({
         image_url: imageUrls[0],
         status: "queued_for_ig",
-        metadata: { reason: "IG_GRAPH_TOKEN missing", slide_urls: imageUrls } as never,
+        metadata: { ...existingMeta, reason: "IG_GRAPH_TOKEN missing", slide_urls: imageUrls } as never,
       })
       .eq("id", id);
     return NextResponse.json({
@@ -86,7 +91,7 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
           status: "draft_pushed",
           posted_id: json.id,
           posted_at: new Date().toISOString(),
-          metadata: { container_id: json.id, slide_urls: imageUrls } as never,
+          metadata: { ...existingMeta, container_id: json.id, slide_urls: imageUrls } as never,
         })
         .eq("id", id);
       return NextResponse.json({ ok: true, container_id: json.id });
@@ -132,7 +137,7 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
         status: "draft_pushed",
         posted_id: pJson.id,
         posted_at: new Date().toISOString(),
-        metadata: { container_id: pJson.id, child_ids: childIds, slide_urls: imageUrls } as never,
+        metadata: { ...existingMeta, container_id: pJson.id, child_ids: childIds, slide_urls: imageUrls } as never,
       })
       .eq("id", id);
     return NextResponse.json({ ok: true, container_id: pJson.id, child_ids: childIds });

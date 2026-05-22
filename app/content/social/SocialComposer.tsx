@@ -105,6 +105,10 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
   const [flash, setFlash] = useState<string | null>(null);
   const [draftedId, setDraftedId] = useState<string | null>(null);
 
+  // Ideation state — suggested topics chips in Step 2.
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestions, setSuggestions] = useState<{ title: string; topic: string }[]>([]);
+
   function flashFor(msg: string) {
     setFlash(msg);
     setTimeout(() => setFlash(null), 5000);
@@ -186,6 +190,31 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
       flashFor(`Draft failed: ${(e as Error).message}`);
     } finally {
       setDrafting(false);
+    }
+  }
+
+  async function onSuggestTopics() {
+    if (!postType) {
+      flashFor("Pick a post type first.");
+      return;
+    }
+    setSuggesting(true);
+    try {
+      const res = await fetch("/api/social/suggest-topics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ post_type: postType, brand: "prometheus", count: 5 }),
+      });
+      const json = (await res.json()) as { ok?: boolean; topics?: { title: string; topic: string }[]; error?: string };
+      if (!res.ok || !json.ok) {
+        flashFor(`Suggest failed: ${json.error}`);
+        return;
+      }
+      setSuggestions(json.topics || []);
+    } catch (e) {
+      flashFor(`Suggest failed: ${(e as Error).message}`);
+    } finally {
+      setSuggesting(false);
     }
   }
 
@@ -373,12 +402,19 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             options={eligibleTypes}
             allTypes={POST_TYPES}
             drafting={drafting}
+            suggesting={suggesting}
+            suggestions={suggestions}
             setKind={(k) => {
               setKind(k);
               setPostType(null);
+              setSuggestions([]);
             }}
-            setPostType={setPostType}
+            setPostType={(slug) => {
+              setPostType(slug);
+              setSuggestions([]);
+            }}
             setTopic={setTopic}
+            onSuggestTopics={onSuggestTopics}
             onDraft={onDraft}
             onBack={() => setStep(1)}
           />
@@ -556,9 +592,12 @@ function Step2Compose({
   options,
   allTypes,
   drafting,
+  suggesting,
+  suggestions,
   setKind,
   setPostType,
   setTopic,
+  onSuggestTopics,
   onDraft,
   onBack,
 }: {
@@ -569,9 +608,12 @@ function Step2Compose({
   options: typeof POST_TYPES;
   allTypes: typeof POST_TYPES;
   drafting: boolean;
+  suggesting: boolean;
+  suggestions: { title: string; topic: string }[];
   setKind: (k: PostKind) => void;
   setPostType: (slug: string) => void;
   setTopic: (s: string) => void;
+  onSuggestTopics: () => void;
   onDraft: () => void;
   onBack: () => void;
 }) {
@@ -654,8 +696,29 @@ function Step2Compose({
       {/* Topic — only enabled once a post type is picked */}
       {def && (
         <>
-          <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-            // topic — what&apos;s the post about
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+              // topic — what&apos;s the post about
+            </div>
+            <button
+              type="button"
+              onClick={onSuggestTopics}
+              disabled={suggesting || drafting}
+              style={{
+                background: "transparent",
+                border: "1px solid var(--accent)",
+                color: "var(--accent)",
+                padding: "4px 10px",
+                borderRadius: 4,
+                fontFamily: "var(--mono)",
+                fontSize: 10,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                cursor: suggesting ? "wait" : "pointer",
+              }}
+            >
+              {suggesting ? "thinking…" : "↻ suggest topics"}
+            </button>
           </div>
           <textarea
             value={topic}
@@ -672,9 +735,43 @@ function Step2Compose({
               borderRadius: "var(--radius-sm)",
               color: "var(--text)",
               resize: "vertical",
-              marginBottom: 12,
+              marginBottom: 8,
             }}
           />
+          {/* Suggested topic chips — click to drop into the textarea */}
+          {suggestions.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, color: "var(--text-tertiary)", marginBottom: 6 }}>
+                Click any suggestion to use it. Edit freely after.
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {suggestions.map((s, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setTopic(s.topic)}
+                    style={{
+                      textAlign: "left",
+                      padding: "8px 12px",
+                      background: "rgba(242,138,47,0.04)",
+                      border: "1px solid rgba(255,138,47,0.16)",
+                      borderRadius: "var(--radius-sm)",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      color: "var(--text)",
+                    }}
+                  >
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 2 }}>
+                      // {s.title}
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.45 }}>
+                      {s.topic}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
 
@@ -968,15 +1065,30 @@ function Step3Generate({
       </div>
     );
   }
+  // Post has already been pushed to IG (or queued if no creds). Show the
+  // "next steps in IG" guidance panel at the top so Josh knows what to do.
+  const isPushed = row.status === "draft_pushed";
+  const isQueued = row.status === "queued_for_ig";
+  const firstComment = row.metadata?.first_comment || row.copy_blocks?.first_comment || "";
+
   return (
     <div>
       <div className="section-label" style={{ marginBottom: 12 }}>
-        Step 3 · Generated post — review and ship
+        Step 3 · {isPushed ? "Pushed to IG drafts" : isQueued ? "Queued (no IG creds)" : "Generated post — review and ship"}
       </div>
-      <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 14 }}>
-        Visuals are locked. Caption + first comment + reel script auto-generated below.
-        Don&apos;t love them? Hit <strong style={{ color: "var(--accent)" }}>↻ Regenerate caption</strong> for a different angle. When you&apos;re happy, push to IG drafts.
-      </div>
+
+      {/* Post-publish guidance — shown only after the push lands. */}
+      {(isPushed || isQueued) && (
+        <PostPublishPanel pushed={isPushed} firstComment={firstComment} />
+      )}
+
+      {!isPushed && !isQueued && (
+        <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 14 }}>
+          Visuals are locked. Caption + first comment + reel script auto-generated below.
+          Don&apos;t love them? Hit <strong style={{ color: "var(--accent)" }}>↻ Regenerate caption</strong> for a different angle. When you&apos;re happy, push to IG drafts.
+        </div>
+      )}
+
       <PostCard
         row={row}
         onPublish={onPublish}
@@ -984,7 +1096,7 @@ function Step3Generate({
         busyId={busy ? row.id : null}
         pending={pending}
         embedded
-        showRegen
+        showRegen={!isPushed && !isQueued}
         regenning={regenning}
         onRegenCaption={onRegenCaption}
       />
@@ -993,9 +1105,115 @@ function Step3Generate({
           ← Back to compose
         </button>
         <button type="button" className="act-btn" onClick={onStartOver} disabled={regenning}>
-          Start over
+          {isPushed || isQueued ? "Start a new post →" : "Start over"}
         </button>
       </div>
+    </div>
+  );
+}
+
+// Post-publish guidance — sits at the top of Step 3 after a push.
+// Surfaces the "now do this in IG" steps so Josh has a real handoff.
+function PostPublishPanel({ pushed, firstComment }: { pushed: boolean; firstComment: string }) {
+  const [copied, setCopied] = useState(false);
+  async function copyFirstComment() {
+    if (!firstComment) return;
+    try {
+      await navigator.clipboard.writeText(firstComment);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // ignore
+    }
+  }
+  return (
+    <div
+      style={{
+        marginBottom: 16,
+        padding: 18,
+        background: pushed ? "rgba(52, 211, 153, 0.06)" : "rgba(245, 158, 11, 0.06)",
+        border: `1px solid ${pushed ? "rgba(52, 211, 153, 0.30)" : "rgba(245, 158, 11, 0.30)"}`,
+        borderRadius: "var(--radius-sm)",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "var(--mono)",
+          fontSize: 11,
+          letterSpacing: "0.2em",
+          textTransform: "uppercase",
+          color: pushed ? "#34d399" : "#f59e0b",
+          marginBottom: 8,
+          fontWeight: 700,
+        }}
+      >
+        // {pushed ? "draft live on instagram" : "queued — IG creds not connected"}
+      </div>
+      <div style={{ fontSize: 14, color: "var(--text)", marginBottom: 14, lineHeight: 1.5 }}>
+        {pushed
+          ? "Your post is sitting in Instagram drafts. Open the IG app to finish: add music if it's a reel-style post, then publish."
+          : "The slide PNGs are baked and ready. When you wire IG_GRAPH_TOKEN + IG_USER_ID in Vercel env, hitting Push again will ship to drafts. For now, manually screenshot the slide URLs from the card below."}
+      </div>
+
+      <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: pushed ? "#34d399" : "#f59e0b", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
+        // next steps
+      </div>
+      <ol style={{ margin: 0, paddingLeft: 22, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7 }}>
+        <li>Open Instagram → Drafts → find this post</li>
+        <li>Add music or effects if you want them (the carousel hook slide reads as a still feed post; the panorama hits harder with music)</li>
+        <li>Publish</li>
+        <li>Immediately post the first comment below as your own reply (that&apos;s where the link goes — IG penalizes links in the caption itself)</li>
+      </ol>
+
+      {firstComment && (
+        <div
+          style={{
+            marginTop: 14,
+            padding: 12,
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius-sm)",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+              // first comment — paste as your own reply
+            </div>
+            <button
+              type="button"
+              onClick={copyFirstComment}
+              style={{
+                background: "transparent",
+                border: `1px solid ${copied ? "var(--accent)" : "var(--border)"}`,
+                color: copied ? "var(--accent)" : "var(--text-secondary)",
+                padding: "3px 10px",
+                fontSize: 10,
+                fontFamily: "var(--mono)",
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                borderRadius: 3,
+                cursor: "pointer",
+              }}
+            >
+              {copied ? "✓ copied" : "copy"}
+            </button>
+          </div>
+          <pre
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 12,
+              lineHeight: 1.55,
+              whiteSpace: "pre-wrap",
+              color: "var(--text)",
+              margin: 0,
+              maxHeight: 180,
+              overflow: "auto",
+            }}
+          >
+            {firstComment}
+          </pre>
+        </div>
+      )}
     </div>
   );
 }
