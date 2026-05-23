@@ -17,6 +17,7 @@ export type SlideContent = {
   composition: string;
   // declaration / carousel_hook
   kicker?: string;
+  eyebrow?: string;     // overline tag for numbered_step (e.g. "play 1 of 5")
   headline?: string;
   emphasize?: string;   // ONE word that appears verbatim in headline → ember gradient
   subtitle?: string;    // supporting tagline rendered below the headline — multi-word OK
@@ -78,9 +79,6 @@ export function rescueSlideEmphasis(slide: SlideContent): SlideContent {
   };
 }
 
-function rescueAll(slides: SlideContent[]): SlideContent[] {
-  return slides.map(rescueSlideEmphasis);
-}
 
 export type ReelBeat = {
   t: string;       // timestamp marker, e.g. "0:00"
@@ -304,6 +302,7 @@ async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string, slid
         composition: "numbered_step",
         index: i + 1,
         total: bodyCount,
+        eyebrow: `${arc.bodyNoun} ${i + 1} of ${bodyCount}`,
         title: s.title || `${arc.bodyNoun} ${i + 1}`,
         body: s.body || "",
         emphasize: s.emphasize,

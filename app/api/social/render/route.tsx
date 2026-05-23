@@ -90,17 +90,16 @@ async function renderSlide(
           body={slide.body || ""}
           emphasize={slide.emphasize}
           subtitle={slide.subtitle}
+          eyebrow={slide.eyebrow}
           counter={counter}
         />
       );
     case "carousel_cta":
-      // NOTE: emphasize prop deliberately NOT passed — drafter never produces
-      // it on CTA slides and the composition doesn't actually use it
-      // editorially. Passing undefined was a silent contract drift.
       return (
         <CarouselCtaComposition
           brand={brand}
           closer={slide.closer || ""}
+          emphasize={slide.emphasize}
           cta={slide.cta || ""}
           link={slide.link}
           counter={counter}

@@ -9,7 +9,7 @@
 
 import type { Brand } from "../brands";
 import { TOKEN, FORGE_BG } from "../tokens";
-import { BrandMark, fitFontSize } from "../primitives";
+import { BrandMark, fitFontSize, EmphasizedHeadline } from "../primitives";
 
 export type PanelSlideProps = {
   brand: Brand;
@@ -46,12 +46,6 @@ export function PanelSlideComposition({
   const totalWidth = panelTotal * 1080;
   const translateX = -panelIndex * 1080;
 
-  // Split caption around emphasis word for ember-gradient treatment
-  const idx = caption && emphasize ? caption.toLowerCase().indexOf(emphasize.toLowerCase()) : -1;
-  const before = idx >= 0 ? caption!.slice(0, idx) : caption || "";
-  const ember = idx >= 0 ? caption!.slice(idx, idx + emphasize!.length) : "";
-  const after = idx >= 0 ? caption!.slice(idx + emphasize!.length) : "";
-
   return (
     <div
       style={{
@@ -67,32 +61,36 @@ export function PanelSlideComposition({
         overflow: "hidden",
       }}
     >
-      {/* Wide image translated to show this panel */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: totalWidth,
-          height: 1080,
-          display: "flex",
-          transform: `translateX(${translateX}px)`,
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={imageUrl}
-          alt=""
-          width={totalWidth}
-          height={1080}
+      {/* Wide image translated to show this panel. Only render when an image
+          was actually attached — otherwise fall back to the forge bg (an
+          empty src would make Satori throw / draw a broken frame). */}
+      {imageUrl ? (
+        <div
           style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
             width: totalWidth,
             height: 1080,
-            objectFit: "cover",
-            objectPosition: `50% ${focalY}%`,
+            display: "flex",
+            transform: `translateX(${translateX}px)`,
           }}
-        />
-      </div>
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt=""
+            width={totalWidth}
+            height={1080}
+            style={{
+              width: totalWidth,
+              height: 1080,
+              objectFit: "cover",
+              objectPosition: `50% ${focalY}%`,
+            }}
+          />
+        </div>
+      ) : null}
 
       {/* Readability overlay */}
       {OVERLAY_CSS[overlay] ? (
@@ -109,39 +107,18 @@ export function PanelSlideComposition({
         />
       ) : null}
 
-      {/* Caption — bottom-left */}
+      {/* Caption — bottom-left. Uses EmphasizedHeadline for word-boundary
+          (not substring) ember matching, consistent with every other slide. */}
       {caption ? (
-        <div
-          style={{
-            position: "absolute",
-            left: 96,
-            bottom: 152,
-            display: "flex",
-            flexWrap: "wrap",
-            maxWidth: 880,
-            fontSize: fitFontSize(caption || "", { width: 880, maxLines: 3, candidates: [56, 48, 40, 34], weight: 700 }),
-            fontWeight: 700,
-            lineHeight: 1.05,
-            letterSpacing: "-0.028em",
-            color: TOKEN.fg100,
-          }}
-        >
-          {before ? <span style={{ display: "flex" }}>{before}</span> : null}
-          {ember ? (
-            <span
-              style={{
-                display: "flex",
-                backgroundImage: `linear-gradient(90deg, ${TOKEN.ember700} 0%, ${TOKEN.ember500} 32%, ${TOKEN.ember300} 62%, ${TOKEN.ember050} 100%)`,
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                color: "transparent",
-                fontWeight: 700,
-              }}
-            >
-              {ember}
-            </span>
-          ) : null}
-          {after ? <span style={{ display: "flex" }}>{after}</span> : null}
+        <div style={{ position: "absolute", left: 96, bottom: 152, maxWidth: 880, display: "flex" }}>
+          <EmphasizedHeadline
+            text={caption}
+            emphasize={emphasize}
+            fontSize={fitFontSize(caption, { width: 880, maxLines: 3, candidates: [56, 48, 40, 34], weight: 700 })}
+            weight={700}
+            letterSpacing="-0.028em"
+            lineHeight={1.05}
+          />
         </div>
       ) : null}
 

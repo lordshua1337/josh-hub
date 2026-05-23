@@ -347,9 +347,9 @@ export function enforceLimits<T extends EnforceableSlide>(slide: T): T {
     }
   }
 
-  // Rescue emphasis: must be one word from the slide's primary text line.
-  // Primary text = headline | title | trueLine | caption (whichever exists).
-  const primary = s.headline || s.title || s.trueLine || s.caption;
+  // Rescue emphasis: must be a word (or contiguous phrase) from the slide's
+  // primary text line. Primary text differs per composition.
+  const primary = s.headline || s.title || s.closer || s.trueLine || s.caption;
   if (s.emphasize && !isValidEmphasis(s.emphasize, primary)) {
     // If a subtitle slot exists and is empty, move the stray phrase there.
     if ((s.composition === "carousel_hook" || s.composition === "numbered_step") && !s.subtitle) {

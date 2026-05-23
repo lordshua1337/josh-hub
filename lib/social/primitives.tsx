@@ -345,13 +345,30 @@ export function EmphasizedHeadline({
     lineHeight: 1,
     letterSpacing,
   };
-  const target = emphasize?.trim().toLowerCase().replace(/[^\w]/g, "");
+  const norm = (s: string) => s.toLowerCase().replace(/[^\w]/g, "");
   const words = text.split(/\s+/).filter(Boolean);
+  // Support a multi-word emphasis phrase: find the contiguous run of words
+  // whose normalized forms match the emphasize tokens, and ember that whole
+  // run. (Single-word emphasis is just a run of length 1.)
+  const emTokens = emphasize ? emphasize.split(/\s+/).map(norm).filter(Boolean) : [];
+  const emberIdx = new Set<number>();
+  if (emTokens.length > 0) {
+    const wn = words.map(norm);
+    for (let i = 0; i + emTokens.length <= wn.length; i++) {
+      let hit = true;
+      for (let j = 0; j < emTokens.length; j++) {
+        if (wn[i + j] !== emTokens[j]) { hit = false; break; }
+      }
+      if (hit) {
+        for (let j = 0; j < emTokens.length; j++) emberIdx.add(i + j);
+        break; // first occurrence only
+      }
+    }
+  }
   return (
     <div style={base}>
       {words.map((w, i) => {
-        const norm = w.toLowerCase().replace(/[^\w]/g, "");
-        const isEmber = !!target && norm.length > 0 && norm === target;
+        const isEmber = emberIdx.has(i);
         if (isEmber) {
           return (
             <span
