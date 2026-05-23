@@ -15,12 +15,12 @@ export type NumberedStepProps = {
   body: string;
   emphasize?: string;
   subtitle?: string;       // optional tagline rendered between title and body
-  eyebrow?: string;        // optional overline (defaults to "play X / total")
+  eyebrow?: string;        // optional overline (defaults to "step X of total")
   counter?: string;
 };
 
 export function NumberedStepComposition({ index, total, title, body, emphasize, subtitle, eyebrow, counter }: NumberedStepProps) {
-  const tag = eyebrow || `play ${index} of ${total}`;
+  const tag = eyebrow || `step ${index} of ${total}`;
   return (
     <SlideFrame eyebrow={tag} footerCounter={counter}>
       <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center" }}>

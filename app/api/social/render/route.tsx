@@ -203,6 +203,7 @@ export async function GET(req: Request) {
       slide = {
         composition,
         kicker: url.searchParams.get("kicker") || undefined,
+        eyebrow: url.searchParams.get("eyebrow") || undefined,
         headline: url.searchParams.get("headline") || undefined,
         emphasize: url.searchParams.get("emphasize") || undefined,
         subtitle: url.searchParams.get("subtitle") || undefined,
