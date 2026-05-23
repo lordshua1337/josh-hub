@@ -123,48 +123,82 @@ async function ask(prompt: string, maxTokens = 1500): Promise<string> {
   const text = res.content[0].type === "text" ? res.content[0].text : "";
   return text.trim().replace(/^```json\n?|\n?```$/g, "");
 }
-function safeParse<T>(s: string, fallback: T): T {
+
+// Try to parse JSON; if it fails (truncated, malformed), attempt to repair
+// by trimming everything after the last close-brace. Returns the parsed
+// object or null. We log when this happens so silent failures are visible.
+function tryParse<T>(s: string): T | null {
   try {
     return JSON.parse(s) as T;
   } catch {
-    return fallback;
+    // Attempt repair: find the last balanced "}" position from the end
+    // and try slicing the string there. Handles mid-string truncation.
+    for (let i = s.length - 1; i >= 0; i--) {
+      if (s[i] === "}") {
+        try {
+          return JSON.parse(s.slice(0, i + 1)) as T;
+        } catch {
+          continue;
+        }
+      }
+    }
+    console.warn("[social/copy] JSON parse failed; falling back. First 300 chars:", s.slice(0, 300));
+    return null;
   }
+}
+
+function safeParse<T>(s: string, fallback: T): T {
+  return tryParse<T>(s) ?? fallback;
+}
+
+// askWithRetry — call the LLM, parse to JSON. If parse fails entirely
+// (not even partial repair worked), retry ONCE with a stricter, shorter
+// reminder to return raw JSON only. This catches the case where Haiku
+// returned prose / Markdown / a truncated payload.
+async function askForJson<T>(prompt: string, maxTokens: number): Promise<T | null> {
+  const first = await ask(prompt, maxTokens);
+  const parsed = tryParse<T>(first);
+  if (parsed) return parsed;
+  // One retry with an injected sternness header. We don't want to loop
+  // forever — one shot then give up.
+  const stricter =
+    `CRITICAL: Your previous response could not be parsed. Return ONLY raw, complete, well-formed JSON. No prose, no markdown fences, no commentary. The JSON must be a single complete object that fits within the response budget. Be terse if you must.\n\n` +
+    prompt;
+  const second = await ask(stricter, maxTokens);
+  return tryParse<T>(second);
 }
 
 // ----- declaration / hot_take / founder_lens / ai_enablement_declaration -----
 async function draftSingleDeclaration(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
-  const text = await ask(`${voiceFor(brand)}
+  const briefedTopic = topic.length > 220 ? topic.slice(0, 220).trim() + "…" : topic;
+  type Raw = { kicker?: string; headline?: string; emphasize?: string; subtitle?: string; footer?: string; caption?: string };
+  const p = (await askForJson<Raw>(`${voiceFor(brand)}
 
-You're writing ONE Instagram post in the "declaration" format. Typography-led, asymmetric, dark warm background. No background image.
+Write ONE Instagram declaration post. Typography-led, dark forge background.
 
 POST TYPE: ${def.label}. ${def.description}
 TONE: ${def.voiceHint}
+TOPIC (distill — do NOT echo verbatim): "${briefedTopic}"
 
-Slots (READ CAREFULLY — emphasize and subtitle are DIFFERENT things):
-- kicker:    small all-caps mono opener, optional. <= 6 words.
-- headline:  the dominant line. <= 10 words.
-- emphasize: EXACTLY ONE WORD from the headline above. That single word renders in an ember-gradient color so it pops. If no single word stands out, OMIT this field. NEVER put a tagline or full sentence here.
-- subtitle:  the supporting tagline/punchline that complements the headline. <= 14 words. This is where the "second line of copy" lives — multi-word, full sentence OK. Optional but encouraged.
-- footer:    small editorial line below subtitle. <= 18 words. Optional.
-- caption:   IG caption. 2-4 short paragraphs. Ends with a question or path forward. 4-6 hashtags on separate line at bottom.
+Two fields often confused:
+- "emphasize" = EXACTLY ONE word from the headline below. Renders ember-gradient. If no single word pops, omit.
+- "subtitle"  = multi-word tagline / second-line copy. Multi-word OK.
+Example: headline="AI doesn't replace judgment.", emphasize="judgment", subtitle="It amplifies the operators who already have it."
 
-Topic: "${topic}"
+Return ONLY raw JSON, no prose, no fences:
+{
+  "kicker":    "small all-caps mono opener, <=6 words, OR empty string",
+  "headline":  "<=10 words, REWRITE the topic, do NOT echo it verbatim",
+  "emphasize": "ONE word from headline, OR empty string",
+  "subtitle":  "8-14 word tagline / punchline that complements headline",
+  "footer":    "optional small editorial line, <=18 words, OR empty string",
+  "caption":   "IG caption, 2-4 short paragraphs, ends with question, 4-6 hashtags on new line at bottom"
+}
 
-EXAMPLES of correct emphasize vs subtitle:
-  GOOD: headline="AI doesn't replace judgment.", emphasize="judgment", subtitle="It amplifies the operators who already have it."
-  GOOD: headline="Five systems we set up in week one", emphasize="five", subtitle="Not strategy decks. Real automation that moves revenue."
-  BAD:  headline="Five systems we set up in week one", emphasize="Not strategy decks. Real automation."  ← THIS IS A SUBTITLE, NOT AN EMPHASIZE
-
-Constraints:
-- NO emojis. NO em dashes.
-- emphasize MUST be a single word that appears verbatim inside headline, OR omit entirely.
-- caption must NOT just restate the headline.
-
-Return ONLY raw JSON:
-{"kicker": "...", "headline": "...", "emphasize": "...", "subtitle": "...", "footer": "...", "caption": "..."}`);
-  const p = safeParse(text, { headline: topic, caption: "" }) as {
-    kicker?: string; headline: string; emphasize?: string; subtitle?: string; footer?: string; caption: string;
-  };
+RULES:
+- headline MUST NOT echo topic verbatim — REWRITE punchy.
+- emphasize is single-word-from-headline OR omitted/empty. NEVER a phrase.
+- No emojis. No em dashes. No corporate slop.`, 2000)) ?? { headline: briefedTopic, caption: "" };
   const heroSlide = rescueSlideEmphasis({
     composition: "declaration",
     kicker: p.kicker,
@@ -182,28 +216,27 @@ Return ONLY raw JSON:
 
 // ----- split_contrast (reframe) -----
 async function draftReframe(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
-  const text = await ask(`${voiceFor(brand)}
+  const briefedTopic = topic.length > 220 ? topic.slice(0, 220).trim() + "…" : topic;
+  type Raw = { theySaidLabel?: string; theySaid?: string; trueLabel?: string; trueLine?: string; emphasize?: string; caption?: string };
+  const p = (await askForJson<Raw>(`${voiceFor(brand)}
 
-You're writing ONE Instagram post in the "split_contrast" format. Top half (struck-through, muted) = what they were told. Bottom half (full color) = what's actually true.
+Write ONE Instagram "split_contrast" post. Top half = what they were told (struck-through). Bottom half = what's true.
 
 POST TYPE: ${def.label}. ${def.description}
 TONE: ${def.voiceHint}
+TOPIC: "${briefedTopic}"
 
-Slots:
-- theySaidLabel: 2-4 word label, all caps. Default "WHAT THEY SAID".
-- theySaid:      the popular take. <= 12 words. Accurate, not a strawman.
-- trueLabel:     2-4 word label, all caps. Default "WHAT'S TRUE".
-- trueLine:      the reframe. <= 15 words.
-- emphasize:     EXACTLY ONE WORD from trueLine (verbatim substring) to amber. If no single word stands out, OMIT entirely. NEVER a phrase.
-- caption:       2-4 short paragraphs. Question at end. 4-6 hashtags.
+Return ONLY raw JSON, no prose:
+{
+  "theySaidLabel": "2-4 word ALL CAPS label, default WHAT THEY SAID",
+  "theySaid":      "the popular take, <=12 words, accurate not strawman",
+  "trueLabel":     "2-4 word ALL CAPS label, default WHAT'S TRUE",
+  "trueLine":      "the reframe, <=15 words",
+  "emphasize":     "ONE word from trueLine OR empty string",
+  "caption":       "2-3 short paragraphs, question at end, 4-6 hashtags"
+}
 
-Topic: "${topic}"
-
-Return ONLY raw JSON:
-{"theySaidLabel": "...", "theySaid": "...", "trueLabel": "...", "trueLine": "...", "emphasize": "...", "caption": "..."}`);
-  const p = safeParse(text, { theySaid: "", trueLine: topic, caption: "" }) as {
-    theySaidLabel?: string; theySaid: string; trueLabel?: string; trueLine: string; emphasize?: string; caption: string;
-  };
+RULES: emphasize = single word from trueLine OR omit. No emojis, no em dashes.`, 1500)) ?? { theySaid: "", trueLine: briefedTopic, caption: "" };
   return {
     is_carousel: false,
     slides: [
@@ -227,68 +260,10 @@ async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string): Pro
   const slideCount = def.slideCount ?? 6;
   const stepCount = slideCount - 3; // hook + cta + signoff
 
-  const text = await ask(`${voiceFor(brand)}
-
-You're writing an Instagram CAROUSEL plus its companion publishing package
-(caption + planted first comment + 45-50s reel script).
-
-POST TYPE: ${def.label}. ${def.description}
-TONE: ${def.voiceHint}
-SLIDES: ${slideCount} total -- 1 hook + ${stepCount} body slides + 1 CTA.
-
-Topic: "${topic}"
-
-CRITICAL — emphasize vs subtitle (the system silently drops bad emphasize):
-- "emphasize" = EXACTLY ONE WORD that appears verbatim in the headline/title. It gets an ember-gradient color treatment. If no single word stands out, OMIT this field.
-- "subtitle" = the multi-word supporting line / tagline / second-line copy. This is where punchlines live.
-- DO NOT cram a tagline into emphasize. It will be dropped.
-
-GOOD: headline="Five systems in week one", emphasize="five", subtitle="Not strategy decks. Real automation that moves revenue."
-BAD:  headline="Five systems in week one", emphasize="Not strategy decks. Real automation."  ← WRONG, that's a subtitle
-
-Return ONLY raw JSON:
-{
-  "hook": {
-    "kicker": "${stepCount} PLAYS",
-    "headline": "...",
-    "emphasize": "...",
-    "subtitle": "...",
-    "swipeHint": "swipe to start ->"
-  },
-  "steps": [
-    { "title": "...", "body": "...", "emphasize": "...", "subtitle": "..." }
-  ],
-  "cta": {
-    "closer": "...",
-    "cta": "...",
-    "link": ""
-  },
-  "caption": "...",
-  "first_comment": "...",
-  "reel_script": {
-    "duration": "45s",
-    "beats": [
-      { "t": "0:00", "label": "HOOK", "script": "..." },
-      { "t": "0:08", "label": "SETUP", "script": "..." },
-      { "t": "0:22", "label": "PAYOFF", "script": "..." },
-      { "t": "0:40", "label": "CTA", "script": "..." }
-    ]
-  }
-}
-
-Hard rules:
-- Steps array MUST be exactly ${stepCount} items.
-- Each step title <= 9 words; body 1-3 short lines.
-- Step "subtitle" is OPTIONAL — only include if it adds a real tagline. Otherwise the body alone is enough.
-- Every step must be specific enough to start TODAY.
-- Vary the verb across steps (don't start all with "Build" or "Set up").
-- Each step body must reference a concrete tool / metric / artifact.
-- For the hook slide, "subtitle" is HIGHLY ENCOURAGED — it's the punchline that complements the headline.
-- emphasize is ALWAYS single-word-from-headline-or-title, OR omit. Never a phrase.
-- No emojis. No em dashes. No corporate slop ("transform" "leverage" "synergize").
-- Caption: 600-900 chars. 2-4 short paragraphs, references the step titles. Ends with "- Josh" on its own line. NO link in the caption (IG penalizes that).
-- first_comment: 2-4 short lines. This is where the email + URL live ("josh@prometheusconsulting.ai" + "prometheusconsulting.ai"). Make it feel like a planted follow-up, not a CTA.
-- reel_script: exactly 4 beats (HOOK / SETUP / PAYOFF / CTA). 100-180 total words. Talking-head cadence: short sentences, specific numbers, no adjective tax.`, 3200);
+  // Keep the topic short in-prompt — if the user pasted a long brief,
+  // distill the gist rather than letting the LLM echo it verbatim into
+  // the headline (real bug we saw with a 235-char topic).
+  const briefedTopic = topic.length > 220 ? topic.slice(0, 220).trim() + "…" : topic;
 
   type Raw = {
     hook?: { kicker?: string; headline?: string; emphasize?: string; subtitle?: string; swipeHint?: string };
@@ -298,7 +273,44 @@ Hard rules:
     first_comment?: string;
     reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
   };
-  const raw = safeParse<Raw>(text, {});
+
+  const raw = (await askForJson<Raw>(`${voiceFor(brand)}
+
+Write an Instagram CAROUSEL package: ${slideCount} slides total = 1 hook + ${stepCount} steps + 1 CTA, plus a caption + first comment + reel script.
+
+POST TYPE: ${def.label}. ${def.description}
+TONE: ${def.voiceHint}
+TOPIC (distill — do NOT echo verbatim): "${briefedTopic}"
+
+Two text fields per slide that often get confused:
+- "emphasize" = EXACTLY ONE word that already appears in the headline/title. It renders ember-gradient. If no single word pops, omit.
+- "subtitle"  = the multi-word tagline / second-line copy. Multi-word OK. Where punchlines live.
+Example: headline="Five systems in week one", emphasize="Five", subtitle="Not strategy decks. Real automation that moves revenue."
+
+Return ONLY raw JSON, no prose, no fences:
+{
+  "hook": { "kicker": "${stepCount} PLAYS", "headline": "<=10 words, NOT the topic verbatim", "emphasize": "<one word>", "subtitle": "<the punchline, 8-14 words>", "swipeHint": "swipe to start ->" },
+  "steps": [ ${Array(stepCount).fill(0).map((_, i) => `{ "title": "<=9 words", "body": "1-2 short sentences, ref one concrete tool/metric", "emphasize": "<one word from title or OMIT>", "subtitle": "<optional tagline>" }`).join(",\n    ")} ],
+  "cta": { "closer": "punchy payoff line, <=12 words", "cta": "the one action", "link": "" },
+  "caption": "600-800 chars, 2-3 short paragraphs ending with '- Josh' on its own line, NO link",
+  "first_comment": "2-3 short lines, includes 'josh@prometheusconsulting.ai' and 'prometheusconsulting.ai'",
+  "reel_script": { "duration": "45s", "beats": [
+    { "t": "0:00", "label": "HOOK",   "script": "..." },
+    { "t": "0:08", "label": "SETUP",  "script": "..." },
+    { "t": "0:22", "label": "PAYOFF", "script": "..." },
+    { "t": "0:40", "label": "CTA",    "script": "..." }
+  ]}
+}
+
+RULES (failure to follow = the post is broken):
+- steps array MUST have EXACTLY ${stepCount} items. No fewer, no more.
+- headline MUST NOT be the topic verbatim — REWRITE it punchy, <=10 words.
+- emphasize is ALWAYS a single word from its slide's headline/title, OR omit entirely.
+- subtitle is a tagline (multi-word OK). NEVER put a tagline in emphasize.
+- Vary verbs across steps. Each step body names a tool / metric / specific artifact.
+- No emojis. No em dashes. No "transform / leverage / synergize" corporate slop.
+- reel_script: exactly 4 beats, 100-160 words total.`, 3800 + stepCount * 400)) ?? {};
+
   const steps = (raw.steps ?? []).slice(0, stepCount);
 
   const slides: SlideContent[] = [
@@ -368,45 +380,7 @@ Hard rules:
 
 // ----- panel_panorama (seamless image-split carousel) -----
 async function draftPanorama(brand: Brand, def: PostTypeDef, topic: string, panelCount = 3): Promise<PostCopy> {
-  const text = await ask(`${voiceFor(brand)}
-
-You're writing a SEAMLESS PANORAMA CAROUSEL. One image stretched across ${panelCount} swipeable panels. Each panel gets ONE short overlay phrase. Read together, they make a single statement.
-
-POST TYPE: ${def.label}. ${def.description}
-TONE: ${def.voiceHint}
-Topic: "${topic}"
-
-Return ONLY raw JSON:
-{
-  "panels": [
-    { "caption": "...", "emphasize": "..." }
-  ],
-  "cta": {
-    "closer": "...",
-    "cta": "...",
-    "link": ""
-  },
-  "caption": "...",
-  "first_comment": "...",
-  "reel_script": {
-    "duration": "30s",
-    "beats": [
-      { "t": "0:00", "label": "HOOK", "script": "..." },
-      { "t": "0:06", "label": "SETUP", "script": "..." },
-      { "t": "0:16", "label": "PAYOFF", "script": "..." },
-      { "t": "0:26", "label": "CTA", "script": "..." }
-    ]
-  }
-}
-
-Hard rules:
-- panels array MUST be exactly ${panelCount} items.
-- Each panel.caption is 4-8 words. Together they form ONE statement when swiped.
-- Each panel.emphasize is EXACTLY ONE WORD from its caption (verbatim substring) to ember-gradient. If no single word stands out, OMIT this field entirely. NEVER put a tagline here — it gets silently dropped.
-- No emojis. No em dashes.
-- Caption: 400-700 chars. 2-3 short paragraphs. Ends with "- Josh".
-- first_comment: 2-3 lines, contains josh@prometheusconsulting.ai.
-- reel_script: exactly 4 beats, 80-130 words total.`, 2400);
+  const briefedTopic = topic.length > 220 ? topic.slice(0, 220).trim() + "…" : topic;
 
   type Raw = {
     panels?: { caption?: string; emphasize?: string }[];
@@ -415,7 +389,34 @@ Hard rules:
     first_comment?: string;
     reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
   };
-  const raw = safeParse<Raw>(text, {});
+  const raw = (await askForJson<Raw>(`${voiceFor(brand)}
+
+Write a SEAMLESS PANORAMA CAROUSEL — one image stretched across ${panelCount} swipeable panels. Each panel gets ONE short overlay phrase. Read together they form one statement.
+
+POST TYPE: ${def.label}. ${def.description}
+TONE: ${def.voiceHint}
+TOPIC: "${briefedTopic}"
+
+Return ONLY raw JSON:
+{
+  "panels": [ ${Array(panelCount).fill('{ "caption": "4-8 words", "emphasize": "ONE word from caption OR empty" }').join(",\n    ")} ],
+  "cta": { "closer": "<=12 word payoff", "cta": "the one action", "link": "" },
+  "caption": "400-700 chars, 2-3 short paragraphs ending with '- Josh'",
+  "first_comment": "2-3 lines, contains josh@prometheusconsulting.ai",
+  "reel_script": { "duration": "30s", "beats": [
+    { "t": "0:00", "label": "HOOK",   "script": "..." },
+    { "t": "0:06", "label": "SETUP",  "script": "..." },
+    { "t": "0:16", "label": "PAYOFF", "script": "..." },
+    { "t": "0:26", "label": "CTA",    "script": "..." }
+  ]}
+}
+
+RULES:
+- panels array MUST have EXACTLY ${panelCount} items.
+- Each panel.caption is 4-8 words; the panels READ TOGETHER form one statement.
+- emphasize is single word from caption, OR omit. Never a phrase.
+- reel_script: exactly 4 beats, 80-130 words total. No emojis/em dashes.`, 2800)) ?? {};
+
   const panels = (raw.panels || []).slice(0, panelCount);
 
   const slides: SlideContent[] = [];
@@ -490,49 +491,37 @@ export async function regenCopyPackage(
     .join("\n");
 
   const isCarousel = def.kind === "carousel";
-  const text = await ask(`${voiceFor(brand)}
-
-You're regenerating the PUBLISHING PACKAGE for an already-drafted Instagram post.
-The visuals are locked. Only the caption, first comment, and reel script need to change.
-Try a different angle / opening hook than what's likely already there — Josh is regenerating because he wants alternatives.
-
-POST TYPE: ${def.label}. ${def.description}
-TONE: ${def.voiceHint}
-TOPIC: "${topic}"
-
-The slides that are already locked in:
-${slideSummary || "(no slide context)"}
-
-${existing.caption ? `Previous caption (for reference — do NOT repeat the same opening line):\n"""\n${existing.caption.slice(0, 600)}\n"""\n` : ""}
-
-Return ONLY raw JSON:
-{
-  "caption": "...",
-  "first_comment": "...",
-  "reel_script": {
-    "duration": "${isCarousel ? "45s" : "30s"}",
-    "beats": [
-      { "t": "0:00", "label": "HOOK", "script": "..." },
-      { "t": "0:08", "label": "SETUP", "script": "..." },
-      { "t": "0:22", "label": "PAYOFF", "script": "..." },
-      { "t": "0:40", "label": "CTA", "script": "..." }
-    ]
-  }
-}
-
-Hard rules:
-- Caption: ${isCarousel ? "600-900" : "400-700"} chars. Short paragraphs. Ends with "- Josh".
-- DON'T start with the same opening line as the previous caption.
-- first_comment: 2-3 lines including josh@prometheusconsulting.ai.
-- reel_script: exactly 4 beats.
-- No emojis. No em dashes.`, 2400);
-
   type Raw = {
     caption?: string;
     first_comment?: string;
     reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
   };
-  const raw = safeParse<Raw>(text, {});
+  const raw = (await askForJson<Raw>(`${voiceFor(brand)}
+
+Regenerate the PUBLISHING PACKAGE (caption + first comment + reel script) for an existing post. Visuals are locked. Try a DIFFERENT angle than before.
+
+POST TYPE: ${def.label}. ${def.description}
+TONE: ${def.voiceHint}
+TOPIC: "${topic}"
+
+Slides locked in:
+${slideSummary || "(no slide context)"}
+
+${existing.caption ? `Previous caption opening (do NOT repeat):\n"""\n${existing.caption.slice(0, 400)}\n"""` : ""}
+
+Return ONLY raw JSON:
+{
+  "caption": "${isCarousel ? "600-800" : "400-600"} chars, short paragraphs, ends with '- Josh'",
+  "first_comment": "2-3 lines including josh@prometheusconsulting.ai",
+  "reel_script": { "duration": "${isCarousel ? "45s" : "30s"}", "beats": [
+    { "t": "0:00", "label": "HOOK",   "script": "..." },
+    { "t": "0:08", "label": "SETUP",  "script": "..." },
+    { "t": "0:22", "label": "PAYOFF", "script": "..." },
+    { "t": "0:40", "label": "CTA",    "script": "..." }
+  ]}
+}
+
+RULES: DON'T start caption with the same opening as the previous one. Exactly 4 reel beats. No emojis, no em dashes.`, 2400)) ?? {};
 
   let reel_script: ReelScript | undefined;
   if (raw.reel_script?.beats && raw.reel_script.beats.length === 4) {
