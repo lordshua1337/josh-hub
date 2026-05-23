@@ -17,7 +17,7 @@ export type SlideContent = {
   composition: string;
   // declaration / carousel_hook
   kicker?: string;
-  eyebrow?: string;     // overline tag for numbered_step (e.g. "play 1 of 5")
+  eyebrow?: string;     // overline tag for numbered_step (e.g. "tactic 1 of 8")
   headline?: string;
   emphasize?: string;   // ONE word that appears verbatim in headline → ember gradient
   subtitle?: string;    // supporting tagline rendered below the headline — multi-word OK
@@ -288,7 +288,7 @@ async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string, slid
   const slides: SlideContent[] = [
     enforceLimits({
       composition: "carousel_hook",
-      kicker: raw.hook?.kicker || `${bodyCount} ${arc.bodyNoun.toUpperCase()}S`,
+      kicker: raw.hook?.kicker || `${bodyCount} ${arc.bodyNoun}s`,
       headline: raw.hook?.headline || topic,
       emphasize: raw.hook?.emphasize,
       subtitle: raw.hook?.subtitle,
@@ -313,9 +313,9 @@ async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string, slid
   slides.push(
     enforceLimits({
       composition: "carousel_cta",
-      closer: raw.cta?.closer || "Pick one. Ship it this week.",
+      closer: raw.cta?.closer || "Start with the one that fits your week.",
       emphasize: raw.cta?.emphasize,
-      cta: raw.cta?.cta || "Book a 15-min reality check.",
+      cta: raw.cta?.cta || "Questions? josh@prometheusconsulting.ai",
       link: raw.cta?.link || brand.schedulingLink || "",
     } as SlideContent)
   );
@@ -373,9 +373,9 @@ async function draftPanorama(brand: Brand, def: PostTypeDef, topic: string, slid
   slides.push(
     enforceLimits({
       composition: "carousel_cta",
-      closer: raw.cta?.closer || "Pick one. Ship it this week.",
+      closer: raw.cta?.closer || "Start with the one that fits your week.",
       emphasize: raw.cta?.emphasize,
-      cta: raw.cta?.cta || "Book a 15-min reality check.",
+      cta: raw.cta?.cta || "Questions? josh@prometheusconsulting.ai",
       link: raw.cta?.link || brand.schedulingLink || "",
     } as SlideContent)
   );

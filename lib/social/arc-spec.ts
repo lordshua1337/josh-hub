@@ -23,13 +23,13 @@ export type FieldLimit = {
 
 // Canonical limits per field, calibrated from the worst-case renders.
 const FL: Record<string, FieldLimit> = {
-  hookHeadline: { key: "headline", role: "the scroll-stopping hook line", targetWords: [5, 9], maxWords: 11, maxChars: 48, required: true },
-  hookSubtitle: { key: "subtitle", role: "the punchline that complements the headline (2nd line)", targetWords: [8, 14], maxWords: 18, maxChars: 95, required: false },
-  stepTitle: { key: "title", role: "the action, stated tight", targetWords: [4, 7], maxWords: 8, maxChars: 38, required: true },
-  stepSubtitle: { key: "subtitle", role: "optional one-line tagline under the title", targetWords: [5, 9], maxWords: 11, maxChars: 60, required: false },
-  stepBody: { key: "body", role: "1-2 sentences; name one concrete tool + one metric/artifact", targetWords: [18, 30], maxWords: 38, maxChars: 200, required: true },
-  ctaCloser: { key: "closer", role: "the punchy payoff line", targetWords: [6, 10], maxWords: 12, maxChars: 50, required: true },
-  ctaAction: { key: "cta", role: "the single action to take (DM keyword, book link, etc.)", targetWords: [5, 9], maxWords: 12, maxChars: 50, required: true },
+  hookHeadline: { key: "headline", role: "the opening line that makes someone stop, stated plainly (no hype)", targetWords: [5, 9], maxWords: 11, maxChars: 48, required: true },
+  hookSubtitle: { key: "subtitle", role: "the second line that adds the real point under the headline", targetWords: [8, 14], maxWords: 18, maxChars: 95, required: false },
+  stepTitle: { key: "title", role: "the action, named in plain words", targetWords: [4, 7], maxWords: 8, maxChars: 38, required: true },
+  stepSubtitle: { key: "subtitle", role: "optional one-line clarifier under the title", targetWords: [5, 9], maxWords: 11, maxChars: 60, required: false },
+  stepBody: { key: "body", role: "1-2 plain sentences that actually teach it: name one concrete tool and one real number or artifact, and be honest about the tradeoff", targetWords: [18, 30], maxWords: 38, maxChars: 200, required: true },
+  ctaCloser: { key: "closer", role: "the closing line that lands the point, calm not salesy", targetWords: [6, 10], maxWords: 12, maxChars: 50, required: true },
+  ctaAction: { key: "cta", role: "one clear, low-pressure next step (a question to sit with, or a simple way to reach out)", targetWords: [5, 9], maxWords: 12, maxChars: 50, required: true },
   panelCaption: { key: "caption", role: "one phrase of the panorama sentence", targetWords: [4, 8], maxWords: 9, maxChars: 34, required: true },
 };
 
@@ -67,10 +67,10 @@ type CarouselConfig = {
 };
 
 export const CAROUSEL_CONFIG: Record<string, CarouselConfig> = {
-  role_acceleration: { min: 5, max: 8, default: 7, bodyMode: "parallel", bodyNoun: "play", arcGoal: "one specific role's week-one AI moves, ranked by leverage" },
-  quick_wins: { min: 5, max: 9, default: 8, bodyMode: "parallel", bodyNoun: "play", arcGoal: "independent build-this-week tactics, strongest first" },
-  diagnostic: { min: 5, max: 7, default: 6, bodyMode: "parallel", bodyNoun: "question", arcGoal: "self-audit questions that expose hidden gaps, sharpest one last" },
-  behind_the_build: { min: 5, max: 7, default: 6, bodyMode: "sequential", bodyNoun: "beat", arcGoal: "one real build story: problem to approach to tools to result" },
+  role_acceleration: { min: 5, max: 8, default: 7, bodyMode: "parallel", bodyNoun: "move", arcGoal: "one specific role's first useful AI moves, most useful first" },
+  quick_wins: { min: 5, max: 9, default: 8, bodyMode: "parallel", bodyNoun: "tactic", arcGoal: "independent tactics a team can put in place this week, most useful first" },
+  diagnostic: { min: 5, max: 7, default: 6, bodyMode: "parallel", bodyNoun: "question", arcGoal: "honest self-audit questions that surface where a business actually stands, sharpest one last" },
+  behind_the_build: { min: 5, max: 7, default: 6, bodyMode: "sequential", bodyNoun: "step", arcGoal: "one real build story told straight: the problem, the approach, the tools, the result" },
   compliance_gtm: { min: 5, max: 7, default: 6, bodyMode: "parallel", bodyNoun: "guardrail", arcGoal: "named-framework guardrails for regulated AI (HIPAA / SOC2 / FedRAMP / FINRA)" },
   panel_panorama: { min: 4, max: 6, default: 5, bodyMode: "panorama", bodyNoun: "panel", arcGoal: "one statement broken into phrases across image panels" },
 };
@@ -120,11 +120,11 @@ function bodyRole(mode: BodyMode, noun: string, k: number, total: number): strin
   // parallel
   const rank =
     k === 1
-      ? "the HIGHEST-leverage one — lead with your strongest"
+      ? "the most useful one. Put it first so the reader gets something they can act on right away"
       : k === total
-        ? "the one most people skip but shouldn't"
-        : `${k === 2 ? "second" : k === 3 ? "third" : k === 4 ? "fourth" : k === 5 ? "fifth" : `${k}th`}-strongest`;
-  return `${noun} #${k} of ${total} — ${rank}. A standalone, do-it-this-week move. Must NOT overlap the other ${noun}s.`;
+        ? "a less obvious one that people tend to overlook"
+        : `the ${k === 2 ? "second" : k === 3 ? "third" : k === 4 ? "fourth" : k === 5 ? "fifth" : `${k}th`}-most useful`;
+  return `${noun} ${k} of ${total}: ${rank}. A standalone thing the reader can do on their own this week. Must not overlap the other ${noun}s.`;
 }
 
 export function buildArc(slug: string, requestedCount?: number): ArcSpec {
@@ -145,7 +145,7 @@ export function buildArc(slug: string, requestedCount?: number): ArcSpec {
     slides.push({
       position: pos++,
       composition: "carousel_hook",
-      arcRole: `THE HOOK — stop the scroll. Name the tension/promise in one punch. Do NOT echo the topic verbatim. Sets up the ${bodyCount} ${cfg.bodyNoun}s that follow.`,
+      arcRole: `The opening slide. Open with the real tension or question this topic raises, in plain language. Do not echo the topic verbatim, and do not hype it. Sets up the ${bodyCount} ${cfg.bodyNoun}s that follow.`,
       fields: [FL.hookHeadline, FL.hookSubtitle],
     });
   }
@@ -171,7 +171,7 @@ export function buildArc(slug: string, requestedCount?: number): ArcSpec {
   slides.push({
     position: pos++,
     composition: "carousel_cta",
-    arcRole: `THE CTA — convert the attention. One payoff line + one clear action. Reinforces this carousel's specific ask.`,
+    arcRole: `The closing slide. One line that lands the point of the carousel, plus one clear, low-pressure next step. No hype, no rallying cry.`,
     fields: [FL.ctaCloser, FL.ctaAction],
   });
 
@@ -238,7 +238,7 @@ export function buildArcPrompt(arc: ArcSpec, voice: string, topic: string): stri
 
   const hookBlock = isPanorama
     ? ""
-    : `"hook": { "kicker": "${arc.bodyCount} ${arc.bodyNoun.toUpperCase()}S", "headline": "<=11 words, NOT the topic verbatim", "emphasize": "<one word from headline>", "subtitle": "<the punchline 8-14 words>", "swipeHint": "swipe to start ->" },\n  `;
+    : `"hook": { "kicker": "${arc.bodyCount} ${arc.bodyNoun}s", "headline": "<=11 words, NOT the topic verbatim", "emphasize": "<one word from headline>", "subtitle": "<the second line, 8-14 words>", "swipeHint": "swipe to start ->" },\n  `;
 
   const skeleton = `{
   ${hookBlock}"${bodyKey}": ${bodyArr},

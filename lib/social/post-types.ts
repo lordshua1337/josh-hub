@@ -24,7 +24,7 @@ export const POST_TYPES: PostTypeDef[] = [
     pillar: "AI Enablement",
     kind: "single",
     description: "One-line truth about how AI actually shows up in a team. Reframes the hype.",
-    voiceHint: "Punch the wrong-question vs right-question framing. Operator language only. End with one specific instance.",
+    voiceHint: "Use the wrong-question vs right-question framing, in plain language. End with one specific, concrete instance.",
     compositions: ["declaration"],
   },
   {
@@ -42,7 +42,7 @@ export const POST_TYPES: PostTypeDef[] = [
     pillar: "Strategy",
     kind: "single",
     description: "What people are told vs what actually works. Split-screen contrast.",
-    voiceHint: "Two columns of equal weight. Don't strawman the 'they said' side -- make it accurate, then crush it.",
+    voiceHint: "Two columns of equal weight. Don't strawman the 'they said' side -- state it accurately, then answer it honestly.",
     compositions: ["split_contrast"],
   },
   {
@@ -62,10 +62,10 @@ export const POST_TYPES: PostTypeDef[] = [
     pillar: "AI Enablement",
     kind: "carousel",
     slideCount: 7,
-    description: "How AI shows up for one specific role (CEO / CMO / Head of Sales / Ops Lead / Exec Assistant / CFO). 7 slides: hook + 4 plays + CTA + signoff.",
-    voiceHint: "Pick ONE role. Be specific about the role's actual daily pain. Each play should be a 1-week move, not a 'transformation initiative.'",
+    description: "How AI shows up for one specific role (CEO / CMO / Head of Sales / Ops Lead / Exec Assistant / CFO). 7 slides: hook + 4 moves + CTA + signoff.",
+    voiceHint: "Pick ONE role. Be specific about the work that actually eats their week. Each move should be something they could start in a week, not a big initiative. Be honest about what each one costs to set up.",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
-    signoffNote: "tell me the role and the pain. I'll write back with the first play.",
+    signoffNote: "tell me the role and where the time goes. I'll write back with where I'd start.",
   },
   {
     slug: "quick_wins",
@@ -73,10 +73,10 @@ export const POST_TYPES: PostTypeDef[] = [
     pillar: "Build",
     kind: "carousel",
     slideCount: 8,
-    description: "5 small things an operator can build/automate THIS WEEK. 8 slides: hook + 5 plays + CTA + signoff.",
-    voiceHint: "Every play must be specific enough to start tomorrow. Name tools where helpful. No vague 'improve X' language. Show the wedge, not the platform.",
+    description: "5 small things a team can build or automate in a week. 8 slides: hook + 5 tactics + CTA + signoff.",
+    voiceHint: "Every tactic must be specific enough to start tomorrow. Name the tool. Skip vague 'improve X' language. Say what it does and what it doesn't.",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
-    signoffNote: "stuck on the first one? send the workflow. I'll send the wedge.",
+    signoffNote: "stuck on the first one? send me the workflow and I'll tell you how I'd approach it.",
   },
   {
     slug: "diagnostic",
@@ -98,7 +98,7 @@ export const POST_TYPES: PostTypeDef[] = [
     description: "What we shipped this week. Real spec, real tools, real result. 6 slides: hook + 3 build notes + CTA + signoff.",
     voiceHint: "Mention the specific business problem, the solution, the tools, the result. Numbers if you have them. Modest about generalizing -- 'worked for us, might work for you.'",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
-    signoffNote: "name your two systems. I'll scope a similar bridge inside 48 hours.",
+    signoffNote: "tell me the two systems you're trying to connect. I'll tell you how I'd approach it.",
   },
   {
     slug: "panel_panorama",
@@ -120,7 +120,7 @@ export const POST_TYPES: PostTypeDef[] = [
     description: "For regulated industries (healthcare, finance, legal, defense). AI playbook that doesn't get you sued. 6 slides: hook + 3 guardrails + CTA + signoff.",
     voiceHint: "Take compliance seriously. No 'just be careful' hand-waving. Specific guardrails, specific frameworks. Mention HIPAA / SOC2 / FedRAMP / FINRA where relevant.",
     compositions: ["carousel_hook", "numbered_step", "numbered_step", "numbered_step", "carousel_cta", "signoff"],
-    signoffNote: "name your framework (HIPAA / SOC2 / FedRAMP). I'll send the salvage plan.",
+    signoffNote: "tell me which framework you're under (HIPAA / SOC2 / FedRAMP) and I'll point you to where I'd start.",
   },
 ];
 
