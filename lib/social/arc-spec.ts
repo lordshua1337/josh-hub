@@ -281,12 +281,38 @@ GLOBAL RULES:
 
 // ── Output enforcement ─────────────────────────────────────────────────────
 
-// Trim a string to the last whole word that fits under maxChars.
+// Trim a string to fit under maxChars without leaving a dangling, mid-sentence
+// fragment. Strategy:
+//   1. If it already fits, return as-is.
+//   2. Prefer cutting at the last sentence boundary (. ! ?) that lands past
+//      ~55% of the cap — this ends on a complete thought ("…happening 40 times
+//      a month." instead of "…the back-and-forth that kills your"). Drops a
+//      half-written trailing sentence rather than guillotining it.
+//   3. If no usable sentence boundary, cut at the last word and add an ellipsis
+//      so the truncation reads intentional, not broken.
 function clampToChars(text: string, maxChars: number): string {
-  if (text.length <= maxChars) return text;
-  const slice = text.slice(0, maxChars);
+  const trimmed = text.trim();
+  if (trimmed.length <= maxChars) return trimmed;
+  const slice = trimmed.slice(0, maxChars);
+
+  // Last sentence-ending punctuation inside the cap.
+  let sentenceEnd = -1;
+  for (let i = slice.length - 1; i >= 0; i--) {
+    const ch = slice[i];
+    if (ch === "." || ch === "!" || ch === "?") {
+      sentenceEnd = i;
+      break;
+    }
+  }
+  if (sentenceEnd >= maxChars * 0.55) {
+    return slice.slice(0, sentenceEnd + 1).trim();
+  }
+
+  // Fall back to a word boundary + ellipsis.
   const lastSpace = slice.lastIndexOf(" ");
-  return (lastSpace > maxChars * 0.6 ? slice.slice(0, lastSpace) : slice).trim();
+  const base = (lastSpace > maxChars * 0.6 ? slice.slice(0, lastSpace) : slice).trim();
+  // Strip a trailing comma/semicolon/dash before the ellipsis for cleanliness.
+  return base.replace(/[,;:\-\s]+$/, "") + "…";
 }
 
 // Is `emphasize` a single word that appears verbatim in `haystack`?
