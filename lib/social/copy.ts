@@ -6,6 +6,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import PROMETHEUS_VOICE from "./voices/prometheus";
 import type { Brand } from "./brands";
 import { getPostType, type PostTypeDef } from "./post-types";
+import { buildArc, buildArcPrompt, enforceLimits } from "./arc-spec";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
@@ -253,100 +254,73 @@ RULES: emphasize = single word from trueLine OR omit. No emojis, no em dashes.`,
   };
 }
 
-// ----- carousels -----
-async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
-  // slideCount = total INCLUDING the auto-appended signoff. Step count is
-  // everything between the hook and the cta/signoff.
-  const slideCount = def.slideCount ?? 6;
-  const stepCount = slideCount - 3; // hook + cta + signoff
+// Normalize a raw reel_script from the LLM into a typed ReelScript (or undefined).
+function normalizeReel(
+  raw: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] } | undefined,
+  fallbackDuration: string
+): ReelScript | undefined {
+  if (!raw?.beats || raw.beats.length === 0) return undefined;
+  const beats: ReelBeat[] = raw.beats
+    .filter((b): b is { t: string; label: string; script: string } => Boolean(b?.t && b?.label && b?.script))
+    .slice(0, 4);
+  if (beats.length !== 4) return undefined;
+  return { duration: raw.duration || fallbackDuration, beats };
+}
 
-  // Keep the topic short in-prompt — if the user pasted a long brief,
-  // distill the gist rather than letting the LLM echo it verbatim into
-  // the headline (real bug we saw with a 235-char topic).
-  const briefedTopic = topic.length > 220 ? topic.slice(0, 220).trim() + "…" : topic;
+// ----- carousels (spec-driven) -----
+// Prompt, per-field caps, arc roles, and slide count all come from buildArc()/
+// buildArcPrompt() in arc-spec.ts. enforceLimits() clamps the output as a
+// backstop. This function just maps the JSON onto SlideContent.
+async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string, slideCount?: number): Promise<PostCopy> {
+  const arc = buildArc(def.slug, slideCount ?? def.slideCount);
+  const bodyCount = arc.bodyCount;
 
   type Raw = {
     hook?: { kicker?: string; headline?: string; emphasize?: string; subtitle?: string; swipeHint?: string };
-    steps?: { title?: string; body?: string; emphasize?: string; subtitle?: string }[];
-    cta?: { closer?: string; cta?: string; link?: string };
+    body?: { title?: string; body?: string; emphasize?: string; subtitle?: string }[];
+    cta?: { closer?: string; emphasize?: string; cta?: string; link?: string };
     caption?: string;
     first_comment?: string;
     reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
   };
 
-  const raw = (await askForJson<Raw>(`${voiceFor(brand)}
-
-Write an Instagram CAROUSEL package: ${slideCount} slides total = 1 hook + ${stepCount} steps + 1 CTA, plus a caption + first comment + reel script.
-
-POST TYPE: ${def.label}. ${def.description}
-TONE: ${def.voiceHint}
-TOPIC (distill — do NOT echo verbatim): "${briefedTopic}"
-
-Two text fields per slide that often get confused:
-- "emphasize" = EXACTLY ONE word that already appears in the headline/title. It renders ember-gradient. If no single word pops, omit.
-- "subtitle"  = the multi-word tagline / second-line copy. Multi-word OK. Where punchlines live.
-Example: headline="Five systems in week one", emphasize="Five", subtitle="Not strategy decks. Real automation that moves revenue."
-
-Return ONLY raw JSON, no prose, no fences:
-{
-  "hook": { "kicker": "${stepCount} PLAYS", "headline": "<=10 words, NOT the topic verbatim", "emphasize": "<one word>", "subtitle": "<the punchline, 8-14 words>", "swipeHint": "swipe to start ->" },
-  "steps": [ ${Array(stepCount).fill(0).map((_, i) => `{ "title": "<=9 words", "body": "1-2 short sentences, ref one concrete tool/metric", "emphasize": "<one word from title or OMIT>", "subtitle": "<optional tagline>" }`).join(",\n    ")} ],
-  "cta": { "closer": "punchy payoff line, <=12 words", "cta": "the one action", "link": "" },
-  "caption": "600-800 chars, 2-3 short paragraphs ending with '- Josh' on its own line, NO link",
-  "first_comment": "2-3 short lines, includes 'josh@prometheusconsulting.ai' and 'prometheusconsulting.ai'",
-  "reel_script": { "duration": "45s", "beats": [
-    { "t": "0:00", "label": "HOOK",   "script": "..." },
-    { "t": "0:08", "label": "SETUP",  "script": "..." },
-    { "t": "0:22", "label": "PAYOFF", "script": "..." },
-    { "t": "0:40", "label": "CTA",    "script": "..." }
-  ]}
-}
-
-RULES (failure to follow = the post is broken):
-- steps array MUST have EXACTLY ${stepCount} items. No fewer, no more.
-- headline MUST NOT be the topic verbatim — REWRITE it punchy, <=10 words.
-- emphasize is ALWAYS a single word from its slide's headline/title, OR omit entirely.
-- subtitle is a tagline (multi-word OK). NEVER put a tagline in emphasize.
-- Vary verbs across steps. Each step body names a tool / metric / specific artifact.
-- No emojis. No em dashes. No "transform / leverage / synergize" corporate slop.
-- reel_script: exactly 4 beats, 100-160 words total.`, 3800 + stepCount * 400)) ?? {};
-
-  const steps = (raw.steps ?? []).slice(0, stepCount);
+  const raw = (await askForJson<Raw>(buildArcPrompt(arc, voiceFor(brand), topic), arc.tokenBudget)) ?? {};
+  const body = (raw.body ?? []).slice(0, bodyCount);
 
   const slides: SlideContent[] = [
-    rescueSlideEmphasis({
+    enforceLimits({
       composition: "carousel_hook",
-      kicker: raw.hook?.kicker || `${stepCount} PLAYS`,
+      kicker: raw.hook?.kicker || `${bodyCount} ${arc.bodyNoun.toUpperCase()}S`,
       headline: raw.hook?.headline || topic,
       emphasize: raw.hook?.emphasize,
       subtitle: raw.hook?.subtitle,
       swipeHint: raw.hook?.swipeHint || "swipe →",
-    }),
+    } as SlideContent),
   ];
-  for (let i = 0; i < stepCount; i++) {
-    const s = steps[i] || { title: `Step ${i + 1}`, body: "" };
+  for (let i = 0; i < bodyCount; i++) {
+    const s = body[i] || { title: `${arc.bodyNoun} ${i + 1}`, body: "" };
     slides.push(
-      rescueSlideEmphasis({
+      enforceLimits({
         composition: "numbered_step",
         index: i + 1,
-        total: stepCount,
-        title: s.title || `Step ${i + 1}`,
+        total: bodyCount,
+        title: s.title || `${arc.bodyNoun} ${i + 1}`,
         body: s.body || "",
         emphasize: s.emphasize,
         subtitle: s.subtitle,
-      })
+      } as SlideContent)
     );
   }
-  slides.push({
-    composition: "carousel_cta",
-    closer: raw.cta?.closer || "Pick one. Ship it this week.",
-    cta: raw.cta?.cta || "Book a 15-min reality check.",
-    link: raw.cta?.link || brand.schedulingLink || "",
-  });
+  slides.push(
+    enforceLimits({
+      composition: "carousel_cta",
+      closer: raw.cta?.closer || "Pick one. Ship it this week.",
+      emphasize: raw.cta?.emphasize,
+      cta: raw.cta?.cta || "Book a 15-min reality check.",
+      link: raw.cta?.link || brand.schedulingLink || "",
+    } as SlideContent)
+  );
   // Brand-standard final slide — never LLM-generated, always appended.
-  // The per-post-type signoffNote reinforces this carousel's specific ask
-  // (e.g. case-study posts ask for the operator's two systems; diagnostic
-  // posts ask them to answer one of the questions honestly).
   slides.push({
     composition: "signoff",
     link: "josh@prometheusconsulting.ai",
@@ -354,90 +328,58 @@ RULES (failure to follow = the post is broken):
     emphasize: "do one of these",
     footer: def.signoffNote,
   });
-  // Normalize the reel script if Haiku returned it.
-  let reel_script: ReelScript | undefined;
-  if (raw.reel_script?.beats && raw.reel_script.beats.length > 0) {
-    const beats: ReelBeat[] = raw.reel_script.beats
-      .filter((b): b is { t: string; label: string; script: string } =>
-        Boolean(b?.t && b?.label && b?.script))
-      .slice(0, 4);
-    if (beats.length === 4) {
-      reel_script = {
-        duration: raw.reel_script.duration || "45s",
-        beats,
-      };
-    }
-  }
 
   return {
     is_carousel: true,
     slides,
     caption: raw.caption || "",
     first_comment: raw.first_comment || undefined,
-    reel_script,
+    reel_script: normalizeReel(raw.reel_script, "45s"),
   };
 }
 
-// ----- panel_panorama (seamless image-split carousel) -----
-async function draftPanorama(brand: Brand, def: PostTypeDef, topic: string, panelCount = 3): Promise<PostCopy> {
-  const briefedTopic = topic.length > 220 ? topic.slice(0, 220).trim() + "…" : topic;
+// ----- panel_panorama (seamless image-split carousel, spec-driven) -----
+async function draftPanorama(brand: Brand, def: PostTypeDef, topic: string, slideCount?: number): Promise<PostCopy> {
+  const arc = buildArc(def.slug, slideCount ?? def.slideCount);
+  const panelCount = arc.bodyCount;
 
   type Raw = {
     panels?: { caption?: string; emphasize?: string }[];
-    cta?: { closer?: string; cta?: string; link?: string };
+    cta?: { closer?: string; emphasize?: string; cta?: string; link?: string };
     caption?: string;
     first_comment?: string;
     reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
   };
-  const raw = (await askForJson<Raw>(`${voiceFor(brand)}
-
-Write a SEAMLESS PANORAMA CAROUSEL — one image stretched across ${panelCount} swipeable panels. Each panel gets ONE short overlay phrase. Read together they form one statement.
-
-POST TYPE: ${def.label}. ${def.description}
-TONE: ${def.voiceHint}
-TOPIC: "${briefedTopic}"
-
-Return ONLY raw JSON:
-{
-  "panels": [ ${Array(panelCount).fill('{ "caption": "4-8 words", "emphasize": "ONE word from caption OR empty" }').join(",\n    ")} ],
-  "cta": { "closer": "<=12 word payoff", "cta": "the one action", "link": "" },
-  "caption": "400-700 chars, 2-3 short paragraphs ending with '- Josh'",
-  "first_comment": "2-3 lines, contains josh@prometheusconsulting.ai",
-  "reel_script": { "duration": "30s", "beats": [
-    { "t": "0:00", "label": "HOOK",   "script": "..." },
-    { "t": "0:06", "label": "SETUP",  "script": "..." },
-    { "t": "0:16", "label": "PAYOFF", "script": "..." },
-    { "t": "0:26", "label": "CTA",    "script": "..." }
-  ]}
-}
-
-RULES:
-- panels array MUST have EXACTLY ${panelCount} items.
-- Each panel.caption is 4-8 words; the panels READ TOGETHER form one statement.
-- emphasize is single word from caption, OR omit. Never a phrase.
-- reel_script: exactly 4 beats, 80-130 words total. No emojis/em dashes.`, 2800)) ?? {};
-
+  const raw = (await askForJson<Raw>(buildArcPrompt(arc, voiceFor(brand), topic), arc.tokenBudget)) ?? {};
   const panels = (raw.panels || []).slice(0, panelCount);
 
   const slides: SlideContent[] = [];
   for (let i = 0; i < panelCount; i++) {
     const p = panels[i] || { caption: "" };
-    slides.push(
-      rescueSlideEmphasis({
-        composition: "panel_slide",
-        headline: p.caption || "",
-        emphasize: p.emphasize,
-        panelIndex: i,
-        panelTotal: panelCount,
-      })
-    );
+    // panel_slide reads its text from `headline` (mapped from caption); keep
+    // a `caption` mirror too so enforceLimits caps it under the panel rule.
+    const enforced = enforceLimits({
+      composition: "panel_slide",
+      caption: p.caption || "",
+      emphasize: p.emphasize,
+    });
+    slides.push({
+      composition: "panel_slide",
+      headline: enforced.caption || "",
+      emphasize: enforced.emphasize,
+      panelIndex: i,
+      panelTotal: panelCount,
+    });
   }
-  slides.push({
-    composition: "carousel_cta",
-    closer: raw.cta?.closer || "Pick one. Ship it this week.",
-    cta: raw.cta?.cta || "Book a 15-min reality check.",
-    link: raw.cta?.link || brand.schedulingLink || "",
-  });
+  slides.push(
+    enforceLimits({
+      composition: "carousel_cta",
+      closer: raw.cta?.closer || "Pick one. Ship it this week.",
+      emphasize: raw.cta?.emphasize,
+      cta: raw.cta?.cta || "Book a 15-min reality check.",
+      link: raw.cta?.link || brand.schedulingLink || "",
+    } as SlideContent)
+  );
   slides.push({
     composition: "signoff",
     link: "josh@prometheusconsulting.ai",
@@ -446,20 +388,12 @@ RULES:
     footer: def.signoffNote,
   });
 
-  let reel_script: ReelScript | undefined;
-  if (raw.reel_script?.beats && raw.reel_script.beats.length === 4) {
-    const beats: ReelBeat[] = raw.reel_script.beats
-      .filter((b): b is { t: string; label: string; script: string } => Boolean(b?.t && b?.label && b?.script))
-      .slice(0, 4);
-    if (beats.length === 4) reel_script = { duration: raw.reel_script.duration || "30s", beats };
-  }
-
   return {
     is_carousel: true,
     slides,
     caption: raw.caption || "",
     first_comment: raw.first_comment || undefined,
-    reel_script,
+    reel_script: normalizeReel(raw.reel_script, "30s"),
   };
 }
 
@@ -541,10 +475,11 @@ RULES: DON'T start caption with the same opening as the previous one. Exactly 4 
 }
 
 // ----- dispatcher -----
-export async function draftPost(brand: Brand, postTypeSlug: string, topic: string): Promise<PostCopy> {
+// slideCount is honored only for carousels; buildArc clamps it to the type's range.
+export async function draftPost(brand: Brand, postTypeSlug: string, topic: string, slideCount?: number): Promise<PostCopy> {
   const def = getPostType(postTypeSlug);
-  if (def.slug === "panel_panorama") return draftPanorama(brand, def, topic);
-  if (def.kind === "carousel") return draftCarousel(brand, def, topic);
+  if (def.slug === "panel_panorama") return draftPanorama(brand, def, topic, slideCount);
+  if (def.kind === "carousel") return draftCarousel(brand, def, topic, slideCount);
   if (def.compositions[0] === "split_contrast") return draftReframe(brand, def, topic);
   return draftSingleDeclaration(brand, def, topic);
 }

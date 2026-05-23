@@ -21,6 +21,7 @@ const Schema = z.object({
   focal_x: z.number().min(0).max(100).optional(),
   focal_y: z.number().min(0).max(100).optional(),
   overlay: z.enum(["subtle", "strong", "fade-bottom", "wordmark", "none"]).optional(),
+  slide_count: z.number().int().min(3).max(12).optional(),
 });
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ slug: string }> }) {
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ slug: stri
 
   for (const topic of parsed.data.topics) {
     try {
-      const copy = await draftPost(brand, parsed.data.post_type, topic);
+      const copy = await draftPost(brand, parsed.data.post_type, topic, parsed.data.slide_count);
 
       // Attach image to hero / panel slides if provided (same logic as draft route)
       if (parsed.data.image_url && copy.slides.length > 0) {

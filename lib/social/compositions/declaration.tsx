@@ -4,7 +4,7 @@
 // supporting footer below.
 
 import type { Brand } from "../brands";
-import { SlideFrame, EmphasizedHeadline } from "../primitives";
+import { SlideFrame, EmphasizedHeadline, fitFontSize } from "../primitives";
 import { TOKEN } from "../tokens";
 
 export type DeclarationProps = {
@@ -45,7 +45,7 @@ export function DeclarationComposition({ kicker, headline, emphasize, subtitle, 
         <EmphasizedHeadline
           text={headline}
           emphasize={emphasize}
-          fontSize={headline.length < 60 ? 132 : 96}
+          fontSize={fitFontSize(headline, { width: 820, maxLines: 3, candidates: [132, 116, 96, 80], weight: 800 })}
           letterSpacing="-0.04em"
           lineHeight={0.98}
         />

@@ -270,8 +270,52 @@ export function SlideFrame({
   );
 }
 
-// Helper: render a headline string with one emphasized word in ember gradient.
-// Splits the string defensively; if `emphasize` isn't found, returns plain.
+// ── Deterministic auto-fit ────────────────────────────────────────────────
+// Estimate how wide text renders, then pick the largest candidate font size
+// that keeps it within `maxLines`. This is the HARD overflow guarantee — even
+// if the drafter overshoots a length cap, the renderer drops a font tier
+// instead of spilling off the slide.
+
+// Average glyph advance as a fraction of font size, per weight (Inter, tuned
+// from the calibration renders). Mono is wider.
+const GLYPH_ADVANCE: Record<number, number> = { 900: 0.55, 800: 0.54, 700: 0.55, 600: 0.52, 500: 0.51 };
+
+export function estimateLines(text: string, fontSize: number, width: number, weight = 800): number {
+  if (!text) return 1;
+  const adv = (GLYPH_ADVANCE[weight] ?? 0.54) * fontSize;
+  const charsPerLine = Math.max(1, Math.floor(width / adv));
+  // Word-aware: a word never splits, so wrap word-by-word into lines.
+  const words = text.split(/\s+/);
+  let lines = 1;
+  let cur = 0;
+  for (const w of words) {
+    const wl = w.length;
+    if (cur === 0) {
+      cur = wl;
+    } else if (cur + 1 + wl <= charsPerLine) {
+      cur += 1 + wl;
+    } else {
+      lines += 1;
+      cur = wl;
+    }
+  }
+  return lines;
+}
+
+export function fitFontSize(
+  text: string,
+  opts: { width: number; maxLines: number; candidates: number[]; weight?: number }
+): number {
+  const { width, maxLines, candidates, weight = 800 } = opts;
+  for (const size of candidates) {
+    if (estimateLines(text, size, width, weight) <= maxLines) return size;
+  }
+  return candidates[candidates.length - 1];
+}
+
+// Helper: render a headline with one emphasized word in ember gradient.
+// Tokenizes into per-word flex items so wrapping behaves like normal text and
+// the ember word flows INLINE (instead of claiming its own line — the old bug).
 export function EmphasizedHeadline({
   text,
   emphasize,
@@ -287,25 +331,50 @@ export function EmphasizedHeadline({
   letterSpacing?: string;
   lineHeight?: number;
 }) {
+  // rowGap reproduces line-height spacing for wrapped flex items (each item
+  // keeps lineHeight:1, the gap adds the breathing room between lines).
+  const rowGap = Math.max(0, Math.round((lineHeight - 1) * fontSize));
   const base: React.CSSProperties = {
     display: "flex",
     flexWrap: "wrap",
+    columnGap: Math.round(fontSize * 0.25),
+    rowGap,
     fontSize,
     fontWeight: weight,
     color: TOKEN.fg100,
-    lineHeight,
+    lineHeight: 1,
     letterSpacing,
   };
-  if (!emphasize) return <div style={base}>{text}</div>;
-  const idx = text.toLowerCase().indexOf(emphasize.toLowerCase());
-  if (idx === -1) return <div style={base}>{text}</div>;
+  const target = emphasize?.trim().toLowerCase().replace(/[^\w]/g, "");
+  const words = text.split(/\s+/).filter(Boolean);
   return (
     <div style={base}>
-      {text.slice(0, idx) ? <span style={{ display: "flex" }}>{text.slice(0, idx)}</span> : null}
-      <Ember weight={weight}>{text.slice(idx, idx + emphasize.length)}</Ember>
-      {text.slice(idx + emphasize.length) ? (
-        <span style={{ display: "flex" }}>{text.slice(idx + emphasize.length)}</span>
-      ) : null}
+      {words.map((w, i) => {
+        const norm = w.toLowerCase().replace(/[^\w]/g, "");
+        const isEmber = !!target && norm.length > 0 && norm === target;
+        if (isEmber) {
+          return (
+            <span
+              key={i}
+              style={{
+                display: "flex",
+                backgroundImage: EMBER_H,
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                color: "transparent",
+                fontWeight: weight,
+              }}
+            >
+              {w}
+            </span>
+          );
+        }
+        return (
+          <span key={i} style={{ display: "flex" }}>
+            {w}
+          </span>
+        );
+      })}
     </div>
   );
 }

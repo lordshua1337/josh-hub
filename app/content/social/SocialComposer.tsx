@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { useRouter } from "next/navigation";
 import { POST_TYPES, type PostKind } from "@/lib/social/post-types";
 import { FORGE_IMAGES } from "@/lib/social/forge-images";
+import { CAROUSEL_CONFIG, clampSlideCount } from "@/lib/social/arc-spec";
 
 export type SocialRow = {
   id: string;
@@ -91,6 +92,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
   const [step, setStep] = useState<Step>(1);
   const [kind, setKind] = useState<PostKind | null>(null);
   const [postType, setPostType] = useState<string | null>(null);
+  const [slideCount, setSlideCount] = useState<number | null>(null);
   const [imageSlug, setImageSlug] = useState<string | null>(null);
   const [customImageUrl, setCustomImageUrl] = useState<string | null>(null);
   const [focalX, setFocalX] = useState<number>(50);
@@ -119,6 +121,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
     setStep(1);
     setKind(null);
     setPostType(null);
+    setSlideCount(null);
     setImageSlug(null);
     setCustomImageUrl(null);
     setFocalX(50);
@@ -173,6 +176,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
           brand: "prometheus",
           post_type: postType,
           topic,
+          slide_count: slideCount ?? undefined,
           image_url: activeImageUrl || undefined,
           focal_x: activeImageUrl ? focalX : undefined,
           focal_y: activeImageUrl ? focalY : undefined,
@@ -403,6 +407,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
           <Step2Compose
             kind={kind}
             postType={postType}
+            slideCount={slideCount}
             topic={topic}
             selectedImageName={selectedImage?.name || (customImageUrl ? "custom upload" : null)}
             options={eligibleTypes}
@@ -413,12 +418,16 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             setKind={(k) => {
               setKind(k);
               setPostType(null);
+              setSlideCount(null);
               setSuggestions([]);
             }}
             setPostType={(slug) => {
               setPostType(slug);
+              // Default the slide count to the type's default (carousel only).
+              setSlideCount(CAROUSEL_CONFIG[slug]?.default ?? null);
               setSuggestions([]);
             }}
+            setSlideCount={setSlideCount}
             setTopic={setTopic}
             onSuggestTopics={onSuggestTopics}
             onDraft={onDraft}
@@ -593,6 +602,7 @@ function StepHeader({
 function Step2Compose({
   kind,
   postType,
+  slideCount,
   topic,
   selectedImageName,
   options,
@@ -602,6 +612,7 @@ function Step2Compose({
   suggestions,
   setKind,
   setPostType,
+  setSlideCount,
   setTopic,
   onSuggestTopics,
   onDraft,
@@ -609,6 +620,7 @@ function Step2Compose({
 }: {
   kind: PostKind | null;
   postType: string | null;
+  slideCount: number | null;
   topic: string;
   selectedImageName: string | null;
   options: typeof POST_TYPES;
@@ -618,12 +630,24 @@ function Step2Compose({
   suggestions: { title: string; topic: string }[];
   setKind: (k: PostKind) => void;
   setPostType: (slug: string) => void;
+  setSlideCount: (n: number) => void;
   setTopic: (s: string) => void;
   onSuggestTopics: () => void;
   onDraft: () => void;
   onBack: () => void;
 }) {
   const def = postType ? allTypes.find((p) => p.slug === postType) : null;
+  // Slide-count control only applies to carousels with a registered range.
+  const cfg = postType ? CAROUSEL_CONFIG[postType] : undefined;
+  const effectiveCount = cfg ? clampSlideCount(postType!, slideCount ?? cfg.default) : null;
+  // Arc preview string for the chosen count.
+  const arcPreview = (() => {
+    if (!cfg || !effectiveCount) return null;
+    if (cfg.bodyMode === "panorama") {
+      return `${effectiveCount - 2} panels + CTA + signoff`;
+    }
+    return `hook + ${effectiveCount - 3} ${cfg.bodyNoun}s + CTA + signoff`;
+  })();
   return (
     <div>
       <div className="section-label" style={{ marginBottom: 12 }}>Step 2 · Compose</div>
@@ -697,6 +721,43 @@ function Step2Compose({
             ))}
           </div>
         </>
+      )}
+
+      {/* Slide-count selector — carousels only, range from the arc spec */}
+      {cfg && effectiveCount && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+              // slides
+            </div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--text-tertiary)" }}>
+              {arcPreview}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {Array.from({ length: cfg.max - cfg.min + 1 }, (_, i) => cfg.min + i).map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setSlideCount(n)}
+                style={{
+                  width: 44,
+                  padding: "8px 0",
+                  fontFamily: "var(--mono)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  background: effectiveCount === n ? "rgba(242,138,47,0.14)" : "transparent",
+                  border: `1px solid ${effectiveCount === n ? "var(--accent)" : "var(--border)"}`,
+                  color: effectiveCount === n ? "var(--ember-050)" : "var(--text-secondary)",
+                  borderRadius: "var(--radius-sm)",
+                  cursor: "pointer",
+                }}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Topic — only enabled once a post type is picked */}

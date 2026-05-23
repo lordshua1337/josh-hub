@@ -3,7 +3,7 @@
 // ember emphasis on one word.
 
 import type { Brand } from "../brands";
-import { SlideFrame, EmphasizedHeadline, Eyebrow } from "../primitives";
+import { SlideFrame, EmphasizedHeadline, Eyebrow, fitFontSize } from "../primitives";
 import { TOKEN } from "../tokens";
 
 export type SplitContrastProps = {
@@ -70,7 +70,7 @@ export function SplitContrastComposition({
           <EmphasizedHeadline
             text={trueLine}
             emphasize={emphasize}
-            fontSize={trueLine.length < 60 ? 76 : 56}
+            fontSize={fitFontSize(trueLine, { width: 888, maxLines: 2, candidates: [76, 64, 56, 48], weight: 800 })}
             letterSpacing="-0.025em"
             lineHeight={1.08}
           />

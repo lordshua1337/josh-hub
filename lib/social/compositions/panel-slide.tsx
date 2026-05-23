@@ -9,7 +9,7 @@
 
 import type { Brand } from "../brands";
 import { TOKEN, FORGE_BG } from "../tokens";
-import { BrandMark } from "../primitives";
+import { BrandMark, fitFontSize } from "../primitives";
 
 export type PanelSlideProps = {
   brand: Brand;
@@ -119,7 +119,7 @@ export function PanelSlideComposition({
             display: "flex",
             flexWrap: "wrap",
             maxWidth: 880,
-            fontSize: 56,
+            fontSize: fitFontSize(caption || "", { width: 880, maxLines: 3, candidates: [56, 48, 40, 34], weight: 700 }),
             fontWeight: 700,
             lineHeight: 1.05,
             letterSpacing: "-0.028em",

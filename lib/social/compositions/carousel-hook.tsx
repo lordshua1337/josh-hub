@@ -3,7 +3,7 @@
 // subtitle tagline below headline, swipe hint at the foot.
 
 import type { Brand } from "../brands";
-import { SlideFrame, EmphasizedHeadline } from "../primitives";
+import { SlideFrame, EmphasizedHeadline, fitFontSize } from "../primitives";
 import { TOKEN } from "../tokens";
 
 export type CarouselHookProps = {
@@ -48,7 +48,7 @@ export function CarouselHookComposition({
         <EmphasizedHeadline
           text={headline}
           emphasize={emphasize}
-          fontSize={headline.length < 50 ? 110 : 84}
+          fontSize={fitFontSize(headline, { width: 888, maxLines: 3, candidates: [110, 96, 84, 72], weight: 800 })}
           letterSpacing="-0.035em"
           lineHeight={1.0}
         />

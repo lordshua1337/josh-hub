@@ -3,7 +3,7 @@
 // ember-color first line, fg200 follow-ups.
 
 import type { Brand } from "../brands";
-import { SlideFrame, EmphasizedHeadline } from "../primitives";
+import { SlideFrame, EmphasizedHeadline, fitFontSize } from "../primitives";
 import { TOKEN } from "../tokens";
 
 export type CarouselCtaProps = {
@@ -26,7 +26,7 @@ export function CarouselCtaComposition({ closer, emphasize, cta, link, counter }
         <EmphasizedHeadline
           text={closer}
           emphasize={emphasize}
-          fontSize={closer.length < 60 ? 80 : 60}
+          fontSize={fitFontSize(closer, { width: 888, maxLines: 3, candidates: [80, 68, 60, 52], weight: 800 })}
           letterSpacing="-0.028em"
           lineHeight={1.05}
         />

@@ -3,7 +3,7 @@
 // optional `// source` line at the foot. Ported from the Claude Design
 // BigStatLayout — uses our SlideFrame + Ember primitives.
 
-import { SlideFrame, Ember } from "../primitives";
+import { SlideFrame, Ember, fitFontSize } from "../primitives";
 import { TOKEN } from "../tokens";
 
 export type BigStatSlot = {
@@ -29,7 +29,7 @@ export function BigStat(p: BigStatSlot) {
         <div
           style={{
             display: "flex",
-            fontSize: 360,
+            fontSize: fitFontSize(p.stat, { width: 888, maxLines: 1, candidates: [360, 280, 220, 160], weight: 800 }),
             lineHeight: 0.85,
             fontWeight: 800,
             letterSpacing: "-0.05em",

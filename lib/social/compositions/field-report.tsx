@@ -3,7 +3,7 @@
 // Ported from Claude Design's FieldReport layout.
 
 import type { Brand } from "../brands";
-import { SlideFrame, EmphasizedHeadline } from "../primitives";
+import { SlideFrame, EmphasizedHeadline, fitFontSize } from "../primitives";
 import { TOKEN } from "../tokens";
 
 export type FieldReportLine = { tag?: string; text: string };
@@ -46,7 +46,7 @@ export function FieldReportComposition({
           <EmphasizedHeadline
             text={title}
             emphasize={emphasize}
-            fontSize={title.length < 50 ? 80 : 60}
+            fontSize={fitFontSize(title, { width: 880, maxLines: 3, candidates: [80, 68, 60, 52], weight: 800 })}
             letterSpacing="-0.028em"
             lineHeight={1.02}
           />

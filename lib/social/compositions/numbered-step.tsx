@@ -4,7 +4,7 @@
 // each play breathes.
 
 import type { Brand } from "../brands";
-import { SlideFrame, EmphasizedHeadline } from "../primitives";
+import { SlideFrame, EmphasizedHeadline, fitFontSize } from "../primitives";
 import { TOKEN } from "../tokens";
 
 export type NumberedStepProps = {
@@ -48,7 +48,7 @@ export function NumberedStepComposition({ index, total, title, body, emphasize, 
             <EmphasizedHeadline
               text={title}
               emphasize={emphasize}
-              fontSize={title.length < 40 ? 84 : 64}
+              fontSize={fitFontSize(title, { width: 772, maxLines: 3, candidates: [84, 72, 64, 56], weight: 800 })}
               letterSpacing="-0.028em"
               lineHeight={1.05}
             />
