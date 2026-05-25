@@ -17,7 +17,7 @@ export default async function SocialPage() {
         <h1>Social</h1>
         <p className="header-sub">
           Drop a topic, the engine drafts copy in Prometheus voice and renders the post.
-          Review here, push to Instagram drafts when ready.
+          Review here, then Deploy to Instagram to download the slides and copy the caption.
         </p>
       </div>
       <div className="main">

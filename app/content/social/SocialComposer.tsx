@@ -244,20 +244,11 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
     }
   }
 
-  async function onPublish(id: string) {
-    setBusyId(id);
-    try {
-      const res = await fetch(`/api/social/publish/${id}`, { method: "POST" });
-      const json = (await res.json()) as { ok?: boolean; queued?: boolean; error?: string };
-      if (!res.ok || !json.ok) flashFor(`Publish failed: ${json.error}`);
-      else if (json.queued) flashFor("Queued — IG creds not connected yet. Slide PNGs baked.");
-      else flashFor("Pushed to IG drafts — open Instagram to finish.");
-      startTransition(() => router.refresh());
-    } catch (e) {
-      flashFor(`Publish failed: ${(e as Error).message}`);
-    } finally {
-      setBusyId(null);
-    }
+  // Deploying = navigate to the manual handoff page (download slides + copy
+  // caption). IG's API can't create drafts or attach catalog music, so the
+  // post is finished by hand in the IG app — see /content/social/[id]/deploy.
+  function onDeploy(id: string) {
+    router.push(`/content/social/${id}/deploy`);
   }
 
   async function onDiscard(id: string) {
@@ -441,7 +432,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             busy={busyId === draftedId}
             pending={pending}
             regenning={regenning}
-            onPublish={() => onPublish(draftedId)}
+            onDeploy={() => onDeploy(draftedId)}
             onDiscard={() => onDiscard(draftedId)}
             onRegenCaption={onRegenCaption}
             onStartOver={resetWizard}
@@ -461,7 +452,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             <span className="log-count">{drafts.length} awaiting review</span>
           </div>
           {drafts.map((r) => (
-            <PostCard key={r.id} row={r} onPublish={onPublish} onDiscard={onDiscard} busyId={busyId} pending={pending} />
+            <PostCard key={r.id} row={r} onDeploy={onDeploy} onDiscard={onDiscard} busyId={busyId} pending={pending} />
           ))}
         </>
       )}
@@ -484,7 +475,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             <span className="log-count">{queued.length}</span>
           </div>
           {queued.map((r) => (
-            <PostCard key={r.id} row={r} onPublish={onPublish} onDiscard={onDiscard} busyId={busyId} pending={pending} compact />
+            <PostCard key={r.id} row={r} onDeploy={onDeploy} onDiscard={onDiscard} busyId={busyId} pending={pending} compact />
           ))}
         </>
       )}
@@ -1327,7 +1318,7 @@ function Step3Generate({
   busy,
   pending,
   regenning,
-  onPublish,
+  onDeploy,
   onDiscard,
   onRegenCaption,
   onStartOver,
@@ -1337,7 +1328,7 @@ function Step3Generate({
   busy: boolean;
   pending: boolean;
   regenning: boolean;
-  onPublish: () => void;
+  onDeploy: () => void;
   onDiscard: () => void;
   onRegenCaption: () => void;
   onStartOver: () => void;
@@ -1350,38 +1341,27 @@ function Step3Generate({
       </div>
     );
   }
-  // Post has already been pushed to IG (or queued if no creds). Show the
-  // "next steps in IG" guidance panel at the top so Josh knows what to do.
-  const isPushed = row.status === "draft_pushed";
-  const isQueued = row.status === "queued_for_ig";
-  const firstComment = row.metadata?.first_comment || row.copy_blocks?.first_comment || "";
 
   return (
     <div>
       <div className="section-label" style={{ marginBottom: 12 }}>
-        Step 3 · {isPushed ? "Pushed to IG drafts" : isQueued ? "Queued (no IG creds)" : "Generated post — review and ship"}
+        Step 3 · Generated post — review and deploy
       </div>
 
-      {/* Post-publish guidance — shown only after the push lands. */}
-      {(isPushed || isQueued) && (
-        <PostPublishPanel pushed={isPushed} firstComment={firstComment} />
-      )}
-
-      {!isPushed && !isQueued && (
-        <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 14 }}>
-          Visuals are locked. Caption + first comment + reel script auto-generated below.
-          Don&apos;t love them? Hit <strong style={{ color: "var(--accent)" }}>↻ Regenerate caption</strong> for a different angle. When you&apos;re happy, push to IG drafts.
-        </div>
-      )}
+      <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 14 }}>
+        Visuals are locked. Caption + first comment + reel script auto-generated below.
+        Don&apos;t love them? Hit <strong style={{ color: "var(--accent)" }}>↻ Regenerate caption</strong> for a different angle.
+        When you&apos;re happy, <strong style={{ color: "var(--accent)" }}>Deploy to Instagram</strong> to download the slides and copy the caption.
+      </div>
 
       <PostCard
         row={row}
-        onPublish={onPublish}
+        onDeploy={onDeploy}
         onDiscard={onDiscard}
         busyId={busy ? row.id : null}
         pending={pending}
         embedded
-        showRegen={!isPushed && !isQueued}
+        showRegen
         regenning={regenning}
         onRegenCaption={onRegenCaption}
       />
@@ -1390,125 +1370,19 @@ function Step3Generate({
           ← Back to compose
         </button>
         <button type="button" className="act-btn" onClick={onStartOver} disabled={regenning}>
-          {isPushed || isQueued ? "Start a new post →" : "Start over"}
+          Start over
         </button>
       </div>
     </div>
   );
 }
 
-// Post-publish guidance — sits at the top of Step 3 after a push.
-// Surfaces the "now do this in IG" steps so Josh has a real handoff.
-function PostPublishPanel({ pushed, firstComment }: { pushed: boolean; firstComment: string }) {
-  const [copied, setCopied] = useState(false);
-  async function copyFirstComment() {
-    if (!firstComment) return;
-    try {
-      await navigator.clipboard.writeText(firstComment);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      // ignore
-    }
-  }
-  return (
-    <div
-      style={{
-        marginBottom: 16,
-        padding: 18,
-        background: pushed ? "rgba(52, 211, 153, 0.06)" : "rgba(245, 158, 11, 0.06)",
-        border: `1px solid ${pushed ? "rgba(52, 211, 153, 0.30)" : "rgba(245, 158, 11, 0.30)"}`,
-        borderRadius: "var(--radius-sm)",
-      }}
-    >
-      <div
-        style={{
-          fontFamily: "var(--mono)",
-          fontSize: 11,
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: pushed ? "#34d399" : "#f59e0b",
-          marginBottom: 8,
-          fontWeight: 700,
-        }}
-      >
-        // {pushed ? "draft live on instagram" : "queued — IG creds not connected"}
-      </div>
-      <div style={{ fontSize: 14, color: "var(--text)", marginBottom: 14, lineHeight: 1.5 }}>
-        {pushed
-          ? "Your post is sitting in Instagram drafts. Open the IG app to finish: add music if it's a reel-style post, then publish."
-          : "The slide PNGs are baked and ready. When you wire IG_GRAPH_TOKEN + IG_USER_ID in Vercel env, hitting Push again will ship to drafts. For now, manually screenshot the slide URLs from the card below."}
-      </div>
-
-      <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: pushed ? "#34d399" : "#f59e0b", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-        // next steps
-      </div>
-      <ol style={{ margin: 0, paddingLeft: 22, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7 }}>
-        <li>Open Instagram → Drafts → find this post</li>
-        <li>Add music or effects if you want them (the carousel hook slide reads as a still feed post; the panorama hits harder with music)</li>
-        <li>Publish</li>
-        <li>Immediately post the first comment below as your own reply (that&apos;s where the link goes — IG penalizes links in the caption itself)</li>
-      </ol>
-
-      {firstComment && (
-        <div
-          style={{
-            marginTop: 14,
-            padding: 12,
-            background: "var(--bg)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-sm)",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
-              // first comment — paste as your own reply
-            </div>
-            <button
-              type="button"
-              onClick={copyFirstComment}
-              style={{
-                background: "transparent",
-                border: `1px solid ${copied ? "var(--accent)" : "var(--border)"}`,
-                color: copied ? "var(--accent)" : "var(--text-secondary)",
-                padding: "3px 10px",
-                fontSize: 10,
-                fontFamily: "var(--mono)",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                borderRadius: 3,
-                cursor: "pointer",
-              }}
-            >
-              {copied ? "✓ copied" : "copy"}
-            </button>
-          </div>
-          <pre
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 12,
-              lineHeight: 1.55,
-              whiteSpace: "pre-wrap",
-              color: "var(--text)",
-              margin: 0,
-              maxHeight: 180,
-              overflow: "auto",
-            }}
-          >
-            {firstComment}
-          </pre>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─────────────────────────────────────────────────────────────────────────
-// PostCard — shared between Step 5 review + the historical lists
+// PostCard — shared between Step 3 review + the historical lists
 // ─────────────────────────────────────────────────────────────────────────
 function PostCard({
   row,
-  onPublish,
+  onDeploy,
   onDiscard,
   busyId,
   pending,
@@ -1519,7 +1393,7 @@ function PostCard({
   onRegenCaption,
 }: {
   row: SocialRow;
-  onPublish: (id: string) => void;
+  onDeploy: (id: string) => void;
   onDiscard: (id: string) => void;
   busyId: string | null;
   pending: boolean;
@@ -1714,20 +1588,14 @@ function PostCard({
         >
           Discard
         </button>
-        {row.status === "draft" && (
-          <button
-            type="button"
-            className="act-btn act-btn-primary"
-            onClick={() => onPublish(row.id)}
-            disabled={busyId === row.id || pending}
-          >
-            {busyId === row.id
-              ? "Pushing…"
-              : isCarousel
-              ? `Push ${slides.length} slides to IG drafts`
-              : "Push to IG drafts"}
-          </button>
-        )}
+        <button
+          type="button"
+          className="act-btn act-btn-primary"
+          onClick={() => onDeploy(row.id)}
+          disabled={busyId === row.id || pending}
+        >
+          {isCarousel ? `Deploy ${slides.length} slides to Instagram →` : "Deploy to Instagram →"}
+        </button>
       </div>
     </div>
   );
