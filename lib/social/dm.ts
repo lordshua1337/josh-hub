@@ -9,6 +9,61 @@ import PROMETHEUS_VOICE from "./voices/prometheus";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
+// ── Hybrid auto-responder config ─────────────────────────────────────────────
+// Only mechanical keyword triggers auto-send. Everything human (real leads,
+// complaints, conversations) is drafted and parked for review. A trigger reply
+// is a fixed, on-brand message — never LLM-generated — so an auto-send can
+// never go off-tone.
+//
+// Keyed by the trigger keyword (lowercase). The signoff slides tell people to
+// DM a keyword; this is what they get back, instantly.
+export const TRIGGER_REPLIES: Record<string, string> = {
+  audit:
+    "Happy to help. Send me a quick list of the tools your team runs on and the two things eating the most time each week, and I'll send back a short written diagnostic in a couple days. No call needed unless you want one.",
+};
+
+// Match an inbound DM to a trigger keyword. Guarded against false positives:
+// the keyword only counts when the message is short (people send the keyword
+// on its own, e.g. "AUDIT" or "audit please"), so a sentence like "I don't
+// think I need an audit yet" won't fire an auto-send.
+export function matchTriggerKeyword(body: string): string | null {
+  const tokens = body.trim().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0 || tokens.length > 5) return null;
+  const lower = body.toLowerCase();
+  for (const kw of Object.keys(TRIGGER_REPLIES)) {
+    if (new RegExp(`\\b${kw}\\b`, "i").test(lower)) return kw;
+  }
+  return null;
+}
+
+export type SendResult = { ok: boolean; messageId?: string; error?: string; noCreds?: boolean };
+
+// Send a DM reply via the IG Graph API (RESPONSE type — valid only inside the
+// 24h window after the user messaged us). Returns noCreds:true when the token
+// isn't wired yet, so callers can fall back to a manual/review path.
+export async function sendIgDm(senderId: string, text: string): Promise<SendResult> {
+  const igToken = process.env.IG_GRAPH_TOKEN;
+  const igUserId = process.env.IG_USER_ID;
+  if (!igToken || !igUserId) return { ok: false, noCreds: true, error: "IG creds not connected" };
+  try {
+    const res = await fetch(`https://graph.facebook.com/v21.0/${igUserId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recipient: { id: senderId },
+        message: { text },
+        messaging_type: "RESPONSE",
+        access_token: igToken,
+      }),
+    });
+    const json = (await res.json()) as { message_id?: string; error?: { message: string } };
+    if (!res.ok || !json.message_id) return { ok: false, error: json.error?.message || `HTTP ${res.status}` };
+    return { ok: true, messageId: json.message_id };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
 export type DmCategory =
   | "lead_inquiry"        // they want what we sell
   | "audit_request"       // matches our keyword DM trigger

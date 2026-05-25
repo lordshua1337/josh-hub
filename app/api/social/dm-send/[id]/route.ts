@@ -5,6 +5,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
+import { sendIgDm } from "@/lib/social/dm";
 
 export const dynamic = "force-dynamic";
 
@@ -21,13 +22,13 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
   if (!row.draft_reply) return NextResponse.json({ error: "no_draft" }, { status: 400 });
   if (row.reply_status === "sent") return NextResponse.json({ ok: true, already_sent: true });
 
-  const igToken = process.env.IG_GRAPH_TOKEN;
-  const igUserId = process.env.IG_USER_ID;
-  if (!igToken || !igUserId) {
-    await sb
-      .from("ig_messages")
-      .update({ reply_status: "ready_to_send" })
-      .eq("id", id);
+  if (!row.sender_id) return NextResponse.json({ error: "no_sender" }, { status: 400 });
+
+  const send = await sendIgDm(row.sender_id, row.draft_reply);
+
+  // No creds yet — preserve the draft + mark ready_to_send for copy/paste.
+  if (send.noCreds) {
+    await sb.from("ig_messages").update({ reply_status: "ready_to_send" }).eq("id", id);
     return NextResponse.json({
       ok: true,
       queued: true,
@@ -36,30 +37,14 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
     });
   }
 
-  try {
-    const res = await fetch(`https://graph.facebook.com/v21.0/${igUserId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        recipient: { id: row.sender_id },
-        message: { text: row.draft_reply },
-        messaging_type: "RESPONSE",
-        access_token: igToken,
-      }),
-    });
-    const json = (await res.json()) as { message_id?: string; error?: { message: string } };
-    if (!res.ok || !json.message_id) {
-      const msg = json.error?.message || `HTTP ${res.status}`;
-      await sb.from("ig_messages").update({ reply_status: "failed", send_error: msg }).eq("id", id);
-      return NextResponse.json({ error: msg }, { status: 500 });
-    }
-    await sb
-      .from("ig_messages")
-      .update({ reply_status: "sent", sent_at: new Date().toISOString(), send_error: null })
-      .eq("id", id);
-    return NextResponse.json({ ok: true, message_id: json.message_id });
-  } catch (e) {
-    await sb.from("ig_messages").update({ reply_status: "failed", send_error: (e as Error).message }).eq("id", id);
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+  if (!send.ok) {
+    await sb.from("ig_messages").update({ reply_status: "failed", send_error: send.error }).eq("id", id);
+    return NextResponse.json({ error: send.error }, { status: 500 });
   }
+
+  await sb
+    .from("ig_messages")
+    .update({ reply_status: "sent", sent_at: new Date().toISOString(), send_error: null })
+    .eq("id", id);
+  return NextResponse.json({ ok: true, message_id: send.messageId });
 }

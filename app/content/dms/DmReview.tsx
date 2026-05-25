@@ -61,14 +61,27 @@ export function DmReview({ rows }: { rows: DmRow[] }) {
 
   const pendingRows = useMemo(
     () =>
-      rows.filter(
-        (r) =>
-          r.draft_reply &&
-          (r.reply_status === "pending" || r.reply_status === "ready_to_send")
-      ),
+      rows
+        .filter(
+          (r) =>
+            r.draft_reply &&
+            (r.reply_status === "pending" || r.reply_status === "ready_to_send")
+        )
+        // Keyword triggers awaiting send (ready_to_send) jump to the top — they
+        // were meant to auto-fire and are just blocked on creds, so they're the
+        // most time-sensitive thing in the queue.
+        .sort((a, b) => {
+          const ra = a.reply_status === "ready_to_send" ? 0 : 1;
+          const rb = b.reply_status === "ready_to_send" ? 0 : 1;
+          return ra - rb;
+        }),
     [rows]
   );
-  const sent = useMemo(() => rows.filter((r) => r.reply_status === "sent"), [rows]);
+  const sent = useMemo(
+    () => rows.filter((r) => r.reply_status === "sent" || r.reply_status === "auto_sent"),
+    [rows]
+  );
+  const autoSentCount = useMemo(() => rows.filter((r) => r.reply_status === "auto_sent").length, [rows]);
   const failed = useMemo(() => rows.filter((r) => r.reply_status === "failed"), [rows]);
   const skipped = useMemo(
     () =>
@@ -137,7 +150,7 @@ export function DmReview({ rows }: { rows: DmRow[] }) {
         <div className="stat-card">
           <div className="stat-label">Sent</div>
           <div className="stat-num">{sent.length}</div>
-          <div className="stat-delta">Shipped via IG Graph</div>
+          <div className="stat-delta">{autoSentCount > 0 ? `${autoSentCount} auto · ${sent.length - autoSentCount} manual` : "Shipped via IG Graph"}</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Skipped / Spam</div>
@@ -273,7 +286,9 @@ export function DmReview({ rows }: { rows: DmRow[] }) {
                 </div>
                 <div className="email-subject-inline">{r.body.slice(0, 80)}</div>
                 <div className="email-time">
-                  {r.reply_status === "sent"
+                  {r.reply_status === "auto_sent"
+                    ? "⚡ auto "
+                    : r.reply_status === "sent"
                     ? "✓ "
                     : r.reply_status === "failed"
                     ? "× "

@@ -39,8 +39,9 @@ export default async function DmReviewPage() {
       <div className="header fl-reveal">
         <h1>DM Triage</h1>
         <p className="header-sub">
-          Instagram DMs auto-classified + drafted in Josh&apos;s voice. Review
-          here, one-click send. ManyChat replacement. Polling every 5 min.
+          Hybrid auto-responder: keyword triggers (DM &quot;AUDIT&quot;) fire an instant
+          reply automatically; everything else is classified + drafted in Josh&apos;s
+          voice and parked here for one-click review. ManyChat replacement. Polling every 5 min.
         </p>
       </div>
       <div className="main">
