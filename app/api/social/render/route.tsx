@@ -192,11 +192,12 @@ export async function GET(req: Request) {
         .maybeSingle();
       if (error || !data) throw new Error(`post ${postId} not found`);
       const cb = data.copy_blocks as { slides?: SlideContent[] };
-      const total = cb?.slides?.length ?? 0;
       const s = cb?.slides?.[slideIdx];
       if (!s) throw new Error(`slide ${slideIdx} out of range`);
       slide = s;
-      counter = total > 1 ? `${String(slideIdx + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}` : undefined;
+      // No footer slide counter — the single per-item numeral (on list slides)
+      // is the only ordinal we show. Keeps slides clean (one number max).
+      counter = undefined;
       renderBrand = data.brand;
     } else {
       const composition = url.searchParams.get("composition") || "declaration";

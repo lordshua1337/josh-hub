@@ -6,9 +6,16 @@ import Anthropic from "@anthropic-ai/sdk";
 import PROMETHEUS_VOICE from "./voices/prometheus";
 import type { Brand } from "./brands";
 import { getPostType, type PostTypeDef } from "./post-types";
-import { buildArc, buildArcPrompt, enforceLimits } from "./arc-spec";
+import { getContentType } from "./content-types";
+import { buildArc, buildIdeatePrompt, buildExpandPrompt, buildSinglePrompt, enforceLimits, type IdeaSeed } from "./arc-spec";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+
+// Model routing: Sonnet does the thinking (ideating real ideas + writing slide
+// copy), Haiku does the cheap mechanical work (caption regen, classification,
+// topic suggestions). The depth of carousel content lives in MODEL_BODY.
+const MODEL_BODY = "claude-sonnet-4-5-20250929";
+const MODEL_FAST = "claude-haiku-4-5-20251001";
 
 const VOICES: Record<string, string> = { prometheus: PROMETHEUS_VOICE };
 
@@ -113,9 +120,9 @@ function voiceFor(brand: Brand): string {
   if (!v) throw new Error(`No voice for brand ${brand.slug}`);
   return v;
 }
-async function ask(prompt: string, maxTokens = 1500): Promise<string> {
+async function ask(prompt: string, maxTokens = 1500, model: string = MODEL_FAST): Promise<string> {
   const res = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
+    model,
     max_tokens: maxTokens,
     messages: [{ role: "user", content: prompt }],
   });
@@ -154,8 +161,8 @@ function safeParse<T>(s: string, fallback: T): T {
 // (not even partial repair worked), retry ONCE with a stricter, shorter
 // reminder to return raw JSON only. This catches the case where Haiku
 // returned prose / Markdown / a truncated payload.
-async function askForJson<T>(prompt: string, maxTokens: number): Promise<T | null> {
-  const first = await ask(prompt, maxTokens);
+async function askForJson<T>(prompt: string, maxTokens: number, model: string = MODEL_FAST): Promise<T | null> {
+  const first = await ask(prompt, maxTokens, model);
   const parsed = tryParse<T>(first);
   if (parsed) return parsed;
   // One retry with an injected sternness header. We don't want to loop
@@ -163,93 +170,29 @@ async function askForJson<T>(prompt: string, maxTokens: number): Promise<T | nul
   const stricter =
     `CRITICAL: Your previous response could not be parsed. Return ONLY raw, complete, well-formed JSON. No prose, no markdown fences, no commentary. The JSON must be a single complete object that fits within the response budget. Be terse if you must.\n\n` +
     prompt;
-  const second = await ask(stricter, maxTokens);
+  const second = await ask(stricter, maxTokens, model);
   return tryParse<T>(second);
 }
 
-// ----- declaration / hot_take / founder_lens / ai_enablement_declaration -----
-async function draftSingleDeclaration(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
-  const briefedTopic = topic.length > 220 ? topic.slice(0, 220).trim() + "…" : topic;
+// ----- single posts (Hot Take / Founder Story) -----
+// One-pass Sonnet with the type's specificity bar + good/generic exemplars.
+async function draftSingle(brand: Brand, def: PostTypeDef, topic: string, grounding?: Record<string, string>): Promise<PostCopy> {
+  const spec = getContentType(def.slug);
+  const briefedTopic = topic.length > 240 ? topic.slice(0, 240).trim() + "…" : topic;
   type Raw = { kicker?: string; headline?: string; emphasize?: string; subtitle?: string; footer?: string; caption?: string };
-  const p = (await askForJson<Raw>(`${voiceFor(brand)}
-
-Write ONE Instagram declaration post. Typography-led, dark forge background.
-
-POST TYPE: ${def.label}. ${def.description}
-TONE: ${def.voiceHint}
-TOPIC (distill — do NOT echo verbatim): "${briefedTopic}"
-
-Two fields often confused:
-- "emphasize" = EXACTLY ONE word from the headline below. Renders ember-gradient. If no single word pops, omit.
-- "subtitle"  = multi-word tagline / second-line copy. Multi-word OK.
-Example: headline="AI doesn't replace judgment.", emphasize="judgment", subtitle="It amplifies the operators who already have it."
-
-Return ONLY raw JSON, no prose, no fences:
-{
-  "kicker":    "small all-caps mono opener, <=6 words, OR empty string",
-  "headline":  "<=10 words, REWRITE the topic, do NOT echo it verbatim",
-  "emphasize": "ONE word from headline, OR empty string",
-  "subtitle":  "8-14 word tagline / punchline that complements headline",
-  "footer":    "optional small editorial line, <=18 words, OR empty string",
-  "caption":   "IG caption, 2-4 short paragraphs, ends with question, 4-6 hashtags on new line at bottom"
-}
-
-RULES:
-- headline MUST NOT echo topic verbatim — REWRITE punchy.
-- emphasize is single-word-from-headline OR omitted/empty. NEVER a phrase.
-- No emojis. No em dashes. No corporate slop.`, 2000)) ?? { headline: briefedTopic, caption: "" };
+  const prompt = spec
+    ? buildSinglePrompt(spec, voiceFor(brand), topic, grounding)
+    : `${voiceFor(brand)}\n\nWrite ONE Instagram declaration post about: "${briefedTopic}". Return raw JSON {"kicker","headline","emphasize","subtitle","footer","caption"}. No emojis, no em dashes.`;
+  const p = (await askForJson<Raw>(prompt, 2000, MODEL_BODY)) ?? { headline: briefedTopic, caption: "" };
   const heroSlide = rescueSlideEmphasis({
-    composition: "declaration",
+    composition: spec?.design.single ?? "declaration",
     kicker: p.kicker,
     headline: p.headline,
     emphasize: p.emphasize,
     subtitle: p.subtitle,
     footer: p.footer,
   });
-  return {
-    is_carousel: false,
-    slides: [heroSlide],
-    caption: p.caption || "",
-  };
-}
-
-// ----- split_contrast (reframe) -----
-async function draftReframe(brand: Brand, def: PostTypeDef, topic: string): Promise<PostCopy> {
-  const briefedTopic = topic.length > 220 ? topic.slice(0, 220).trim() + "…" : topic;
-  type Raw = { theySaidLabel?: string; theySaid?: string; trueLabel?: string; trueLine?: string; emphasize?: string; caption?: string };
-  const p = (await askForJson<Raw>(`${voiceFor(brand)}
-
-Write ONE Instagram "split_contrast" post. Top half = what they were told (struck-through). Bottom half = what's true.
-
-POST TYPE: ${def.label}. ${def.description}
-TONE: ${def.voiceHint}
-TOPIC: "${briefedTopic}"
-
-Return ONLY raw JSON, no prose:
-{
-  "theySaidLabel": "2-4 word ALL CAPS label, default WHAT THEY SAID",
-  "theySaid":      "the popular take, <=12 words, accurate not strawman",
-  "trueLabel":     "2-4 word ALL CAPS label, default WHAT'S TRUE",
-  "trueLine":      "the reframe, <=15 words",
-  "emphasize":     "ONE word from trueLine OR empty string",
-  "caption":       "2-3 short paragraphs, question at end, 4-6 hashtags"
-}
-
-RULES: emphasize = single word from trueLine OR omit. No emojis, no em dashes.`, 1500)) ?? { theySaid: "", trueLine: briefedTopic, caption: "" };
-  return {
-    is_carousel: false,
-    slides: [
-      rescueSlideEmphasis({
-        composition: "split_contrast",
-        theySaidLabel: p.theySaidLabel,
-        theySaid: p.theySaid,
-        trueLabel: p.trueLabel,
-        trueLine: p.trueLine,
-        emphasize: p.emphasize,
-      }),
-    ],
-    caption: p.caption || "",
-  };
+  return { is_carousel: false, slides: [heroSlide], caption: p.caption || "" };
 }
 
 // Normalize a raw reel_script from the LLM into a typed ReelScript (or undefined).
@@ -265,51 +208,81 @@ function normalizeReel(
   return { duration: raw.duration || fallbackDuration, beats };
 }
 
-// ----- carousels (spec-driven) -----
-// Prompt, per-field caps, arc roles, and slide count all come from buildArc()/
-// buildArcPrompt() in arc-spec.ts. enforceLimits() clamps the output as a
-// backstop. This function just maps the JSON onto SlideContent.
-async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string, slideCount?: number): Promise<PostCopy> {
+// ----- carousels: two-stage (ideate -> expand), Sonnet -----
+// Stage 1 plans the N body ideas and forces them specific (buildIdeatePrompt),
+// with an in-prompt self-critique. Stage 2 writes the full slide package from
+// those vetted ideas (buildExpandPrompt). enforceLimits clamps as a backstop.
+async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string, slideCount?: number, grounding?: Record<string, string>): Promise<PostCopy> {
   const arc = buildArc(def.slug, slideCount ?? def.slideCount);
   const bodyCount = arc.bodyCount;
+  const voice = voiceFor(brand);
+  const isContrast = arc.bodyMode === "contrast";
+  const eyebrowLabel = arc.spec.bodyUnit!.eyebrowLabel;
 
+  // Stage 1 — ideate the body (Sonnet). Returns vetted idea seeds, not copy.
+  const ideated = await askForJson<{ seeds?: IdeaSeed[] }>(
+    buildIdeatePrompt(arc, voice, topic, grounding),
+    arc.ideateBudget,
+    MODEL_BODY,
+  );
+  const seeds: IdeaSeed[] = (ideated?.seeds ?? [])
+    .filter((s): s is IdeaSeed => Boolean(s && (s.lead || s.detail)))
+    .slice(0, bodyCount);
+  while (seeds.length < bodyCount) seeds.push({ lead: "", detail: "" });
+
+  // Stage 2 — expand the vetted seeds into the slide package (Sonnet).
   type Raw = {
     hook?: { kicker?: string; headline?: string; emphasize?: string; subtitle?: string; swipeHint?: string };
-    body?: { title?: string; body?: string; emphasize?: string; subtitle?: string }[];
+    body?: { title?: string; subtitle?: string; body?: string; theySaid?: string; trueLine?: string; emphasize?: string }[];
     cta?: { closer?: string; emphasize?: string; cta?: string; link?: string };
     caption?: string;
     first_comment?: string;
     reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
   };
-
-  const raw = (await askForJson<Raw>(buildArcPrompt(arc, voiceFor(brand), topic), arc.tokenBudget)) ?? {};
+  const raw = (await askForJson<Raw>(buildExpandPrompt(arc, voice, topic, seeds, grounding), arc.expandBudget, MODEL_BODY)) ?? {};
   const body = (raw.body ?? []).slice(0, bodyCount);
 
   const slides: SlideContent[] = [
     enforceLimits({
       composition: "carousel_hook",
-      kicker: raw.hook?.kicker || `${bodyCount} ${arc.bodyNoun}s`,
+      kicker: raw.hook?.kicker || `${bodyCount} ${arc.bodyUnitPlural}`,
       headline: raw.hook?.headline || topic,
       emphasize: raw.hook?.emphasize,
       subtitle: raw.hook?.subtitle,
       swipeHint: raw.hook?.swipeHint || "swipe →",
     } as SlideContent),
   ];
+
   for (let i = 0; i < bodyCount; i++) {
-    const s = body[i] || { title: `${arc.bodyNoun} ${i + 1}`, body: "" };
-    slides.push(
-      enforceLimits({
-        composition: "numbered_step",
-        index: i + 1,
-        total: bodyCount,
-        eyebrow: `${arc.bodyNoun} ${i + 1} of ${bodyCount}`,
-        title: s.title || `${arc.bodyNoun} ${i + 1}`,
-        body: s.body || "",
-        emphasize: s.emphasize,
-        subtitle: s.subtitle,
-      } as SlideContent)
-    );
+    const s = body[i] || {};
+    const seed = seeds[i];
+    if (isContrast) {
+      slides.push(
+        enforceLimits({
+          composition: "split_contrast",
+          theySaidLabel: "what they say",
+          theySaid: s.theySaid || seed?.lead || "",
+          trueLabel: "what's true",
+          trueLine: s.trueLine || seed?.detail || "",
+          emphasize: s.emphasize,
+        } as SlideContent),
+      );
+    } else {
+      slides.push(
+        enforceLimits({
+          composition: "numbered_step",
+          index: i + 1,
+          total: bodyCount,
+          eyebrow: eyebrowLabel, // a real label ("tactic"), never "i of N"
+          title: s.title || seed?.lead || "",
+          subtitle: s.subtitle,
+          body: s.body || seed?.detail || "",
+          emphasize: s.emphasize,
+        } as SlideContent),
+      );
+    }
   }
+
   slides.push(
     enforceLimits({
       composition: "carousel_cta",
@@ -317,9 +290,10 @@ async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string, slid
       emphasize: raw.cta?.emphasize,
       cta: raw.cta?.cta || "Questions? josh@prometheusconsulting.ai",
       link: raw.cta?.link || brand.schedulingLink || "",
-    } as SlideContent)
+    } as SlideContent),
   );
-  // Brand-standard final slide — never LLM-generated, always appended.
+
+  // Brand-standard final slide — never generated, always appended.
   slides.push({
     composition: "signoff",
     link: "josh@prometheusconsulting.ai",
@@ -334,65 +308,6 @@ async function draftCarousel(brand: Brand, def: PostTypeDef, topic: string, slid
     caption: raw.caption || "",
     first_comment: raw.first_comment || undefined,
     reel_script: normalizeReel(raw.reel_script, "45s"),
-  };
-}
-
-// ----- panel_panorama (seamless image-split carousel, spec-driven) -----
-async function draftPanorama(brand: Brand, def: PostTypeDef, topic: string, slideCount?: number): Promise<PostCopy> {
-  const arc = buildArc(def.slug, slideCount ?? def.slideCount);
-  const panelCount = arc.bodyCount;
-
-  type Raw = {
-    panels?: { caption?: string; emphasize?: string }[];
-    cta?: { closer?: string; emphasize?: string; cta?: string; link?: string };
-    caption?: string;
-    first_comment?: string;
-    reel_script?: { duration?: string; beats?: { t?: string; label?: string; script?: string }[] };
-  };
-  const raw = (await askForJson<Raw>(buildArcPrompt(arc, voiceFor(brand), topic), arc.tokenBudget)) ?? {};
-  const panels = (raw.panels || []).slice(0, panelCount);
-
-  const slides: SlideContent[] = [];
-  for (let i = 0; i < panelCount; i++) {
-    const p = panels[i] || { caption: "" };
-    // panel_slide reads its text from `headline` (mapped from caption); keep
-    // a `caption` mirror too so enforceLimits caps it under the panel rule.
-    const enforced = enforceLimits({
-      composition: "panel_slide",
-      caption: p.caption || "",
-      emphasize: p.emphasize,
-    });
-    slides.push({
-      composition: "panel_slide",
-      headline: enforced.caption || "",
-      emphasize: enforced.emphasize,
-      panelIndex: i,
-      panelTotal: panelCount,
-    });
-  }
-  slides.push(
-    enforceLimits({
-      composition: "carousel_cta",
-      closer: raw.cta?.closer || "Start with the one that fits your week.",
-      emphasize: raw.cta?.emphasize,
-      cta: raw.cta?.cta || "Questions? josh@prometheusconsulting.ai",
-      link: raw.cta?.link || brand.schedulingLink || "",
-    } as SlideContent)
-  );
-  slides.push({
-    composition: "signoff",
-    link: "josh@prometheusconsulting.ai",
-    headline: "If this was useful, do one of these.",
-    emphasize: "do one of these",
-    footer: def.signoffNote,
-  });
-
-  return {
-    is_carousel: true,
-    slides,
-    caption: raw.caption || "",
-    first_comment: raw.first_comment || undefined,
-    reel_script: normalizeReel(raw.reel_script, "30s"),
   };
 }
 
@@ -474,24 +389,15 @@ RULES: DON'T start caption with the same opening as the previous one. Exactly 4 
 }
 
 // ----- dispatcher -----
-// slideCount is honored only for carousels; buildArc clamps it to the type's range.
-export async function draftPost(brand: Brand, postTypeSlug: string, topic: string, slideCount?: number): Promise<PostCopy> {
+// slideCount + grounding are honored for carousels; buildArc clamps the count.
+export async function draftPost(
+  brand: Brand,
+  postTypeSlug: string,
+  topic: string,
+  slideCount?: number,
+  grounding?: Record<string, string>,
+): Promise<PostCopy> {
   const def = getPostType(postTypeSlug);
-  if (def.slug === "panel_panorama") return draftPanorama(brand, def, topic, slideCount);
-  if (def.kind === "carousel") return draftCarousel(brand, def, topic, slideCount);
-  if (def.compositions[0] === "split_contrast") return draftReframe(brand, def, topic);
-  return draftSingleDeclaration(brand, def, topic);
-}
-
-// Back-compat single-declaration helper used by phase 1 callers
-export async function draftDeclaration(brand: Brand, topic: string): Promise<DeclarationCopy> {
-  const post = await draftSingleDeclaration(brand, getPostType("ai_enablement_declaration"), topic);
-  const s = post.slides[0];
-  return {
-    kicker: s.kicker,
-    headline: s.headline || topic,
-    emphasize: s.emphasize,
-    footer: s.footer,
-    caption: post.caption,
-  };
+  if (def.kind === "carousel") return draftCarousel(brand, def, topic, slideCount, grounding);
+  return draftSingle(brand, def, topic, grounding);
 }

@@ -13,9 +13,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { POST_TYPES, type PostKind } from "@/lib/social/post-types";
+import { POST_TYPES } from "@/lib/social/post-types";
 import { FORGE_IMAGES } from "@/lib/social/forge-images";
 import { CAROUSEL_CONFIG, clampSlideCount } from "@/lib/social/arc-spec";
+import { getContentType, type GroundingField } from "@/lib/social/content-types";
 
 export type SocialRow = {
   id: string;
@@ -90,7 +91,6 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
 
   // Wizard state
   const [step, setStep] = useState<Step>(1);
-  const [kind, setKind] = useState<PostKind | null>(null);
   const [postType, setPostType] = useState<string | null>(null);
   const [slideCount, setSlideCount] = useState<number | null>(null);
   const [imageSlug, setImageSlug] = useState<string | null>(null);
@@ -100,6 +100,9 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
   const [zoom, setZoom] = useState<number>(1);
   const [overlay, setOverlay] = useState<"subtle" | "strong" | "fade-bottom" | "wordmark" | "none">("subtle");
   const [topic, setTopic] = useState("");
+  // Per-type grounding answers (keyed by GroundingField.key). The single biggest
+  // lever against generic output — fed straight into the ideation prompt.
+  const [grounding, setGrounding] = useState<Record<string, string>>({});
 
   // Async state
   const [drafting, setDrafting] = useState(false);
@@ -119,7 +122,6 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
 
   function resetWizard() {
     setStep(1);
-    setKind(null);
     setPostType(null);
     setSlideCount(null);
     setImageSlug(null);
@@ -129,6 +131,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
     setZoom(1);
     setOverlay("subtle");
     setTopic("");
+    setGrounding({});
     setDraftedId(null);
   }
 
@@ -157,10 +160,6 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
-  const eligibleTypes = useMemo(
-    () => (kind ? POST_TYPES.filter((p) => p.kind === kind) : []),
-    [kind]
-  );
   const selectedDef = postType ? POST_TYPES.find((p) => p.slug === postType) : null;
   const selectedImage = imageSlug ? FORGE_IMAGES.find((f) => f.slug === imageSlug) : null;
   const activeImageUrl = customImageUrl || selectedImage?.url || null;
@@ -177,6 +176,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
           post_type: postType,
           topic,
           slide_count: slideCount ?? undefined,
+          grounding: Object.keys(grounding).length ? grounding : undefined,
           image_url: activeImageUrl || undefined,
           focal_x: activeImageUrl ? focalX : undefined,
           focal_y: activeImageUrl ? focalY : undefined,
@@ -356,9 +356,35 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             close ✕
           </button>
         </div>
-        <StepHeader step={step} setStep={setStep} imageSlug={imageSlug} customImageUrl={customImageUrl} kind={kind} postType={postType} topic={topic} draftedId={draftedId} />
+        <Stepper step={step} setStep={setStep} postType={postType} topic={topic} draftedId={draftedId} />
 
         {step === 1 && (
+          <Step1Brief
+            postType={postType}
+            slideCount={slideCount}
+            topic={topic}
+            grounding={grounding}
+            allTypes={POST_TYPES}
+            drafting={drafting}
+            suggesting={suggesting}
+            suggestions={suggestions}
+            setPostType={(slug) => {
+              setPostType(slug);
+              // Default slide count to the type's default (carousel only); reset grounding.
+              setSlideCount(CAROUSEL_CONFIG[slug]?.default ?? null);
+              setGrounding({});
+              setSuggestions([]);
+            }}
+            setSlideCount={setSlideCount}
+            setTopic={setTopic}
+            setGrounding={setGrounding}
+            onSuggestTopics={onSuggestTopics}
+            onNext={() => setStep(2)}
+            onClose={() => setWizardOpen(false)}
+          />
+        )}
+
+        {step === 2 && (
           <Step1ImagePick
             imageSlug={imageSlug}
             customImageUrl={customImageUrl}
@@ -366,6 +392,8 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             focalY={focalY}
             zoom={zoom}
             overlay={overlay}
+            generating={drafting}
+            postLabel={selectedDef?.label ?? "post"}
             setImageSlug={(slug) => {
               setImageSlug(slug);
               setCustomImageUrl(null);
@@ -384,44 +412,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             setFocalY={setFocalY}
             setZoom={setZoom}
             setOverlay={setOverlay}
-            onNext={() => setStep(2)}
-            onSkip={() => {
-              setImageSlug(null);
-              setCustomImageUrl(null);
-              setStep(2);
-            }}
-            onCancel={() => setWizardOpen(false)}
-          />
-        )}
-
-        {step === 2 && (
-          <Step2Compose
-            kind={kind}
-            postType={postType}
-            slideCount={slideCount}
-            topic={topic}
-            selectedImageName={selectedImage?.name || (customImageUrl ? "custom upload" : null)}
-            options={eligibleTypes}
-            allTypes={POST_TYPES}
-            drafting={drafting}
-            suggesting={suggesting}
-            suggestions={suggestions}
-            setKind={(k) => {
-              setKind(k);
-              setPostType(null);
-              setSlideCount(null);
-              setSuggestions([]);
-            }}
-            setPostType={(slug) => {
-              setPostType(slug);
-              // Default the slide count to the type's default (carousel only).
-              setSlideCount(CAROUSEL_CONFIG[slug]?.default ?? null);
-              setSuggestions([]);
-            }}
-            setSlideCount={setSlideCount}
-            setTopic={setTopic}
-            onSuggestTopics={onSuggestTopics}
-            onDraft={onDraft}
+            onGenerate={onDraft}
             onBack={() => setStep(1)}
           />
         )}
@@ -436,7 +427,7 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
             onDiscard={() => onDiscard(draftedId)}
             onRegenCaption={onRegenCaption}
             onStartOver={resetWizard}
-            onBackToCompose={() => setStep(2)}
+            onBackToCompose={() => setStep(1)}
           />
         )}
       </div>
@@ -510,75 +501,93 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Step header — clickable breadcrumb so Josh can jump back to any step he
-// already completed. Future steps stay greyed out.
+// Stepper — a real progress rail with numbered nodes + connecting line.
+// States: done (filled ember + check), active (ember ring), upcoming (muted).
+// Done/active nodes are clickable to jump back.
 // ─────────────────────────────────────────────────────────────────────────
-function StepHeader({
+function Stepper({
   step,
   setStep,
-  imageSlug,
-  customImageUrl,
-  kind,
   postType,
   topic,
   draftedId,
 }: {
   step: Step;
   setStep: (s: Step) => void;
-  imageSlug: string | null;
-  customImageUrl: string | null;
-  kind: PostKind | null;
   postType: string | null;
   topic: string;
   draftedId: string | null;
 }) {
-  const imageLabel = customImageUrl
-    ? "custom"
-    : imageSlug || (step > 1 ? "typographic" : "—");
-  const composeLabel = postType
-    ? `${postType.replace(/_/g, " ")}${kind ? ` (${kind})` : ""}`
-    : kind
-    ? `${kind}`
-    : "—";
-  const steps = [
-    { n: 1, label: "Image", done: step > 1, value: imageLabel },
-    { n: 2, label: "Compose", done: !!draftedId, value: composeLabel + (topic ? " · topic ✓" : "") },
-    { n: 3, label: "Generate", done: false, value: draftedId ? "ready" : "—" },
+  const nodes = [
+    { n: 1 as Step, label: "Brief", sub: postType ? postType.replace(/_/g, " ") : "pick a type" },
+    { n: 2 as Step, label: "Image", sub: topic ? "optional" : "—" },
+    { n: 3 as Step, label: "Generate", sub: draftedId ? "ready" : "—" },
   ];
   return (
-    <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
-      {steps.map((s) => {
-        const active = step === s.n;
-        const reachable = s.n <= step || s.done;
+    <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 22, padding: "0 4px" }}>
+      {nodes.map((nd, i) => {
+        const done = step > nd.n || (nd.n < 3 && !!draftedId);
+        const active = step === nd.n;
+        const reachable = nd.n <= step || !!draftedId;
+        const ember = "var(--accent)";
         return (
-          <button
-            key={s.n}
-            type="button"
-            onClick={() => {
-              if (reachable) setStep(s.n as Step);
-            }}
-            disabled={!reachable}
-            style={{
-              flex: "1 1 200px",
-              minWidth: 180,
-              textAlign: "left",
-              padding: "12px 14px",
-              border: `1px solid ${active ? "var(--accent)" : "var(--border)"}`,
-              background: active ? "rgba(242,138,47,0.10)" : "transparent",
-              color: reachable ? "var(--text)" : "var(--text-tertiary)",
-              cursor: reachable ? "pointer" : "not-allowed",
-              borderRadius: "var(--radius-sm)",
-              fontFamily: "inherit",
-              borderLeft: active ? "3px solid var(--accent)" : `1px solid ${active ? "var(--accent)" : "var(--border)"}`,
-            }}
-          >
-            <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: active ? "var(--accent)" : "var(--text-tertiary)" }}>
-              0{s.n} · {s.label}
-            </div>
-            <div style={{ fontSize: 13, marginTop: 4, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {s.value}
-            </div>
-          </button>
+          <div key={nd.n} style={{ display: "flex", alignItems: "flex-start", flex: i < nodes.length - 1 ? 1 : "0 0 auto" }}>
+            <button
+              type="button"
+              onClick={() => reachable && setStep(nd.n)}
+              disabled={!reachable}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 6,
+                background: "transparent",
+                border: "none",
+                cursor: reachable ? "pointer" : "default",
+                padding: 0,
+                minWidth: 64,
+              }}
+            >
+              <div
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: "var(--mono)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  background: done ? ember : active ? "rgba(242,138,47,0.14)" : "transparent",
+                  color: done ? "#15100e" : active ? ember : "var(--text-tertiary)",
+                  border: `2px solid ${done || active ? ember : "var(--border)"}`,
+                  transition: "all 120ms",
+                }}
+              >
+                {done ? "✓" : nd.n}
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", color: active || done ? "var(--text)" : "var(--text-tertiary)" }}>
+                  {nd.label}
+                </div>
+                <div style={{ fontSize: 9, color: "var(--text-tertiary)", textTransform: "lowercase", maxWidth: 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {nd.sub}
+                </div>
+              </div>
+            </button>
+            {i < nodes.length - 1 && (
+              <div
+                style={{
+                  flex: 1,
+                  height: 2,
+                  marginTop: 14,
+                  background: step > nd.n ? ember : "var(--border)",
+                  transition: "background 120ms",
+                }}
+              />
+            )}
+          </div>
         );
       })}
     </div>
@@ -586,262 +595,202 @@ function StepHeader({
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Step 2 — Compose. Kind toggle + post-type pick + topic input in one screen.
-// This is where Josh picks "what's the post" after he's already locked in
-// the image in step 1. All controls visible at once, no sub-steps.
+// Step 1 — Brief. Type-first: pick a content type, then the type reveals its
+// grounding inputs (the specifics that make the output concrete), the slide
+// count + arc preview (carousels), and the topic. Image comes next.
 // ─────────────────────────────────────────────────────────────────────────
-function Step2Compose({
-  kind,
+function Step1Brief({
   postType,
   slideCount,
   topic,
-  selectedImageName,
-  options,
+  grounding,
   allTypes,
   drafting,
   suggesting,
   suggestions,
-  setKind,
   setPostType,
   setSlideCount,
   setTopic,
+  setGrounding,
   onSuggestTopics,
-  onDraft,
-  onBack,
+  onNext,
+  onClose,
 }: {
-  kind: PostKind | null;
   postType: string | null;
   slideCount: number | null;
   topic: string;
-  selectedImageName: string | null;
-  options: typeof POST_TYPES;
+  grounding: Record<string, string>;
   allTypes: typeof POST_TYPES;
   drafting: boolean;
   suggesting: boolean;
   suggestions: { title: string; topic: string }[];
-  setKind: (k: PostKind) => void;
   setPostType: (slug: string) => void;
   setSlideCount: (n: number) => void;
   setTopic: (s: string) => void;
+  setGrounding: (g: Record<string, string>) => void;
   onSuggestTopics: () => void;
-  onDraft: () => void;
-  onBack: () => void;
+  onNext: () => void;
+  onClose: () => void;
 }) {
   const def = postType ? allTypes.find((p) => p.slug === postType) : null;
-  // Slide-count control only applies to carousels with a registered range.
+  const spec = postType ? getContentType(postType) : undefined;
   const cfg = postType ? CAROUSEL_CONFIG[postType] : undefined;
   const effectiveCount = cfg ? clampSlideCount(postType!, slideCount ?? cfg.default) : null;
-  // Arc preview string for the chosen count.
-  const arcPreview = (() => {
-    if (!cfg || !effectiveCount) return null;
-    if (cfg.bodyMode === "panorama") {
-      return `${effectiveCount - 2} panels + CTA + signoff`;
-    }
-    return `hook + ${effectiveCount - 3} ${cfg.bodyNoun}s + CTA + signoff`;
-  })();
+  const arcPreview = cfg && effectiveCount ? `hook + ${effectiveCount - 3} ${cfg.bodyNoun} + CTA + signoff` : null;
+  const groundingFields: GroundingField[] = spec?.grounding ?? [];
+  const requiredFilled = groundingFields.filter((g) => g.required).every((g) => (grounding[g.key] || "").trim().length > 0);
+  const canNext = !!def && !!topic.trim() && requiredFilled;
+
   return (
     <div>
-      <div className="section-label" style={{ marginBottom: 12 }}>Step 2 · Compose</div>
-      <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 14 }}>
-        Image locked: <strong style={{ color: "var(--text)" }}>{selectedImageName || "typographic only"}</strong>.
-        Now choose the format + tell me what it&apos;s about. AI fills the copy.
+      <div className="section-label" style={{ marginBottom: 6 }}>Step 1 · What are you making?</div>
+      <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 16 }}>
+        Pick the kind of post. Each type asks for a couple of specifics so the copy comes out concrete, not generic.
       </div>
 
-      {/* Kind toggle — single / carousel */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-        {(["single", "carousel"] as PostKind[]).map((k) => (
+      {/* Type grid — all types, with kind + pillar + purpose */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 18 }}>
+        {allTypes.map((p) => (
           <button
-            key={k}
+            key={p.slug}
             type="button"
-            onClick={() => setKind(k)}
+            onClick={() => setPostType(p.slug)}
             style={{
-              flex: 1,
-              padding: "10px 14px",
-              fontFamily: "var(--mono)",
-              fontSize: 12,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              background: kind === k ? "rgba(242,138,47,0.12)" : "transparent",
-              border: `1px solid ${kind === k ? "var(--accent)" : "var(--border)"}`,
-              color: kind === k ? "var(--ember-050)" : "var(--text-secondary)",
+              textAlign: "left",
+              padding: 12,
+              background: postType === p.slug ? "rgba(242,138,47,0.10)" : "transparent",
+              border: `1px solid ${postType === p.slug ? "var(--accent)" : "var(--border)"}`,
               borderRadius: "var(--radius-sm)",
               cursor: "pointer",
+              color: "var(--text)",
+              fontFamily: "inherit",
             }}
           >
-            {k === "single" ? "single image" : "multi-slide carousel"}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+              <div style={{ fontWeight: 600, fontSize: 13 }}>{p.label}</div>
+              <div style={{ fontSize: 9, fontFamily: "var(--mono)", color: "var(--text-tertiary)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                {p.kind === "carousel" ? `${p.slideCount} slides` : "single"}
+              </div>
+            </div>
+            <div style={{ fontSize: 10, color: "var(--accent)", marginTop: 2, fontFamily: "var(--mono)" }}>{p.pillar}</div>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 6, lineHeight: 1.4 }}>{p.description}</div>
           </button>
         ))}
       </div>
 
-      {/* Post-type grid — filtered by kind */}
-      {kind && (
-        <>
-          <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 6 }}>
-            // post type
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
-            {options.map((p) => (
-              <button
-                key={p.slug}
-                type="button"
-                onClick={() => setPostType(p.slug)}
-                style={{
-                  textAlign: "left",
-                  padding: 12,
-                  background: postType === p.slug ? "rgba(242,138,47,0.10)" : "transparent",
-                  border: `1px solid ${postType === p.slug ? "var(--accent)" : "var(--border)"}`,
-                  borderRadius: "var(--radius-sm)",
-                  cursor: "pointer",
-                  color: "var(--text)",
-                  fontFamily: "inherit",
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{p.label}</div>
-                  <div style={{ fontSize: 9, fontFamily: "var(--mono)", color: "var(--text-tertiary)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
-                    {p.kind === "carousel" ? `${p.slideCount} slides` : "single"}
-                  </div>
-                </div>
-                <div style={{ fontSize: 10, color: "var(--accent)", marginTop: 2, fontFamily: "var(--mono)" }}>
-                  {p.pillar}
-                </div>
-                <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 6, lineHeight: 1.4 }}>
-                  {p.description}
-                </div>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* Slide-count selector — carousels only, range from the arc spec */}
-      {cfg && effectiveCount && (
-        <div style={{ marginBottom: 14 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
-              // slides
-            </div>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--text-tertiary)" }}>
-              {arcPreview}
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {Array.from({ length: cfg.max - cfg.min + 1 }, (_, i) => cfg.min + i).map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => setSlideCount(n)}
-                style={{
-                  width: 44,
-                  padding: "8px 0",
-                  fontFamily: "var(--mono)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  background: effectiveCount === n ? "rgba(242,138,47,0.14)" : "transparent",
-                  border: `1px solid ${effectiveCount === n ? "var(--accent)" : "var(--border)"}`,
-                  color: effectiveCount === n ? "var(--ember-050)" : "var(--text-secondary)",
-                  borderRadius: "var(--radius-sm)",
-                  cursor: "pointer",
-                }}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Topic — only enabled once a post type is picked */}
+      {/* Everything below appears only once a type is chosen (progressive disclosure) */}
       {def && (
-        <>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
-              // topic — what&apos;s the post about
-            </div>
-            <button
-              type="button"
-              onClick={onSuggestTopics}
-              disabled={suggesting || drafting}
-              style={{
-                background: "transparent",
-                border: "1px solid var(--accent)",
-                color: "var(--accent)",
-                padding: "4px 10px",
-                borderRadius: 4,
-                fontFamily: "var(--mono)",
-                fontSize: 10,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                cursor: suggesting ? "wait" : "pointer",
-              }}
-            >
-              {suggesting ? "thinking…" : "↻ suggest topics"}
-            </button>
-          </div>
-          <textarea
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder={`Topic for "${def.label}". e.g. ${def.voiceHint.split(".")[0].toLowerCase()}`}
-            rows={4}
-            style={{
-              width: "100%",
-              padding: 12,
-              fontSize: 14,
-              fontFamily: "'Inter', sans-serif",
-              background: "var(--bg)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-sm)",
-              color: "var(--text)",
-              resize: "vertical",
-              marginBottom: 8,
-            }}
-          />
-          {/* Suggested topic chips — click to drop into the textarea */}
-          {suggestions.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: "var(--text-tertiary)", marginBottom: 6 }}>
-                Click any suggestion to use it. Edit freely after.
+        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 16 }}>
+          {/* Slide count — carousels only */}
+          {cfg && effectiveCount && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>// slides</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--text-tertiary)" }}>{arcPreview}</div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {suggestions.map((s, i) => (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {Array.from({ length: cfg.max - cfg.min + 1 }, (_, i) => cfg.min + i).map((n) => (
                   <button
-                    key={i}
+                    key={n}
                     type="button"
-                    onClick={() => setTopic(s.topic)}
+                    onClick={() => setSlideCount(n)}
                     style={{
-                      textAlign: "left",
-                      padding: "8px 12px",
-                      background: "rgba(242,138,47,0.04)",
-                      border: "1px solid rgba(255,138,47,0.16)",
+                      width: 44,
+                      padding: "8px 0",
+                      fontFamily: "var(--mono)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      background: effectiveCount === n ? "rgba(242,138,47,0.14)" : "transparent",
+                      border: `1px solid ${effectiveCount === n ? "var(--accent)" : "var(--border)"}`,
+                      color: effectiveCount === n ? "var(--ember-050)" : "var(--text-secondary)",
                       borderRadius: "var(--radius-sm)",
                       cursor: "pointer",
-                      fontFamily: "inherit",
-                      color: "var(--text)",
                     }}
                   >
-                    <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 2 }}>
-                      // {s.title}
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.45 }}>
-                      {s.topic}
-                    </div>
+                    {n}
                   </button>
                 ))}
               </div>
             </div>
           )}
-        </>
+
+          {/* Grounding inputs — the specifics that make output concrete */}
+          {groundingFields.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 8 }}>
+                // the specifics
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {groundingFields.map((g) => (
+                  <div key={g.key}>
+                    <label style={{ display: "block", fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
+                      {g.label}{g.required ? <span style={{ color: "var(--accent)" }}> *</span> : <span style={{ color: "var(--text-tertiary)" }}> (optional)</span>}
+                    </label>
+                    <input
+                      type="text"
+                      value={grounding[g.key] || ""}
+                      onChange={(e) => setGrounding({ ...grounding, [g.key]: e.target.value })}
+                      placeholder={g.placeholder}
+                      style={{
+                        width: "100%",
+                        padding: "9px 11px",
+                        fontSize: 13,
+                        fontFamily: "'Inter', sans-serif",
+                        background: "var(--bg)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "var(--radius-sm)",
+                        color: "var(--text)",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Topic / angle */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+              // topic — the angle for this post
+            </div>
+            <button
+              type="button"
+              onClick={onSuggestTopics}
+              disabled={suggesting || drafting}
+              style={{ background: "transparent", border: "1px solid var(--accent)", color: "var(--accent)", padding: "4px 10px", borderRadius: 4, fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", cursor: suggesting ? "wait" : "pointer" }}
+            >
+              {suggesting ? "thinking…" : "↻ suggest"}
+            </button>
+          </div>
+          <textarea
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder={`What's the angle for this ${def.label.toLowerCase()}?`}
+            rows={3}
+            style={{ width: "100%", padding: 12, fontSize: 14, fontFamily: "'Inter', sans-serif", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", resize: "vertical", marginBottom: 8 }}
+          />
+          {suggestions.length > 0 && (
+            <div style={{ marginBottom: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+              {suggestions.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setTopic(s.topic)}
+                  style={{ textAlign: "left", padding: "8px 12px", background: "rgba(242,138,47,0.04)", border: "1px solid rgba(255,138,47,0.16)", borderRadius: "var(--radius-sm)", cursor: "pointer", fontFamily: "inherit", color: "var(--text)" }}
+                >
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 2 }}>// {s.title}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.45 }}>{s.topic}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-        <button type="button" className="act-btn" onClick={onBack} disabled={drafting}>← Back</button>
-        <button
-          type="button"
-          className="act-btn act-btn-primary"
-          onClick={onDraft}
-          disabled={drafting || !def || !topic.trim()}
-        >
-          {drafting ? "Generating…" : "Generate post →"}
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginTop: 16 }}>
+        <button type="button" className="act-btn" onClick={onClose}>Cancel</button>
+        <button type="button" className="act-btn act-btn-primary" onClick={onNext} disabled={!canNext} title={!canNext ? "Pick a type, fill the required specifics, and add a topic" : ""}>
+          Next: add an image →
         </button>
       </div>
     </div>
@@ -849,8 +798,8 @@ function Step2Compose({
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Step 1 — Image pick. Forge background + focal/overlay tweaks.
-// (This is the START of the flow now. Image-first per Josh's redesign.)
+// Step 2 — Image (optional). Forge background + drag-to-focus + zoom. The
+// "Generate" action lives here since it's the last step before review.
 // ─────────────────────────────────────────────────────────────────────────
 function Step1ImagePick({
   imageSlug,
@@ -865,9 +814,10 @@ function Step1ImagePick({
   setFocalY,
   setZoom,
   setOverlay,
-  onNext,
-  onSkip,
-  onCancel,
+  generating,
+  postLabel,
+  onGenerate,
+  onBack,
 }: {
   imageSlug: string | null;
   customImageUrl: string | null;
@@ -881,9 +831,10 @@ function Step1ImagePick({
   setFocalY: (n: number) => void;
   setZoom: (n: number) => void;
   setOverlay: (o: "subtle" | "strong" | "fade-bottom" | "wordmark" | "none") => void;
-  onNext: () => void;
-  onSkip: () => void;
-  onCancel: () => void;
+  generating: boolean;
+  postLabel: string;
+  onGenerate: () => void;
+  onBack: () => void;
 }) {
   const activeImageUrl = customImageUrl || (imageSlug ? FORGE_IMAGES.find((f) => f.slug === imageSlug)?.url : null);
   const hasImage = !!activeImageUrl;
@@ -971,10 +922,10 @@ function Step1ImagePick({
   return (
     <div>
       <div className="section-label" style={{ marginBottom: 12 }}>
-        Step 1 · Pick your image
+        Step 2 · Image (optional)
       </div>
       <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginBottom: 12 }}>
-        Start by picking a forge background for the hero slide. Slide the focal points to frame the subject. Choose an overlay treatment. Or skip and go pure-typographic.
+        Optional — pick a forge background for the hero slide and drag to frame it, or skip and go pure-typographic. Most carousels read great without one.
         Need wider control (cropping, panels, batch)? Open the <a href="/forge/index.html?return=wizard" target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>Image Forge ↗</a> — when you hit &quot;Use in wizard&quot; there, the image comes back here automatically.
       </div>
 
@@ -1291,19 +1242,10 @@ function Step1ImagePick({
       )}
 
       <div style={{ display: "flex", gap: 8, justifyContent: "space-between", alignItems: "center" }}>
-        <button type="button" className="act-btn" onClick={onCancel}>Cancel</button>
-        <div style={{ display: "flex", gap: 8 }}>
-          {!hasImage && (
-            <button type="button" className="act-btn" onClick={onSkip}>
-              Skip image (typographic only) →
-            </button>
-          )}
-          {hasImage && (
-            <button type="button" className="act-btn act-btn-primary" onClick={onNext}>
-              Continue →
-            </button>
-          )}
-        </div>
+        <button type="button" className="act-btn" onClick={onBack} disabled={generating}>← Back</button>
+        <button type="button" className="act-btn act-btn-primary" onClick={onGenerate} disabled={generating}>
+          {generating ? "Generating…" : hasImage ? `Generate ${postLabel} →` : "Skip image — generate →"}
+        </button>
       </div>
     </div>
   );

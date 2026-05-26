@@ -23,6 +23,7 @@ const Schema = z.object({
   focal_zoom: z.number().min(0.3).max(3).optional(),
   overlay: z.enum(["subtle", "strong", "fade-bottom", "wordmark", "none"]).optional(),
   slide_count: z.number().int().min(3).max(12).optional(),
+  grounding: z.record(z.string(), z.string()).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   let copy;
   try {
-    copy = await draftPost(brand, parsed.data.post_type, parsed.data.topic, parsed.data.slide_count);
+    copy = await draftPost(brand, parsed.data.post_type, parsed.data.topic, parsed.data.slide_count, parsed.data.grounding);
   } catch (e) {
     return NextResponse.json({ error: `draft failed: ${(e as Error).message}` }, { status: 500 });
   }
