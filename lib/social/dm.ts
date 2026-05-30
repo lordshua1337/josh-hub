@@ -15,25 +15,42 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 // is a fixed, on-brand message — never LLM-generated — so an auto-send can
 // never go off-tone.
 //
-// Keyed by the trigger keyword (lowercase). The signoff slides tell people to
-// DM a keyword; this is what they get back, instantly.
-export const TRIGGER_REPLIES: Record<string, string> = {
-  audit:
-    "Happy to help. Send me a quick list of the tools your team runs on and the two things eating the most time each week, and I'll send back a short written diagnostic in a couple days. No call needed unless you want one.",
-};
+// Triggers used to live in code here as a `TRIGGER_REPLIES` map; they now
+// live in the `dm_triggers` Supabase table so Josh can add/edit/disable
+// keywords from /content/dms without a code change. Hand the matcher a
+// loaded list of {keyword, response} pairs.
+export type Trigger = { keyword: string; response: string };
+
+// Load enabled triggers from Supabase. The cron loads these once per run and
+// hands them to matchTriggerKeyword for each DM, so we don't hit the DB
+// per-message. `sb` is the typed Supabase client; we cast inside because the
+// generated Database type doesn't yet include the dm_triggers table.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function loadTriggers(sb: any): Promise<Trigger[]> {
+  const { data } = await sb.from("dm_triggers").select("keyword,response").eq("enabled", true);
+  return ((data ?? []) as { keyword: string; response: string }[])
+    .map((r) => ({
+      keyword: String(r.keyword || "").trim().toLowerCase(),
+      response: String(r.response || ""),
+    }))
+    .filter((t) => t.keyword && t.response);
+}
 
 // Match an inbound DM to a trigger keyword. Guarded against false positives:
 // the keyword only counts when the message is short (people send the keyword
 // on its own, e.g. "AUDIT" or "audit please"), so a sentence like "I don't
 // think I need an audit yet" won't fire an auto-send.
-export function matchTriggerKeyword(body: string): string | null {
+export function matchTriggerKeyword(body: string, triggers: Trigger[]): Trigger | null {
   const tokens = body.trim().split(/\s+/).filter(Boolean);
   if (tokens.length === 0 || tokens.length > 5) return null;
-  const lower = body.toLowerCase();
-  for (const kw of Object.keys(TRIGGER_REPLIES)) {
-    if (new RegExp(`\\b${kw}\\b`, "i").test(lower)) return kw;
+  for (const t of triggers) {
+    if (new RegExp(`\\b${escapeRegex(t.keyword)}\\b`, "i").test(body)) return t;
   }
   return null;
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 export type SendResult = { ok: boolean; messageId?: string; error?: string; noCreds?: boolean };
@@ -115,22 +132,23 @@ export async function classifyDm(body: string): Promise<DmClassification> {
   }
 }
 
+// Default booking link the responder can surface when an inquiry warrants it.
+// Override at runtime via BOOKING_LINK env (e.g. for a different funnel).
+const BOOKING_LINK = process.env.BOOKING_LINK || "https://cal.com/prometheus-consulting/15min";
+
 const CATEGORY_INSTRUCTIONS: Partial<Record<DmCategory, string>> = {
-  lead_inquiry:
-    'Engage. Ask one specific qualifying question that respects their time. Offer the scheduling link if it feels natural: cal.com/prometheus-consulting/15min. Keep it under 4 sentences.',
+  lead_inquiry: `Engage warmly and direct them toward a call. Ask one specific qualifying question that respects their time (what they're trying to fix, what scale, what they've already tried — pick one). Then include the scheduling link as the obvious next step: ${BOOKING_LINK}. Keep it under 4 sentences. Don't be pushy — the call is the natural ask after one good qualifying question.`,
   audit_request:
     'They triggered the audit keyword. Send the audit intro: "Send me your tool stack (just a list) and your top 2 bottlenecks. I\'ll send back a written diagnostic inside 48 hours. No call required unless you want one."',
-  support_question:
-    'Acknowledge the issue. Ask one clarifying question. Promise a follow-up within 24h if you can\'t solve it on the spot. No corporate-support voice.',
+  support_question: `Acknowledge the issue and ask one clarifying question. If the problem is bigger than a one-message answer, offer the scheduling link as the fastest path to a real fix: ${BOOKING_LINK}. Promise a follow-up within 24h if they prefer to stay async. No corporate-support voice.`,
   compliment:
     "Warm acknowledgment with genuine gratitude. One line. Don't pitch in a thank-you reply.",
   complaint:
-    "Acknowledge their take without being defensive. Ask what they'd like you to do about it.",
+    "Acknowledge their take without being defensive. Ask what they'd like you to do about it. Do not offer the scheduling link here — earn the conversation first.",
   personal:
-    "Reply naturally as Josh -- not as a brand. One sentence. If they want a longer chat, point them to text/phone.",
+    "Reply naturally as Josh -- not as a brand. One sentence. If they want a longer chat, point them to text/phone. No booking link.",
   spam: "Do not reply. Set draft_reply to empty string.",
-  unclassifiable:
-    "Ask one clarifying question to understand what they want. Keep it short and human.",
+  unclassifiable: `Ask one clarifying question to understand what they want. Keep it short and human. If their message sounds like a potential client (mentions their business, a problem, time/cost, tools, their team), include the scheduling link at the end as the easiest next step: ${BOOKING_LINK}. Otherwise just the question.`,
 };
 
 export async function draftDmReply(body: string, classification: DmClassification): Promise<string> {

@@ -31,8 +31,19 @@ type MetaEntry = {
   }[];
   changes?: {
     field?: string;
-    value?: Record<string, unknown>;
+    value?: CommentValue | Record<string, unknown>;
   }[];
+};
+
+// Shape Meta sends for an Instagram `comments` subscription event.
+// (Verbose: actual payload varies slightly by version — we read defensively.)
+type CommentValue = {
+  id?: string;
+  text?: string;
+  parent_id?: string;
+  from?: { id?: string; username?: string; name?: string };
+  media?: { id?: string; media_product_type?: string };
+  timestamp?: number;
 };
 
 export async function POST(req: NextRequest) {
@@ -55,7 +66,8 @@ export async function POST(req: NextRequest) {
     { onConflict: "id" }
   );
 
-  const rows: {
+  // ── DMs (messaging field) ─────────────────────────────────────────────────
+  const dmRows: {
     ig_thread_id: string | null;
     ig_message_id: string;
     sender_id: string;
@@ -67,13 +79,27 @@ export async function POST(req: NextRequest) {
     source_kind: string;
   }[] = [];
 
+  // ── Comments (changes field=comments) ─────────────────────────────────────
+  const commentRows: {
+    ig_comment_id: string;
+    parent_media_id: string | null;
+    parent_comment_id: string | null;
+    ig_user_id: string | null;
+    sender_id: string | null;
+    sender_username: string | null;
+    body: string;
+    raw_event: never;
+    received_at: string;
+  }[] = [];
+
   for (const entry of body.entry ?? []) {
+    // DMs
     for (const m of entry.messaging ?? []) {
       const text = m.message?.text;
       const mid = m.message?.mid;
       const senderId = m.sender?.id;
       if (!text || !mid || !senderId) continue;
-      rows.push({
+      dmRows.push({
         ig_thread_id: m.recipient?.id || null,
         ig_message_id: mid,
         sender_id: senderId,
@@ -85,11 +111,31 @@ export async function POST(req: NextRequest) {
         source_kind: "dm",
       });
     }
+    // Comments / mentions
+    for (const c of entry.changes ?? []) {
+      if (c.field !== "comments") continue;
+      const v = c.value as CommentValue;
+      const cid = v?.id;
+      const text = v?.text || "";
+      if (!cid) continue;
+      commentRows.push({
+        ig_comment_id: cid,
+        parent_media_id: v?.media?.id || null,
+        parent_comment_id: v?.parent_id || null,
+        ig_user_id: entry.id || null,
+        sender_id: v?.from?.id || null,
+        sender_username: v?.from?.username || null,
+        body: text,
+        raw_event: c as never,
+        received_at: v?.timestamp ? new Date(v.timestamp * 1000).toISOString() : new Date().toISOString(),
+      });
+    }
   }
 
-  if (rows.length) {
-    await sb.from("ig_messages").upsert(rows, { onConflict: "ig_message_id" });
-  }
+  if (dmRows.length) await sb.from("ig_messages").upsert(dmRows, { onConflict: "ig_message_id" });
+  // ig_comments isn't in the generated Database type yet; cast narrowly.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (commentRows.length) await (sb as any).from("ig_comments").upsert(commentRows, { onConflict: "ig_comment_id" });
 
-  return NextResponse.json({ ok: true, captured: rows.length });
+  return NextResponse.json({ ok: true, dms: dmRows.length, comments: commentRows.length });
 }

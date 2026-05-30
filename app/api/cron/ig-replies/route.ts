@@ -4,7 +4,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
-import { classifyDm, draftDmReply, matchTriggerKeyword, TRIGGER_REPLIES, sendIgDm } from "@/lib/social/dm";
+import { classifyDm, draftDmReply, loadTriggers, matchTriggerKeyword, sendIgDm } from "@/lib/social/dm";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -23,6 +23,11 @@ export async function GET(req: Request) {
   const summary = { fetched: 0, classified: 0, drafted: 0, auto_sent: 0, queued_triggers: 0, errors: [] as string[] };
 
   // Grab every row that hasn't been classified yet.
+  // Load enabled keyword triggers once per cron tick. The set is small and
+  // changes infrequently, so this beats hitting the DB per-message and keeps
+  // the matcher pure.
+  const triggers = await loadTriggers(sb);
+
   const { data: rows, error } = await sb
     .from("ig_messages")
     .select("id, body, sender_id")
@@ -37,9 +42,9 @@ export async function GET(req: Request) {
       // Deterministic keyword match (not the LLM) drives auto-send, and the
       // reply is a canned on-brand message — so an auto-send can't go
       // off-tone. Skips the classifier entirely (faster + cheaper).
-      const trigger = matchTriggerKeyword(r.body);
+      const trigger = matchTriggerKeyword(r.body, triggers);
       if (trigger) {
-        const reply = TRIGGER_REPLIES[trigger];
+        const reply = trigger.response;
         const send = r.sender_id ? await sendIgDm(r.sender_id, reply) : { ok: false, noCreds: true };
         // Sent for real → auto_sent. No creds yet (or no sender) → park as
         // ready_to_send so it's top of the review queue for a manual send.
@@ -52,7 +57,7 @@ export async function GET(req: Request) {
           .update({
             category: "audit_request",
             category_confidence: 1,
-            category_reasoning: `keyword trigger: ${trigger}`,
+            category_reasoning: `keyword trigger: ${trigger.keyword}`,
             draft_reply: reply,
             reply_status: status,
             sent_at: send.ok ? new Date().toISOString() : null,
