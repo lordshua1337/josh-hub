@@ -13,6 +13,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { POST_TYPES } from "@/lib/social/post-types";
 import { FORGE_IMAGES } from "@/lib/social/forge-images";
 import { CAROUSEL_CONFIG, clampSlideCount } from "@/lib/social/arc-spec";
@@ -435,20 +436,23 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
 
       {flash && <div className="inbox-flash">{flash}</div>}
 
-      {/* Drafts list — primary home view content */}
-      {drafts.length > 0 && (
+      {/* Drafts + queued + history are hidden while the wizard is open so
+          you can focus on creating. When closed, they show as compact rows. */}
+      {!wizardOpen && drafts.length > 0 && (
         <>
           <div className="section-header" style={{ marginTop: 24 }}>
             <div className="section-label">drafts</div>
             <span className="log-count">{drafts.length} awaiting review</span>
           </div>
-          {drafts.map((r) => (
-            <PostCard key={r.id} row={r} onDeploy={onDeploy} onDiscard={onDiscard} busyId={busyId} pending={pending} />
-          ))}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {drafts.map((r) => (
+              <DraftRow key={r.id} row={r} onDiscard={onDiscard} busyId={busyId} pending={pending} />
+            ))}
+          </div>
         </>
       )}
 
-      {drafts.length === 0 && !wizardOpen && (
+      {!wizardOpen && drafts.length === 0 && (
         <div className="card" style={{ padding: 32, textAlign: "center", color: "var(--text-tertiary)" }}>
           <div style={{ fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--accent)", marginBottom: 6 }}>
             // no drafts yet
@@ -459,19 +463,21 @@ export function SocialComposer({ rows }: { rows: SocialRow[] }) {
         </div>
       )}
 
-      {queued.length > 0 && (
+      {!wizardOpen && queued.length > 0 && (
         <>
           <div className="section-header" style={{ marginTop: 24 }}>
             <div className="section-label">Queued / Pushed</div>
             <span className="log-count">{queued.length}</span>
           </div>
-          {queued.map((r) => (
-            <PostCard key={r.id} row={r} onDeploy={onDeploy} onDiscard={onDiscard} busyId={busyId} pending={pending} compact />
-          ))}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {queued.map((r) => (
+              <DraftRow key={r.id} row={r} onDiscard={onDiscard} busyId={busyId} pending={pending} />
+            ))}
+          </div>
         </>
       )}
 
-      {history.length > 0 && (
+      {!wizardOpen && history.length > 0 && (
         <>
           <div className="section-header" style={{ marginTop: 24 }}>
             <div className="section-label">History</div>
@@ -1596,5 +1602,116 @@ function CopyBlock({
         {text}
       </pre>
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// DraftRow — compact, clickable list row that opens the draft's detail/deploy
+// page. Replaces the verbose PostCard for the landing-view drafts list so the
+// page reads as a scannable list, not a wall of expanded cards.
+// ─────────────────────────────────────────────────────────────────────────
+function DraftRow({
+  row,
+  onDiscard,
+  busyId,
+  pending,
+}: {
+  row: SocialRow;
+  onDiscard: (id: string) => void;
+  busyId: string | null;
+  pending: boolean;
+}) {
+  const slides = row.copy_blocks?.slides ?? [];
+  const headline =
+    slides[0]?.headline?.trim() ||
+    slides[0]?.title?.trim() ||
+    row.topic?.trim() ||
+    "(no copy yet)";
+  const typeLabel = POST_TYPES.find((p) => p.slug === row.post_type)?.label || row.post_type;
+  const isCarousel = !!row.copy_blocks?.is_carousel;
+  const created = new Date(row.created_at);
+  const busy = busyId === row.id || pending;
+  const thumbUrl = slides.length > 0 ? `/api/social/render?postId=${row.id}&slide=0&size=200` : null;
+  return (
+    <Link
+      href={`/content/social/${row.id}/deploy`}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        padding: 10,
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-sm)",
+        background: "var(--surface, transparent)",
+        textDecoration: "none",
+        color: "var(--text)",
+        transition: "border-color 120ms, background 120ms",
+      }}
+    >
+      <div
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: 6,
+          overflow: "hidden",
+          border: "1px solid var(--border)",
+          flexShrink: 0,
+          background: "var(--bg)",
+        }}
+      >
+        {thumbUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={thumbUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ) : null}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
+          <span className="leads-source-pill">{typeLabel}</span>
+          <span className="email-time">
+            {isCarousel ? `${slides.length} slides` : "single"} · {created.toLocaleDateString()}
+          </span>
+        </div>
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 500,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            color: "var(--text)",
+          }}
+        >
+          {headline}
+        </div>
+      </div>
+      <button
+        type="button"
+        aria-label="Discard"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onDiscard(row.id);
+        }}
+        disabled={busy}
+        style={{
+          background: "transparent",
+          border: "1px solid var(--border)",
+          color: "var(--text-tertiary)",
+          width: 28,
+          height: 28,
+          borderRadius: 4,
+          cursor: busy ? "wait" : "pointer",
+          fontFamily: "var(--mono)",
+          fontSize: 14,
+          lineHeight: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        ×
+      </button>
+      <div style={{ color: "var(--text-tertiary)", fontSize: 18, lineHeight: 1, paddingRight: 4 }}>→</div>
+    </Link>
   );
 }
