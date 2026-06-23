@@ -1,0 +1,37 @@
+{
+  "project": "josh-hub",
+  "session": 2,
+  "iteration": 1,
+  "first_run_at": "2026-03-04T09:00:00Z",
+  "last_run_at": "2026-05-19T09:08:00Z",
+  "weeks_since_last_run": 10,
+  "improvement_velocity": {
+    "cleanup": { "attempts": 2, "successes": 2, "velocity": "high" },
+    "structural": { "attempts": 1, "successes": 1, "velocity": "untested" },
+    "feature": { "attempts": 0, "successes": 0, "velocity": "untested" }
+  },
+  "failure_streak": 0,
+  "domains_visited": ["accessibility", "code-quality"],
+  "domains_eligible": ["accessibility", "performance", "seo", "ui", "content"],
+  "files_over_400_lines": [
+    { "file": "config-inspector.html", "lines": 3967, "status": "deferred — needs dedicated refactor session" },
+    { "file": "projects.html", "lines": 1062, "status": "grew from 764 since last run — flag for split" },
+    { "file": "css/shared.css", "lines": 909, "status": "deferred — needs theme-system extraction" },
+    { "file": "index.html", "lines": 776, "status": "stable" },
+    { "file": "js/shared.js", "lines": 649, "status": "grew from 530 — flag for data externalization" },
+    { "file": "activity.html", "lines": 401, "status": "borderline" }
+  ],
+  "deferred_from_prior_runs": [
+    "Accessibility improvements on skills.html, achievements.html, activity.html (DONE this run)",
+    "Accessibility on projects.html and integrations.html (still deferred)",
+    "config-inspector.html (3963 lines) — self-contained tool, dedicated refactor session needed",
+    "Data externalization: CC_STATE hardcoded in shared.js"
+  ],
+  "next_run_priorities": [
+    "Apply the same nav+aria-current pattern to projects.html and integrations.html",
+    "Extract CC_STATE from shared.js into a separate data/state.js (~400 lines saved)",
+    "Add prefers-reduced-motion guards to fl-reveal animations",
+    "Split projects.html (1062 lines) — likely template + data separation"
+  ],
+  "notes": "First state file. josh-hub had no improver-state.json before tonight. Initialized with reverse-engineered velocity data from IMPROVER_LOG.md (2026-03-04 run). 10-week gap was due to project being lower priority during the vibemke push. Static HTML site, no build, no tests — verification is visual inspection only."
+}
