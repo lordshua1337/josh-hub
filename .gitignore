@@ -4,3 +4,6 @@
 .env*
 .env.local
 .env.production
+
+# claude session worktrees
+.claude/worktrees/
